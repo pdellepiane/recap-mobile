@@ -1,5 +1,4 @@
 import { useRouter, type Href } from 'expo-router';
-
 import { routePaths } from './routes';
 
 export const useCoordinator = () => {
@@ -8,14 +7,13 @@ export const useCoordinator = () => {
   return {
     goToOnboarding: () => router.replace(routePaths.onboarding as Href),
     goToLogin: () => router.push(routePaths.login as Href),
-    goToVerifyCode: () =>
+    goToLoginReplace: () => router.replace(routePaths.login as Href),
+    goToVerifyCode: (email: string) =>
       router.push(
-        `${routePaths.verifyCode}?sentAt=${Date.now()}` as Href,
+        `${routePaths.verifyCode}?email=${encodeURIComponent(email)}&sentAt=${Date.now()}` as Href,
       ),
     goToHome: () => router.replace(routePaths.home as Href),
-    goToProfile: () => router.push(routePaths.profile as Href),
-    goToEventDetail: (eventId: string) =>
-      router.push(routePaths.eventDetail(eventId) as Href),
+    goToProfile: () => router.navigate(routePaths.profile as Href),
     goBack: () => router.back(),
   };
 };

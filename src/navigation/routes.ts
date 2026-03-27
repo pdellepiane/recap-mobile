@@ -3,8 +3,7 @@ export const routePaths = {
   login: '/login',
   verifyCode: '/verify-code',
   home: '/home',
-  profile: '/profile',
-  eventDetail: (eventId: string) => `/event/${eventId}`,
+  profile: '/home/profile',
 } as const;
 
 export const routeNames = {
@@ -12,6 +11,5 @@ export const routeNames = {
   login: 'Login',
   verifyCode: 'VerifyCode',
   home: 'Home',
-  eventDetail: 'EventDetail',
   profile: 'Profile',
 } as const;
