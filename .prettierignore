@@ -1,0 +1,9 @@
+node_modules
+.expo
+.git
+dist
+build
+coverage
+assets/images
+assets/fonts
+package-lock.json
