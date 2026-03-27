@@ -1,20 +1,17 @@
-import { useCoordinator } from "@/src/navigation/useCoordinator";
-import { Button, Form, InputField } from "@/src/ui";
-import { StyleSheet } from "react-native";
-import { useKeyboardVisible } from "../hooks/useKeyboardVisible";
-import { useLogin } from "../hooks/useLogin";
+import { useLoginScreen } from '../hooks/useLoginScreen';
+import { Button, Form, InputField } from '@/src/ui';
+import { StyleSheet } from 'react-native';
 
 export const LoginScreenPage = () => {
-  const keyboardVisible = useKeyboardVisible();
-  const { goToVerifyCode } = useCoordinator();
   const {
+    keyboardVisible,
     email,
     hasError,
     errorMessage,
     isLoading,
     handleEmailChange,
-    handleContinue,
-  } = useLogin();
+    handlePressContinue,
+  } = useLoginScreen();
 
   return (
     <Form title="Escribe tu correo" includesGoBack>
@@ -30,7 +27,7 @@ export const LoginScreenPage = () => {
         title="Continuar"
         loadingText="Cargando..."
         loading={isLoading}
-        onPress={() => handleContinue(goToVerifyCode)}
+        onPress={handlePressContinue}
         style={[styles.button, { marginBottom: keyboardVisible ? 8 : 48 }]}
       />
     </Form>
@@ -39,6 +36,6 @@ export const LoginScreenPage = () => {
 
 const styles = StyleSheet.create({
   button: {
-    marginTop: "auto",
+    marginTop: 'auto',
   },
 });
