@@ -1,10 +1,15 @@
-import { BackButton, Spinner } from "@/src/ui";
-import { StyleSheet, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useProfile } from "../hooks/useProfile";
+import { useProfileScreen } from '../hooks/useProfileScreen';
+import { BackButton, Button, Spinner } from '@/src/ui';
+import { StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export const ProfileScreenPage = () => {
-  const { profile, isLoading } = useProfile();
+type Props = {
+  /** When false (e.g. perfil como tab en Home), no mostrar botón atrás. */
+  showBackButton?: boolean;
+};
+
+export const ProfileScreenPage = ({ showBackButton = true }: Props) => {
+  const { profile, isLoading, isSigningOut, handleLogout } = useProfileScreen();
 
   if (isLoading) {
     return <Spinner style={styles.loader} />;
@@ -12,10 +17,17 @@ export const ProfileScreenPage = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <BackButton />
+      {showBackButton ? <BackButton /> : null}
       <Text style={styles.title}>My Profile</Text>
-      <Text style={styles.field}>Name: {profile?.name ?? "-"}</Text>
-      <Text style={styles.field}>Email: {profile?.email ?? "-"}</Text>
+      <Text style={styles.field}>Name: {profile?.name ?? '-'}</Text>
+      <Text style={styles.field}>Email: {profile?.email ?? '-'}</Text>
+      <Button
+        title="Cerrar sesión"
+        onPress={handleLogout}
+        loading={isSigningOut}
+        loadingText="Cerrando…"
+        style={styles.logoutButton}
+      />
     </SafeAreaView>
   );
 };
@@ -28,15 +40,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: 8,
   },
   field: {
     fontSize: 16,
   },
+  logoutButton: {
+    marginTop: 24,
+  },
   loader: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
