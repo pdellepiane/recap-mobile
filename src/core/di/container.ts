@@ -1,10 +1,14 @@
+import { FetchHttpClient } from '@/src/core/http/FetchHttpClient';
 import { MockHttpClient } from '@/src/core/http/MockHttpClient';
+import { getAuthAccessToken } from '@/src/core/http/authSession';
 import { AuthRepository } from '@/src/features/auth/data/repositories/AuthRepository';
-import { EventRepository } from '@/src/features/events/data/repositories/EventRepository';
-import { ProfileRepository } from '@/src/features/profile/data/repositories/ProfileRepository';
 
-const httpClient = new MockHttpClient();
+/**
+ * Email OTP + JWT + logout always hit the real API (`EXPO_PUBLIC_API_BASE_URL`).
+ * Profile comes from the auth session; events stay on {@link MockHttpClient} until wired.
+ */
+const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://dev.api.recap.sinenvolturas.com';
 
-export const authRepository = new AuthRepository(httpClient);
-export const eventRepository = new EventRepository(httpClient);
-export const profileRepository = new ProfileRepository(httpClient);
+const authHttp = new FetchHttpClient(apiBaseUrl, { getAccessToken: getAuthAccessToken });
+
+export const authRepository = new AuthRepository(authHttp);
