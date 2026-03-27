@@ -1,22 +1,25 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { colors } from '@/src/ui/colors';
+import { fontFamilies } from '@/src/ui/typography';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 type StartButtonProps = {
-  onPress: () => void;
+  onPress: () => void | Promise<void>;
   bottomInset: number;
 };
 
 export function StartButton({ onPress, bottomInset }: StartButtonProps) {
   return (
-    <View style={[styles.buttonContainer, { paddingBottom: bottomInset + 48 }]}>
+    <View style={[styles.buttonContainer, { paddingBottom: bottomInset + 20 }]}>
       <Pressable
-        style={({ pressed }) => [
-          styles.button,
-          pressed && styles.buttonPressed,
-        ]}
+        style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
         onPress={onPress}
       >
         <Text style={styles.buttonText}>Empezar</Text>
-        <Text style={styles.buttonArrow}>→</Text>
+        <Image
+          source={require('../../../../../assets/images/common/start-icon.png')}
+          style={styles.buttonIcon}
+          resizeMode="contain"
+        />
       </Pressable>
     </View>
   );
@@ -25,29 +28,30 @@ export function StartButton({ onPress, bottomInset }: StartButtonProps) {
 const styles = StyleSheet.create({
   buttonContainer: {
     paddingHorizontal: 24,
-    alignItems: "center",
+    alignItems: 'center',
   },
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#1a1a1a",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background.secondary,
     paddingVertical: 16,
     paddingHorizontal: 32,
-    borderRadius: 12,
+    borderRadius: 16,
     gap: 8,
-    minWidth: 200,
+    minWidth: 160,
+    height: 64,
   },
   buttonPressed: {
     opacity: 0.9,
   },
   buttonText: {
-    color: "#fff",
+    color: colors.neutral.primary,
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: fontFamilies.bold,
   },
-  buttonArrow: {
-    color: "#fff",
-    fontSize: 18,
+  buttonIcon: {
+    width: 24,
+    height: 24,
   },
 });

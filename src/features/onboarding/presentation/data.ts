@@ -1,8 +1,9 @@
-import { type ImageSourcePropType, type ImageStyle } from "react-native";
+import { colors } from '@/src/ui';
+import { type ImageSourcePropType, type ImageStyle } from 'react-native';
 
 export type OverlayImage = {
   source: ImageSourcePropType;
-  position: "topLeft" | "left" | "custom";
+  position: 'topLeft' | 'left' | 'custom';
   style?: ImageStyle;
 };
 
@@ -13,38 +14,38 @@ export type OnboardingSlide = {
   image: ImageSourcePropType;
   decorativeImages?: ImageSourcePropType[];
   overlayImages?: OverlayImage[];
-  titlePosition: "above" | "below";
+  titlePosition: 'above' | 'below';
 };
 
 export const SLIDES: OnboardingSlide[] = [
   {
-    id: "1",
-    backgroundColor: "#ffffff",
-    title: "Tu evento desde todos los puntos de vista.",
-    image: require("@/assets/images/onboarding/onboarding1-image1.png"),
+    id: '1',
+    backgroundColor: colors.neutral.primary,
+    title: 'Tu evento desde todos los puntos de vista.',
+    image: require('@/assets/images/onboarding/onboarding1-image1.png'),
     overlayImages: [
       {
-        source: require("@/assets/images/onboarding/onboarding1-image2.png"),
-        position: "topLeft",
+        source: require('@/assets/images/onboarding/onboarding1-image2.png'),
+        position: 'topLeft',
         style: { width: 166, height: 166 },
       },
       {
-        source: require("@/assets/images/onboarding/onboarding1-image3.png"),
-        position: "left",
+        source: require('@/assets/images/onboarding/onboarding1-image3.png'),
+        position: 'left',
         style: { width: 170, height: 128 },
       },
     ],
-    titlePosition: "below",
+    titlePosition: 'below',
   },
   {
-    id: "2",
-    backgroundColor: "#9B63F8",
-    title: "Crea los mejores retos para tus invitados",
-    image: require("@/assets/images/onboarding/onboarding2-image1.png"),
+    id: '2',
+    backgroundColor: colors.brand[400],
+    title: 'Crea los mejores retos para tus invitados',
+    image: require('@/assets/images/onboarding/onboarding2-image1.png'),
     overlayImages: [
       {
-        source: require("@/assets/images/onboarding/onboarding2-image2.png"),
-        position: "custom",
+        source: require('@/assets/images/onboarding/onboarding2-image2.png'),
+        position: 'custom',
         style: {
           width: 100,
           height: 100,
@@ -53,19 +54,19 @@ export const SLIDES: OnboardingSlide[] = [
         },
       },
       {
-        source: require("@/assets/images/onboarding/onboarding2-image3.png"),
-        position: "custom",
+        source: require('@/assets/images/onboarding/onboarding2-image3.png'),
+        position: 'custom',
         style: {
           width: 200,
           height: 180,
           left: 0,
           bottom: 60,
-          transform: [{ rotate: "-8deg" }],
+          transform: [{ rotate: '-8deg' }],
         },
       },
       {
-        source: require("@/assets/images/onboarding/onboarding2-image4.png"),
-        position: "custom",
+        source: require('@/assets/images/onboarding/onboarding2-image4.png'),
+        position: 'custom',
         style: {
           width: 80,
           height: 80,
@@ -74,17 +75,17 @@ export const SLIDES: OnboardingSlide[] = [
         },
       },
     ],
-    titlePosition: "above",
+    titlePosition: 'above',
   },
   {
-    id: "3",
-    backgroundColor: "#D9FF46",
-    title: "Guarda tus recuerdos como interacciones",
-    image: require("@/assets/images/onboarding/onboarding3-image1.png"),
+    id: '3',
+    backgroundColor: colors.accent[400],
+    title: 'Guarda tus recuerdos como interacciones',
+    image: require('@/assets/images/onboarding/onboarding3-image1.png'),
     overlayImages: [
       {
-        source: require("@/assets/images/onboarding/onboarding3-image2.png"),
-        position: "custom",
+        source: require('@/assets/images/onboarding/onboarding3-image2.png'),
+        position: 'custom',
         style: {
           width: 78,
           height: 86,
@@ -93,8 +94,8 @@ export const SLIDES: OnboardingSlide[] = [
         },
       },
       {
-        source: require("@/assets/images/onboarding/onboarding3-image3.png"),
-        position: "custom",
+        source: require('@/assets/images/onboarding/onboarding3-image3.png'),
+        position: 'custom',
         style: {
           width: 96,
           height: 102,
@@ -103,8 +104,8 @@ export const SLIDES: OnboardingSlide[] = [
         },
       },
       {
-        source: require("@/assets/images/onboarding/onboarding3-image4.png"),
-        position: "custom",
+        source: require('@/assets/images/onboarding/onboarding3-image4.png'),
+        position: 'custom',
         style: {
           width: 132,
           height: 130,
@@ -113,6 +114,6 @@ export const SLIDES: OnboardingSlide[] = [
         },
       },
     ],
-    titlePosition: "above",
+    titlePosition: 'above',
   },
 ];

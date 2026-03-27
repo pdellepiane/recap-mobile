@@ -1,6 +1,6 @@
-import { StyleSheet, View } from "react-native";
-
-import type { OnboardingSlide } from "../hooks/useOnboarding";
+import type { OnboardingSlide } from '../data';
+import { colors } from '@/src/ui/colors';
+import { StyleSheet, View } from 'react-native';
 
 type ProgressBarProps = {
   slides: OnboardingSlide[];
@@ -8,11 +8,7 @@ type ProgressBarProps = {
   topInset: number;
 };
 
-export function ProgressBar({
-  slides,
-  activeIndex,
-  topInset,
-}: ProgressBarProps) {
+export function ProgressBar({ slides, activeIndex, topInset }: ProgressBarProps) {
   return (
     <View style={[styles.progressContainer, { paddingTop: topInset + 24 }]}>
       {slides.map((_, index) => (
@@ -20,9 +16,7 @@ export function ProgressBar({
           key={index}
           style={[
             styles.progressBar,
-            index === activeIndex
-              ? styles.progressBarActive
-              : styles.progressBarInactive,
+            index === activeIndex ? styles.progressBarActive : styles.progressBarInactive,
           ]}
         />
       ))}
@@ -32,20 +26,20 @@ export function ProgressBar({
 
 const styles = StyleSheet.create({
   progressContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
     gap: 8,
     paddingBottom: 24,
   },
   progressBar: {
     width: 104,
     height: 8,
-    borderRadius: 2,
+    borderRadius: 8,
   },
   progressBarActive: {
-    backgroundColor: "#333",
+    backgroundColor: colors.background.primary,
   },
   progressBarInactive: {
-    backgroundColor: "#d4d4d4",
+    backgroundColor: colors.neutral.secondary,
   },
 });

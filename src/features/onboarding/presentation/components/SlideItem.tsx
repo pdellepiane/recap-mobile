@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View } from "react-native";
-
-import type { OnboardingSlide } from "../hooks/useOnboarding";
-
-import { DecorativeImages } from "./DecorativeImages";
-import { OverlayImages } from "./OverlayImages";
-import { SlideMainImage } from "./SlideMainImage";
+import type { OnboardingSlide } from '../data';
+import { DecorativeImages } from './DecorativeImages';
+import { OverlayImages } from './OverlayImages';
+import { SlideMainImage } from './SlideMainImage';
+import { colors } from '@/src/ui/colors';
+import { fontFamilies } from '@/src/ui/typography';
+import { StyleSheet, Text, View } from 'react-native';
 
 type SlideItemProps = {
   slide: OnboardingSlide;
@@ -12,15 +12,13 @@ type SlideItemProps = {
 };
 
 export function SlideItem({ slide, width }: SlideItemProps) {
-  const isFirstSlide = slide.id === "1";
-  const isSecondSlide = slide.id === "2";
-  const isThirdSlide = slide.id === "3";
+  const isFirstSlide = slide.id === '1';
+  const isSecondSlide = slide.id === '2';
+  const isThirdSlide = slide.id === '3';
 
   return (
-    <View
-      style={[styles.slide, { width, backgroundColor: slide.backgroundColor }]}
-    >
-      {slide.titlePosition === "above" && (
+    <View style={[styles.slide, { width, backgroundColor: slide.backgroundColor }]}>
+      {slide.titlePosition === 'above' && (
         <Text
           style={[
             styles.title,
@@ -39,9 +37,7 @@ export function SlideItem({ slide, width }: SlideItemProps) {
           isThirdSlide && styles.thirdSlideImageContainer,
         ]}
       >
-        {slide.decorativeImages && (
-          <DecorativeImages images={slide.decorativeImages} />
-        )}
+        {slide.decorativeImages && <DecorativeImages images={slide.decorativeImages} />}
         <View
           style={[
             styles.mainImageWrapper,
@@ -60,17 +56,14 @@ export function SlideItem({ slide, width }: SlideItemProps) {
           )}
           <SlideMainImage
             source={slide.image}
-            hasOverlays={!!slide.overlayImages}
             isFirstSlide={isFirstSlide}
             isSecondSlide={isSecondSlide}
             isThirdSlide={isThirdSlide}
           />
         </View>
       </View>
-      {slide.titlePosition === "below" && (
-        <Text style={[styles.title, isFirstSlide && styles.firstSlideTitle]}>
-          {slide.title}
-        </Text>
+      {slide.titlePosition === 'below' && (
+        <Text style={[styles.title, isFirstSlide && styles.firstSlideTitle]}>{slide.title}</Text>
       )}
     </View>
   );
@@ -81,87 +74,78 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 120,
     paddingBottom: 176,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   imageContainer: {
     flex: 1,
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   firstSlideImageContainer: {
     maxHeight: 440,
-    alignItems: "flex-start",
-    marginTop: 16,
+    alignItems: 'flex-start',
+    marginTop: 6,
     marginBottom: 28,
   },
   secondSlideImageContainer: {
     flex: 0,
     minHeight: 400,
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 0,
     marginBottom: 0,
   },
   thirdSlideImageContainer: {
     flex: 0,
     minHeight: 470,
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 8,
     marginBottom: 0,
   },
   mainImageWrapper: {
     flex: 1,
-    width: "100%",
-    justifyContent: "center",
-    position: "relative",
+    width: '100%',
+    justifyContent: 'center',
+    position: 'relative',
   },
   firstSlideMainImageWrapper: {
     height: 440,
   },
   secondSlideMainImageWrapper: {
     flex: 0,
-    width: "100%",
+    width: '100%',
     height: 400,
-    overflow: "visible",
+    overflow: 'visible',
   },
   thirdSlideMainImageWrapper: {
     flex: 0,
-    width: "100%",
+    width: '100%',
     height: 500,
-    overflow: "visible",
+    overflow: 'visible',
   },
   title: {
-    fontSize: 22,
-    fontWeight: "600",
-    textAlign: "center",
-    color: "#1a1a1a",
+    textAlign: 'center',
+    color: colors.background.primary,
     marginHorizontal: 16,
-    marginBottom: 24,
+    fontSize: 36,
+    lineHeight: 44,
   },
   firstSlideTitle: {
-    fontSize: 36,
-    fontWeight: "500",
-    lineHeight: 40,
+    fontFamily: fontFamilies.medium,
     maxWidth: 300,
     marginBottom: 8,
   },
   secondSlideTitle: {
-    fontSize: 36,
-    lineHeight: 44,
-    fontWeight: "400",
-    color: "#1a1a1a",
+    fontFamily: fontFamilies.regular,
     marginTop: 6,
     marginBottom: 16,
   },
   thirdSlideTitle: {
-    fontSize: 36,
-    lineHeight: 44,
-    fontWeight: "400",
-    color: "#161616",
+    fontFamily: fontFamilies.regular,
     maxWidth: 300,
-    marginTop: 10,
+    top: 40,
     marginBottom: 8,
   },
 });

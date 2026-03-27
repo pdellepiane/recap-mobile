@@ -1,16 +1,12 @@
-import { Image, StyleSheet } from "react-native";
-
-import type { OverlayImage } from "../hooks/useOnboarding";
+import type { OverlayImage } from '../data';
+import { Image, StyleSheet } from 'react-native';
 
 type SlideOverlayImagesProps = {
   overlayImages: OverlayImage[];
   isFirstSlide: boolean;
 };
 
-export function SlideOverlayImages({
-  overlayImages,
-  isFirstSlide,
-}: SlideOverlayImagesProps) {
+export function SlideOverlayImages({ overlayImages, isFirstSlide }: SlideOverlayImagesProps) {
   return (
     <>
       {overlayImages.map((overlay, i) => (
@@ -19,14 +15,10 @@ export function SlideOverlayImages({
           source={overlay.source}
           style={[
             styles.overlayImage,
-            overlay.position === "topLeft" && styles.overlayTopLeft,
-            overlay.position === "left" && styles.overlayLeft,
-            isFirstSlide &&
-              overlay.position === "topLeft" &&
-              styles.firstSlideOverlayTopLeft,
-            isFirstSlide &&
-              overlay.position === "left" &&
-              styles.firstSlideOverlayLeft,
+            overlay.position === 'topLeft' && styles.overlayTopLeft,
+            overlay.position === 'left' && styles.overlayLeft,
+            isFirstSlide && overlay.position === 'topLeft' && styles.firstSlideOverlayTopLeft,
+            isFirstSlide && overlay.position === 'left' && styles.firstSlideOverlayLeft,
             overlay.style,
           ]}
           resizeMode="contain"
@@ -38,7 +30,7 @@ export function SlideOverlayImages({
 
 const styles = StyleSheet.create({
   overlayImage: {
-    position: "absolute",
+    position: 'absolute',
     zIndex: 1,
   },
   overlayTopLeft: {
