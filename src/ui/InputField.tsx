@@ -1,17 +1,14 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { colors } from './colors';
+import { fontFamilies } from './typography';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 type InputFieldProps = {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
   placeholderTextColor?: string;
-  keyboardType?:
-    | "default"
-    | "email-address"
-    | "number-pad"
-    | "phone-pad"
-    | "numeric";
-  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  keyboardType?: 'default' | 'email-address' | 'number-pad' | 'phone-pad' | 'numeric';
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   autoCorrect?: boolean;
   secureTextEntry?: boolean;
   error?: string;
@@ -22,9 +19,9 @@ export function InputField({
   value,
   onChangeText,
   placeholder,
-  placeholderTextColor = "#6b6b6b",
-  keyboardType = "default",
-  autoCapitalize = "none",
+  placeholderTextColor = '#6b6b6b',
+  keyboardType = 'default',
+  autoCapitalize = 'none',
   autoCorrect = false,
   secureTextEntry = false,
   error,
@@ -51,19 +48,20 @@ export function InputField({
 const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
-    borderColor: "#3a3a3a",
-    borderRadius: 12,
+    fontFamily: fontFamilies.signikaLight,
+    borderColor: colors.background.tertiary,
+    borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 16,
     fontSize: 16,
-    color: "#fff",
+    color: colors.neutral.tertiary,
     marginBottom: 8,
   },
   inputError: {
-    borderColor: "#e53935",
+    borderColor: '#e53935',
   },
   errorText: {
-    color: "#e53935",
+    color: '#e53935',
     fontSize: 14,
     marginBottom: 24,
   },

@@ -1,4 +1,4 @@
-import { BackButton, ScreenTitle } from "@/src/ui";
+import { BackButton, colors, ScreenTitle } from '@/src/ui';
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -6,8 +6,8 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const Form = ({
   children,
@@ -24,8 +24,8 @@ export const Form = ({
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
       >
         <View style={[styles.inner, { paddingTop: insets.top + 16 }]}>
           {includesGoBack && <BackButton />}
@@ -40,7 +40,7 @@ export const Form = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
+    backgroundColor: colors.background.primary,
   },
   inner: {
     flex: 1,

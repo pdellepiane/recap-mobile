@@ -1,4 +1,6 @@
-import { StyleSheet, Text } from "react-native";
+import { colors } from './colors';
+import { fontFamilies } from './typography';
+import { StyleSheet, Text } from 'react-native';
 
 type ScreenTitleProps = {
   children: string;
@@ -11,10 +13,9 @@ export function ScreenTitle({ children, style }: ScreenTitleProps) {
 
 const styles = StyleSheet.create({
   title: {
-    color: "#fff",
+    color: colors.neutral.primary,
     fontSize: 36,
-    fontWeight: "600",
-    lineHeight: 44,
+    fontFamily: fontFamilies.semiBold,
     marginBottom: 24,
   },
 });

@@ -1,4 +1,6 @@
-import { Pressable, StyleSheet, Text } from "react-native";
+import { colors } from './colors';
+import { fontFamilies } from './typography';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 type ButtonProps = {
   title: string;
@@ -38,12 +40,12 @@ export function Button({
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "#c6e000",
-    borderRadius: 24,
+    backgroundColor: colors.accent[500],
+    borderRadius: 16,
     paddingVertical: 16,
     height: 64,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonPressed: {
     opacity: 0.9,
@@ -52,8 +54,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   buttonText: {
-    color: "#000",
     fontSize: 18,
-    fontWeight: "700",
+    fontFamily: fontFamilies.bold,
   },
 });
