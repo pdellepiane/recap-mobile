@@ -1,7 +1,7 @@
-import { FlatList, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProgressBar, SlideItem, StartButton } from '../components';
 import { useOnboarding } from '../hooks/useOnboarding';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const OnboardingScreenPage = () => {
   const insets = useSafeAreaInsets();
