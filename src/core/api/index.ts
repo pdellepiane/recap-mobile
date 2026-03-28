@@ -1,16 +1,13 @@
 export { authUserPaths } from './paths';
 export type {
-  ApiAuthCredentials,
-  ApiAuthUser,
   ApiErrorBody,
-  ApiUserAccountType,
   LoginCodeBody,
   LoginCodeSuccessResponse,
+  LoginCodeUserPayload,
   LogoutSuccessResponse,
   LogoutUnauthorizedResponse,
   RequestLoginCodeBody,
   RequestLoginCodeResponse,
   SimpleStatusErrorResponse,
-  ValidationErrorResponse
+  ValidationErrorResponse,
 } from './types';
-

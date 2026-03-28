@@ -17,30 +17,35 @@ export type LoginCodeBody = {
   code: string;
 };
 
-export type ApiUserAccountType = 'individual' | 'legal_entity';
-
-export type ApiAuthCredentials = {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
+export type LoginCodeLanguagePayload = {
+  id: number;
+  code: string;
+  region: string;
+  locale: string;
+  name: string;
 };
 
-export type ApiAuthUser = {
+/** {@link AuthUserResource} from POST /api/auth/login-code. */
+export type LoginCodeUserPayload = {
   id: number;
   email: string;
   firstname: string | null;
   lastname: string | null;
-  type: ApiUserAccountType;
-  email_verified_at: string | null;
-  last_login_at: string | null;
-  credentials: ApiAuthCredentials;
+  full_name: string;
+  full_phone: string;
+  language_id: number | null;
+  language: LoginCodeLanguagePayload;
+  created_at: string | null;
+  updated_at: string | null;
 };
 
+/** POST /api/auth/login-code success body (`status` + `user` + JWT fields). */
 export type LoginCodeSuccessResponse = {
   status: boolean;
-  data: {
-    user: ApiAuthUser;
-  };
+  user: LoginCodeUserPayload;
+  token: string | null;
+  token_type: string;
+  expires_in: number;
 };
 
 export type LogoutSuccessResponse = {
