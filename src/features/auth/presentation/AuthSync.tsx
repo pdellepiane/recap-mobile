@@ -8,6 +8,7 @@ import { useEffect } from 'react';
  * Redirect rules handled here:
  * - signed-in users on `login` or `verify-code` are sent to `home`
  * - signed-in users on `onboarding` are sent to `home`
+ * - signed-out users on app routes (`home`, `event`, …) are sent to `onboarding` (e.g. after logout)
  */
 export function AuthSync() {
   const { isReady, session } = useAuth();
@@ -24,17 +25,22 @@ export function AuthSync() {
       return;
     }
 
-    if (root === 'onboarding') {
-      if (session) {
+    if (session) {
+      if (root === 'onboarding') {
+        router.replace(routePaths.home as Href);
+        return;
+      }
+      const onAuthRoute = root === 'login' || root === 'verify-code';
+      if (onAuthRoute) {
         router.replace(routePaths.home as Href);
       }
       return;
     }
 
-    const onAuthRoute = root === 'login' || root === 'verify-code';
-
-    if (session && onAuthRoute) {
-      router.replace(routePaths.home as Href);
+    const onLoggedOutAllowedRoute =
+      root === 'onboarding' || root === 'login' || root === 'verify-code';
+    if (!onLoggedOutAllowedRoute) {
+      router.replace(routePaths.onboarding as Href);
     }
   }, [isReady, session, segments, router]);
 

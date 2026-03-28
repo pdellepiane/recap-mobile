@@ -9,7 +9,7 @@ import { useVerifyCode } from './useVerifyCode';
 export function useVerifyCodeScreen() {
   const { email: emailParam, sentAt } = useLocalSearchParams<{ email?: string; sentAt?: string }>();
   const email = typeof emailParam === 'string' ? decodeURIComponent(emailParam) : '';
-  const { goToHome, goToLoginReplace } = useCoordinator();
+  const { goToHome } = useCoordinator();
   const homeNavigateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onSuccess = useCallback(() => {
@@ -20,12 +20,6 @@ export function useVerifyCodeScreen() {
   }, [goToHome]);
 
   const codeSentAt = sentAt ? parseInt(sentAt, 10) : undefined;
-
-  useEffect(() => {
-    if (!email) {
-      goToLoginReplace();
-    }
-  }, [email, goToLoginReplace]);
 
   useEffect(
     () => () => {

@@ -4,6 +4,14 @@ import * as SecureStore from 'expo-secure-store';
 const TOKEN_KEY = 'recap_auth_access_token';
 const USER_JSON_KEY = 'recap_auth_user_json';
 
+/**
+ * Returns the stored JWT only (no user JSON). Used for `Authorization: Bearer` when the
+ * in-memory token in `authSession` is unset.
+ */
+export async function getPersistedAccessToken(): Promise<string | null> {
+  return SecureStore.getItemAsync(TOKEN_KEY);
+}
+
 export async function loadPersistedSession(): Promise<{ token: string; user: User } | null> {
   const [token, userJson] = await Promise.all([
     SecureStore.getItemAsync(TOKEN_KEY),
