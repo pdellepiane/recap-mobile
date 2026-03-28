@@ -1,14 +1,8 @@
-import { useProfileScreen } from '../hooks/useProfileScreen';
-import { BackButton, Button, Spinner } from '@/src/ui';
+import { Button, colors, Form, Spinner } from '@/src/ui';
 import { StyleSheet, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useProfileScreen } from '../hooks/useProfileScreen';
 
-type Props = {
-  /** When false (e.g. perfil como tab en Home), no mostrar botón atrás. */
-  showBackButton?: boolean;
-};
-
-export const ProfileScreenPage = ({ showBackButton = true }: Props) => {
+export const ProfileScreenPage = () => {
   const { profile, isLoading, isSigningOut, handleLogout } = useProfileScreen();
 
   if (isLoading) {
@@ -16,9 +10,7 @@ export const ProfileScreenPage = ({ showBackButton = true }: Props) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      {showBackButton ? <BackButton /> : null}
-      <Text style={styles.title}>My Profile</Text>
+    <Form title="My Profile">
       <Text style={styles.field}>Name: {profile?.name ?? '-'}</Text>
       <Text style={styles.field}>Email: {profile?.email ?? '-'}</Text>
       <Button
@@ -28,26 +20,27 @@ export const ProfileScreenPage = ({ showBackButton = true }: Props) => {
         loadingText="Cerrando…"
         style={styles.logoutButton}
       />
-    </SafeAreaView>
+    </Form>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
-    padding: 16,
-    gap: 10,
+    backgroundColor: colors.background.primary,
   },
   title: {
     fontSize: 26,
     fontWeight: '700',
     marginBottom: 8,
+    color: colors.neutral.primary,
   },
   field: {
     fontSize: 16,
+    color: colors.neutral.primary,
   },
   logoutButton: {
-    marginTop: 24,
+    marginTop: 30,
   },
   loader: {
     flex: 1,
