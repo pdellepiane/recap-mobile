@@ -1,6 +1,6 @@
 import { useAuth } from './context/AuthContext';
-import { routePaths } from '@/src/navigation/routes';
-import { useRouter, useSegments, type Href } from 'expo-router';
+import { useCoordinator } from '@/src/navigation/useCoordinator';
+import { useSegments } from 'expo-router';
 import { useEffect } from 'react';
 
 /**
@@ -13,7 +13,7 @@ import { useEffect } from 'react';
 export function AuthSync() {
   const { isReady, session } = useAuth();
   const segments = useSegments();
-  const router = useRouter();
+  const { goToHome, goToOnboarding } = useCoordinator();
 
   useEffect(() => {
     if (!isReady) {
@@ -27,12 +27,12 @@ export function AuthSync() {
 
     if (session) {
       if (root === 'onboarding') {
-        router.replace(routePaths.home as Href);
+        goToHome();
         return;
       }
       const onAuthRoute = root === 'login' || root === 'verify-code';
       if (onAuthRoute) {
-        router.replace(routePaths.home as Href);
+        goToHome();
       }
       return;
     }
@@ -40,9 +40,9 @@ export function AuthSync() {
     const onLoggedOutAllowedRoute =
       root === 'onboarding' || root === 'login' || root === 'verify-code';
     if (!onLoggedOutAllowedRoute) {
-      router.replace(routePaths.onboarding as Href);
+      goToOnboarding();
     }
-  }, [isReady, session, segments, router]);
+  }, [isReady, session, segments, goToHome, goToOnboarding]);
 
   return null;
 }

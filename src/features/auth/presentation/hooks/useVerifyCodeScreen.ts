@@ -9,6 +9,7 @@ import { useVerifyCode } from './useVerifyCode';
 export function useVerifyCodeScreen() {
   const { email: emailParam, sentAt } = useLocalSearchParams<{ email?: string; sentAt?: string }>();
   const email = typeof emailParam === 'string' ? decodeURIComponent(emailParam) : '';
+  const codeSentAt = sentAt ? parseInt(sentAt, 10) : undefined;
   const { goToHome } = useCoordinator();
   const homeNavigateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -18,8 +19,6 @@ export function useVerifyCodeScreen() {
       goToHome();
     }, 1000);
   }, [goToHome]);
-
-  const codeSentAt = sentAt ? parseInt(sentAt, 10) : undefined;
 
   useEffect(
     () => () => {
