@@ -1,8 +1,9 @@
 import { FetchHttpClient } from '@/src/core/http/FetchHttpClient';
 import { MockHttpClient } from '@/src/core/http/MockHttpClient';
 import { getAuthAccessToken } from '@/src/core/http/authSession';
-import { getPersistedAccessToken } from '@/src/features/auth/data/sessionStorage';
 import { AuthRepository } from '@/src/features/auth/data/repositories/AuthRepository';
+import { getPersistedAccessToken } from '@/src/features/auth/data/sessionStorage';
+import { EventRepository } from '@/src/features/events/data/repositories/EventRepository';
 
 /**
  * Email OTP + JWT + logout always hit the real API (`EXPO_PUBLIC_API_BASE_URL`).
@@ -26,4 +27,7 @@ async function authAccessTokenForRequests(): Promise<string | null> {
 
 const authHttp = new FetchHttpClient(apiBaseUrl, { getAccessToken: authAccessTokenForRequests });
 
+const eventsHttp = new MockHttpClient();
+
 export const authRepository = new AuthRepository(authHttp);
+export const eventRepository = new EventRepository(eventsHttp);

@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-
 import { eventRepository } from '@/src/core/di/container';
-import { Event } from '@/src/domain/models';
+import { Event } from '@/src/domain/entities';
+import { useCallback, useEffect, useState } from 'react';
 
 export const useEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
