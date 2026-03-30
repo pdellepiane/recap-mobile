@@ -1,71 +1,91 @@
-import { useCoordinator } from "@/src/navigation/useCoordinator";
-import { Button, Spinner } from "@/src/ui";
-import { FlatList, Pressable, StyleSheet, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useEvents } from "../hooks/useEvents";
+import { colors, Spinner } from '@/src/ui';
+import { ScrollView, StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  HomeEmptyState,
+  HomeFeedCarouselSections,
+  HomeFirstEventPromoCard,
+  HomeLiveEventsCarousel,
+} from '../components';
+import { useHomeScreen } from '../hooks/useHomeScreen';
+
+const HOME_CONTENT_INSET_LEFT = 20;
 
 export const HomeScreenPage = () => {
-  const { goToEventDetail, goToProfile } = useCoordinator();
-  const { events, isLoading } = useEvents();
+  const {
+    firstName,
+    myEvents,
+    plans,
+    pastEvents,
+    hasEvents,
+    isLoading,
+    openEvent,
+    handleLiveSlidePress,
+  } = useHomeScreen();
 
   if (isLoading) {
-    return <Spinner />;
+    return (
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <Spinner color={colors.states.active} style={styles.spinner} />
+      </SafeAreaView>
+    );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Button
-        title="Ir a perfil"
-        onPress={goToProfile}
-        style={{ marginBottom: 16 }}
-      />
-      <Button
-        title="Cerrar sesion"
-        onPress={goToProfile}
-        style={{ marginBottom: 16 }}
-      />
-      <Text style={styles.title}>Events</Text>
-      <FlatList
-        data={events}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => goToEventDetail(item.id)}
-            style={styles.card}
-          >
-            <Text style={styles.eventTitle}>{item.title}</Text>
-            <Text style={styles.meta}>{item.date}</Text>
-            <Text style={styles.meta}>{item.location}</Text>
-          </Pressable>
+    <SafeAreaView style={[styles.safe, !hasEvents && styles.safeEmpty]} edges={['top']}>
+      <Text style={styles.greeting} numberOfLines={1}>
+        Hola {firstName}
+      </Text>
+
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, !hasEvents && styles.scrollContentWhenEmpty]}
+        showsVerticalScrollIndicator={false}
+      >
+        {hasEvents ? (
+          <HomeLiveEventsCarousel onSlidePress={handleLiveSlidePress} />
+        ) : (
+          <HomeFirstEventPromoCard />
         )}
-      />
+
+        {!hasEvents ? (
+          <HomeEmptyState />
+        ) : (
+          <HomeFeedCarouselSections
+            myEvents={myEvents}
+            plans={plans}
+            pastEvents={pastEvents}
+            onOpenEvent={openEvent}
+          />
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
+  safe: {
+    flex: 1,
+    backgroundColor: colors.background.primary,
   },
-  title: {
-    fontSize: 26,
-    fontWeight: "700",
-    marginBottom: 12,
+  safeEmpty: {
+    backgroundColor: colors.background.primary,
   },
-  card: {
-    borderWidth: 1,
-    borderColor: "#e5e5e5",
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 10,
-    backgroundColor: "#fff",
+  spinner: {
+    backgroundColor: colors.background.primary,
   },
-  eventTitle: {
-    fontSize: 17,
-    fontWeight: "600",
+  scrollContent: {
+    paddingBottom: 24,
   },
-  meta: {
-    color: "#6b7280",
-    marginTop: 4,
+  scrollContentWhenEmpty: {
+    flexGrow: 1,
+  },
+  greeting: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: colors.neutral.primary,
+    marginRight: 12,
+    marginBottom: 30,
+    paddingTop: 4,
+    paddingLeft: HOME_CONTENT_INSET_LEFT,
   },
 });
