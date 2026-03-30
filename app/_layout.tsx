@@ -65,6 +65,7 @@ export default function RootLayout() {
           <Stack.Screen name="login" />
           <Stack.Screen name="verify-code" />
           <Stack.Screen name="home" options={{ headerShown: false }} />
+          <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
         </Stack>
       </AuthProvider>
     </GestureHandlerRootView>
