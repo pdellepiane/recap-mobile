@@ -1,6 +1,6 @@
 /**
  * Global color tokens for the app.
- * Keep semantic usage in feature themes/components and avoid hardcoded values.
+ * Use tokens here instead of hex/rgba literals in components.
  */
 export const colors = {
   background: {
@@ -54,6 +54,18 @@ export const colors = {
     white06: 'rgba(255, 255, 255, 0.06)',
     white55: 'rgba(255, 255, 255, 0.55)',
     white65: 'rgba(255, 255, 255, 0.65)',
+  },
+  /** Event detail screen & home feed accents (quiz label, ranking medals, carousel dots, etc.). */
+  events: {
+    challengeQuizLabel: 'rgba(196, 181, 253, 1)',
+    challengesDot: 'rgba(244, 114, 182, 1)',
+    rankingGold: 'rgba(212, 175, 55, 1)',
+    rankingSilver: 'rgba(142, 142, 142, 1)',
+    rankingBronze: 'rgba(169, 113, 66, 1)',
+    rankingRowHighlight: 'rgba(44, 44, 46, 1)',
+    carouselDotInactive: 'rgba(63, 63, 70, 1)',
+    guestsOnCard: 'rgba(196, 181, 253, 1)',
+    locationPin: 'rgba(167, 139, 250, 1)',
   },
 } as const;
 

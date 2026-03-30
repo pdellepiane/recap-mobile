@@ -1,6 +1,6 @@
-import { Image, Pressable, StyleSheet, ViewStyle } from 'react-native';
 import { useCoordinator } from '../navigation/useCoordinator';
 import { colors } from './colors';
+import { Image, Pressable, StyleSheet, ViewStyle } from 'react-native';
 
 type BackButtonProps = {
   style?: ViewStyle | ViewStyle[];
