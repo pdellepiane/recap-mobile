@@ -4,13 +4,15 @@ import { useCallback } from 'react';
 import { firstNameFromDisplayName } from '../utils/eventDisplay';
 import { useHomeFeed } from './useHomeFeed';
 
+const SIN_ENVOLTURAS_MARKETING_URL = 'https://sinenvolturas.com';
+
 /**
  * Home screen orchestration: greeting + feed data + event navigation handlers.
  */
 export function useHomeScreen() {
   const { session } = useAuth();
-  const { goToEventDetail } = useCoordinator();
-  const { liveEvents, myEvents, plans, pastEvents, hasEvents, isLoading } = useHomeFeed();
+  const { goToEventDetail, goToHomeWeb } = useCoordinator();
+  const { banners, myEvents, plans, pastEvents, hasEvents, isLoading } = useHomeFeed();
 
   const firstName = session ? firstNameFromDisplayName(session.user.name) : 'Invitado';
 
@@ -23,17 +25,21 @@ export function useHomeScreen() {
 
   const handleLiveSlidePress = useCallback(
     (index: number) => {
-      const ev = liveEvents[index] ?? liveEvents[0];
-      if (ev) {
-        openEvent(ev.id);
+      const item = banners[index] ?? banners[0];
+      if (item) {
+        openEvent(String(item.id));
       }
     },
-    [liveEvents, openEvent],
+    [banners, openEvent],
   );
+
+  const handleOpenWebsiteToCreateEvent = useCallback(() => {
+    goToHomeWeb(SIN_ENVOLTURAS_MARKETING_URL);
+  }, [goToHomeWeb]);
 
   return {
     firstName,
-    liveEvents,
+    banners,
     myEvents,
     plans,
     pastEvents,
@@ -41,5 +47,6 @@ export function useHomeScreen() {
     isLoading,
     openEvent,
     handleLiveSlidePress,
+    handleOpenWebsiteToCreateEvent,
   };
 }

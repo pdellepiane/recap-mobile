@@ -1,42 +1,65 @@
-import { useEvents } from './useEvents';
+import { eventRepository } from '@/src/core/di/container';
+import type { HomeBannerItem } from '@/src/core/api/types';
 import type { Event } from '@/src/domain/entities';
-import { useMemo } from 'react';
+import { partitionHostEventsByDateTime } from '@/src/features/events/presentation/utils/homeFeedPartition';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export type HomeFeed = {
-  /** First live event (compat). */
-  liveEvent: Event | undefined;
-  /** All `evt-live-*` mocks (live carousel). */
-  liveEvents: Event[];
+  /** Top-of-home banner slider (from GET /api/home/banners). */
+  banners: HomeBannerItem[];
   myEvents: Event[];
   plans: Event[];
   pastEvents: Event[];
-  /** `true` when the API returned at least one event. */
+  /** True when host or guest event lists have at least one row. */
   hasEvents: boolean;
 };
 
 /**
- * Splits the mock list: `evt-live-*` → live carousel; the rest → my events / plans / past.
+ * Loads host events, guest events, and home banners. Hosted “Mis eventos” are split into upcoming
+ * vs “Mis eventos pasados” when {@link Event.date} is before now.
+ * Uses `allSettled` so one failing request does not wipe the others.
  */
 export function useHomeFeed(): HomeFeed & { isLoading: boolean; reload: () => Promise<void> } {
-  const { events, isLoading, reload } = useEvents();
+  const [banners, setBanners] = useState<HomeBannerItem[]>([]);
+  const [hostEvents, setHostEvents] = useState<Event[]>([]);
+  const [plans, setPlans] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const [hostR, guestR, bannerR] = await Promise.allSettled([
+        eventRepository.getHostEvents(),
+        eventRepository.getGuestEvents(),
+        eventRepository.getHomeBanners(),
+      ]);
+      setHostEvents(hostR.status === 'fulfilled' ? hostR.value : []);
+      setPlans(guestR.status === 'fulfilled' ? guestR.value : []);
+      setBanners(bannerR.status === 'fulfilled' ? bannerR.value : []);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const feed = useMemo((): HomeFeed => {
-    const hasEvents = events.length > 0;
-    const liveEvents = hasEvents ? events.filter((e) => e.id.startsWith('evt-live-')) : [];
-    const rest = hasEvents ? events.filter((e) => !e.id.startsWith('evt-live-')) : [];
+    const { upcoming, past } = partitionHostEventsByDateTime(hostEvents);
+    const hasEvents = upcoming.length > 0 || past.length > 0 || plans.length > 0;
     return {
-      liveEvent: liveEvents[0],
-      liveEvents,
-      myEvents: rest.slice(0, 5),
-      plans: rest.slice(5, 8),
-      pastEvents: rest.slice(8, 11),
+      banners,
+      myEvents: upcoming,
+      plans,
+      pastEvents: past,
       hasEvents,
     };
-  }, [events]);
+  }, [banners, hostEvents, plans]);
 
   return {
     ...feed,
     isLoading,
-    reload,
+    reload: load,
   };
 }
