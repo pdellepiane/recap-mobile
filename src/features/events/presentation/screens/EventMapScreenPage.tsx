@@ -8,7 +8,7 @@ import { WebView } from 'react-native-webview';
 
 type EventMapScreenPageProps = {
   eventId: string;
-  /** Si viene de la navegación (query `q`), no hace falta esperar al evento. */
+  /** When opened via navigation (query `q`), no need to wait for event data. */
   initialQuery?: string;
 };
 

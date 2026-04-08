@@ -30,7 +30,7 @@ export default function RootLayout() {
       return;
     }
 
-    // Default global typography (para acercarnos a los pantallazos sin tocar cada Text).
+    // Default global typography (match design screenshots without touching every Text).
     const textWithDefaults = Text as typeof Text & ComponentWithDefaultProps<TextProps>;
     textWithDefaults.defaultProps = textWithDefaults.defaultProps ?? {};
     const prevTextStyle = textWithDefaults.defaultProps.style;

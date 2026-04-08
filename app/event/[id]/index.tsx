@@ -1,9 +1,6 @@
-import { useLocalSearchParams } from 'expo-router';
+import { EventDetailPlaceholderScreenPage } from '@/src/features/events/presentation/screens/EventDetailPlaceholderScreenPage';
 
-import { EventDetailScreenPage } from '@/src/features/events/presentation/screens/EventDetailScreenPage';
-
+/** Event detail: placeholder until the full experience is connected. */
 export default function EventDetailRoute() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-
-  return <EventDetailScreenPage eventId={id ?? ''} />;
+  return <EventDetailPlaceholderScreenPage />;
 }
