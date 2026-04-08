@@ -3,19 +3,19 @@ import type { Event } from '@/src/domain/entities';
 import { useMemo } from 'react';
 
 export type HomeFeed = {
-  /** Primer evento en vivo (compat). */
+  /** First live event (compat). */
   liveEvent: Event | undefined;
-  /** Todos los mocks `evt-live-*` (carrusel “en vivo”). */
+  /** All `evt-live-*` mocks (live carousel). */
   liveEvents: Event[];
   myEvents: Event[];
   plans: Event[];
   pastEvents: Event[];
-  /** `true` si el API devolvió al menos un evento. */
+  /** `true` when the API returned at least one event. */
   hasEvents: boolean;
 };
 
 /**
- * Reparte la lista del mock: `evt-live-*` = carrusel en vivo; el resto en mis eventos / planes / pasados.
+ * Splits the mock list: `evt-live-*` → live carousel; the rest → my events / plans / past.
  */
 export function useHomeFeed(): HomeFeed & { isLoading: boolean; reload: () => Promise<void> } {
   const { events, isLoading, reload } = useEvents();
