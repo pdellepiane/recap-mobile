@@ -1,5 +1,5 @@
+import { EventMapScreenPage } from '@/src/features/events/presentation/screens/EventMapScreenPage';
 import { useLocalSearchParams } from 'expo-router';
-import { Text } from 'react-native';
 
 function firstString(v: string | string[] | undefined): string | undefined {
   if (v === undefined) {
@@ -11,5 +11,5 @@ function firstString(v: string | string[] | undefined): string | undefined {
 export default function EventMapRoute() {
   const { id, q } = useLocalSearchParams<{ id: string; q?: string | string[] }>();
 
-  return <Text>Hola</Text>;
+  return <EventMapScreenPage eventId={id ?? ''} initialQuery={firstString(q)} />;
 }

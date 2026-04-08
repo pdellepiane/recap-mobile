@@ -1,9 +1,9 @@
-import type { RankingMedal, RankingRow } from '../data/eventRanking';
-import { EventDetailPreEventRankDecor } from './EventDetailPreEventRankDecor';
 import { colors } from '@/src/ui';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import type { RankingMedal, RankingRow } from '../data/eventRanking';
+import { EventDetailPreEventRankDecor } from './EventDetailPreEventRankDecor';
 
-const RANKING_BADGE_SCALLOP = require('../../../../../assets/images/event-detail/ranking-badge-scallop.png');
+const RANKING_BADGE_SCALLOP = require('../../../../../assets/images/event-detail/ranking/ranking-badge-scallop.png');
 
 const MEDAL_SIZE = 40;
 
