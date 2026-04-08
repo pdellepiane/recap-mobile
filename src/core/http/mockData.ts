@@ -1,12 +1,12 @@
 import { Event, Participant } from '@/src/domain/entities';
 
 /**
- * `true`: el mock devuelve 0 eventos y verás el home vacío (ilustración + texto).
- * `false`: se usa la lista `mockEvents` de demo con carruseles.
+ * `true`: mock returns zero events and you get the empty home (illustration + copy).
+ * `false`: uses the `mockEvents` demo list with carousels.
  */
 export const MOCK_HOME_EMPTY_EVENTS = false;
 
-/** 12 entries: [0] live hero, [1..5] mis eventos, [6..8] planes, [9..11] pasados */
+/** 12 entries: [0] live hero, [1..5] my events, [6..8] plans, [9..11] past */
 export const mockEvents: Event[] = [
   {
     id: 'evt-live-1',
@@ -17,7 +17,7 @@ export const mockEvents: Event[] = [
     coverImageUrl:
       'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&auto=format&fit=crop&q=80',
   },
-  /** Segundo evento “en vivo” / en ejecución (mock). */
+  /** Second “live” / in-progress event (mock). */
   {
     id: 'evt-live-2',
     title: 'Boda Camila & Andrés',
