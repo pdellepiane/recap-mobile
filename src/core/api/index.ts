@@ -1,6 +1,11 @@
-export { authUserPaths } from './paths';
+export { authUserPaths, homePaths } from './paths';
 export type {
   ApiErrorBody,
+  HomeBannerItem,
+  HomeBannersListResponse,
+  HomeEventGuestItem,
+  HomeEventItem,
+  HomeEventsListResponse,
   LoginCodeBody,
   LoginCodeSuccessResponse,
   LoginCodeUserPayload,
@@ -9,5 +14,6 @@ export type {
   RequestLoginCodeBody,
   RequestLoginCodeResponse,
   SimpleStatusErrorResponse,
-  ValidationErrorResponse,
+  ValidationErrorResponse
 } from './types';
+

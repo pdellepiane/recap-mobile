@@ -3,3 +3,9 @@ export const authUserPaths = {
   loginCode: 'api/auth/login-code',
   logout: 'api/auth/logout',
 } as const;
+
+export const homePaths = {
+  hostEvents: 'api/home/host-events',
+  guestEvents: 'api/home/guest-events',
+  banners: 'api/home/banners',
+} as const;

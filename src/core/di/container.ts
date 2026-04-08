@@ -6,8 +6,8 @@ import { getPersistedAccessToken } from '@/src/features/auth/data/sessionStorage
 import { EventRepository } from '@/src/features/events/data/repositories/EventRepository';
 
 /**
- * Email OTP + JWT + logout always hit the real API (`EXPO_PUBLIC_API_BASE_URL`).
- * Profile comes from the auth session; events stay on {@link MockHttpClient} until wired.
+ * Email OTP + JWT + logout and authenticated home event lists hit the real API (`EXPO_PUBLIC_API_BASE_URL`).
+ * Event detail by id still uses {@link MockHttpClient} until the detail endpoint is wired.
  */
 const apiBaseUrl =
   process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://dev.api.recap.sinenvolturas.com';
@@ -27,7 +27,8 @@ async function authAccessTokenForRequests(): Promise<string | null> {
 
 const authHttp = new FetchHttpClient(apiBaseUrl, { getAccessToken: authAccessTokenForRequests });
 
-const eventsHttp = new MockHttpClient();
+const eventsApi = new FetchHttpClient(apiBaseUrl, { getAccessToken: authAccessTokenForRequests });
+const eventsMock = new MockHttpClient();
 
 export const authRepository = new AuthRepository(authHttp);
-export const eventRepository = new EventRepository(eventsHttp);
+export const eventRepository = new EventRepository(eventsApi, eventsMock);
