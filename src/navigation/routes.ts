@@ -4,6 +4,8 @@ export const routePaths = {
   verifyCode: '/verify-code',
   home: '/home',
   profile: '/home/profile',
+  /** In-app WebView modal; `url` must be a full `https` URL (encoded). */
+  homeWeb: (url: string) => `/in-app-web?url=${encodeURIComponent(url)}`,
   eventDetail: (eventId: string, tab?: 'detalle' | 'challenges' | 'ranking' | 'album') =>
     tab ? `/event/${eventId}?tab=${encodeURIComponent(tab)}` : `/event/${eventId}`,
   eventDetailChallengesCompleted: (eventId: string, completedChallengeId: string, points: number) =>

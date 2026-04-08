@@ -20,6 +20,8 @@ export const useCoordinator = () => {
     goToHome: () => router.replace(routePaths.home as Href),
     /** Opens the profile tab under the Home stack (avoids stacking `/profile` separately). */
     goToProfile: () => router.navigate(routePaths.profile as Href),
+    /** Presents an in-app browser as a root modal for a trusted HTTPS URL. */
+    goToHomeWeb: (url: string) => router.push(routePaths.homeWeb(url) as Href),
     goToEventDetail: (eventId: string, tab?: 'detalle' | 'challenges' | 'ranking' | 'album') =>
       router.push(routePaths.eventDetail(eventId, tab) as Href),
     goToEventDetailTab: (eventId: string, tab: 'detalle' | 'challenges' | 'ranking' | 'album') =>
