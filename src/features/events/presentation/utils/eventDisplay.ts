@@ -23,6 +23,17 @@ export function eventDateBadgeParts(isoDate: string): { day: string; month: stri
   return { day: String(d), month };
 }
 
+/** Short label for home cards (“N invitados” / “Sin invitados”). */
+export function formatEventGuestCountLabel(guestCount: number): string {
+  if (guestCount <= 0) {
+    return 'Sin invitados';
+  }
+  if (guestCount === 1) {
+    return '1 invitado';
+  }
+  return `${String(guestCount)} invitados`;
+}
+
 /** First word or full string for greetings like "Hola Paolo". */
 export function firstNameFromDisplayName(name: string): string {
   const t = name.trim();
