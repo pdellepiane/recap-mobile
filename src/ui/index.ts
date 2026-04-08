@@ -2,9 +2,11 @@ export { BackButton } from './BackButton';
 export { Button } from './Button';
 export { colors } from './colors';
 export { CountdownTimer } from './CountdownTimer';
+export { FloatingReactions, useFloatingReactions } from './FloatingReactions';
+export type { FloatingReactionPayload, SpawnFloatingReaction } from './FloatingReactions';
 export { Form } from './Form';
+export { HorizontalEmojiReactionBar } from './HorizontalEmojiReactionBar';
 export { InputField } from './InputField';
 export { ScreenTitle } from './ScreenTitle';
 export { SectionTitle } from './SectionTitle';
 export { Spinner } from './Spinner';
-
