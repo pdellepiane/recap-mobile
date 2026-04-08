@@ -37,7 +37,7 @@ export function HomeFirstEventPromoCard({ onPress }: Props) {
           </View>
 
           <Pressable
-            onPress={onPress ?? (() => undefined)}
+            onPress={onPress}
             style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}
             accessibilityRole="button"
             accessibilityLabel="Ir a crear tu primer evento"

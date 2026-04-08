@@ -1,3 +1,4 @@
+import type { HomeBannerItem } from '@/src/core/api/types';
 import { colors } from '@/src/ui';
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -18,17 +19,9 @@ const SLIDE_W = SCREEN_W - HOME_CONTENT_INSET_LEFT;
 const FALLBACK_FRAME_H = Math.round(SLIDE_W / 2.15);
 const IMAGE_RADIUS = 20;
 
-const LIVE_SLIDE_IMAGES = [
-  require('../../../../../assets/images/home-live/live-slide-1.png'),
-  require('../../../../../assets/images/home-live/live-slide-2.png'),
-  require('../../../../../assets/images/home-live/live-slide-3.png'),
-] as const;
-
-function measureSlideHeight(source: number): Promise<number> {
+function measureSlideHeightFromUri(uri: string): Promise<number> {
   return new Promise((resolve) => {
-    const resolved = Image.resolveAssetSource(source);
-    const uri = resolved?.uri;
-    if (!uri) {
+    if (!uri?.trim()) {
       resolve(0);
       return;
     }
@@ -47,20 +40,24 @@ function measureSlideHeight(source: number): Promise<number> {
 }
 
 type Props = {
+  banners: HomeBannerItem[];
   onSlidePress?: (index: number) => void;
 };
 
 /**
- * Horizontal “My live events” carousel (3 design images). Only when there are events from the API.
+ * Horizontal home banner slider driven by GET /api/home/banners (`cover` + `banner_type`).
  */
-export function HomeLiveEventsCarousel({ onSlidePress }: Props) {
+export function HomeLiveEventsCarousel({ banners, onSlidePress }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [frameH, setFrameH] = useState(FALLBACK_FRAME_H);
 
   useEffect(() => {
+    if (banners.length === 0) {
+      return;
+    }
     let cancelled = false;
     void (async () => {
-      const heights = await Promise.all(LIVE_SLIDE_IMAGES.map((src) => measureSlideHeight(src)));
+      const heights = await Promise.all(banners.map((b) => measureSlideHeightFromUri(b.cover)));
       if (cancelled) {
         return;
       }
@@ -70,14 +67,21 @@ export function HomeLiveEventsCarousel({ onSlidePress }: Props) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [banners]);
 
-  const syncIndex = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const x = e.nativeEvent.contentOffset.x;
-    const next = Math.round(x / SCREEN_W);
-    const clamped = Math.max(0, Math.min(next, LIVE_SLIDE_IMAGES.length - 1));
-    setActiveIndex(clamped);
-  }, []);
+  const syncIndex = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const x = e.nativeEvent.contentOffset.x;
+      const next = Math.round(x / SLIDE_W);
+      const clamped = Math.max(0, Math.min(next, Math.max(0, banners.length - 1)));
+      setActiveIndex(clamped);
+    },
+    [banners.length],
+  );
+
+  if (banners.length === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.wrap} accessibilityRole="none">
@@ -93,9 +97,9 @@ export function HomeLiveEventsCarousel({ onSlidePress }: Props) {
         style={styles.scroller}
         contentContainerStyle={styles.scrollerContent}
       >
-        {LIVE_SLIDE_IMAGES.map((source, index) => (
+        {banners.map((banner, index) => (
           <Pressable
-            key={index}
+            key={`${String(banner.id)}-${String(index)}`}
             onPress={() => onSlidePress?.(index)}
             style={({ pressed }) => [
               styles.slidePage,
@@ -103,7 +107,7 @@ export function HomeLiveEventsCarousel({ onSlidePress }: Props) {
               pressed && styles.slidePressed,
             ]}
             accessibilityRole="button"
-            accessibilityLabel={`Evento en vivo, diapositiva ${String(index + 1)} de ${String(LIVE_SLIDE_IMAGES.length)}`}
+            accessibilityLabel={`${banner.name}, banner ${String(index + 1)} of ${String(banners.length)}, ${banner.banner_type}`}
           >
             <View
               style={[
@@ -111,19 +115,23 @@ export function HomeLiveEventsCarousel({ onSlidePress }: Props) {
                 { width: SLIDE_W, height: frameH, borderRadius: IMAGE_RADIUS },
               ]}
             >
-              <Image
-                source={source}
-                style={{ width: SLIDE_W, height: frameH }}
-                resizeMode="cover"
-              />
+              {banner.cover?.trim() ? (
+                <Image
+                  source={{ uri: banner.cover.trim() }}
+                  style={{ width: SLIDE_W, height: frameH }}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={[styles.coverPlaceholder, { width: SLIDE_W, height: frameH }]} />
+              )}
             </View>
           </Pressable>
         ))}
       </ScrollView>
 
       <View style={styles.dots}>
-        {LIVE_SLIDE_IMAGES.map((_, i) => (
-          <View key={i} style={[styles.dot, i === activeIndex && styles.dotActive]} />
+        {banners.map((_, i) => (
+          <View key={`dot-${String(i)}`} style={[styles.dot, i === activeIndex && styles.dotActive]} />
         ))}
       </View>
     </View>
@@ -147,6 +155,9 @@ const styles = StyleSheet.create({
   },
   imageRoundedClip: {
     overflow: 'hidden',
+  },
+  coverPlaceholder: {
+    backgroundColor: colors.background.tertiary,
   },
   slidePressed: {
     opacity: 0.94,

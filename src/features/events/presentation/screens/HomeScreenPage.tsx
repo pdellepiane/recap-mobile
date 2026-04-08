@@ -14,6 +14,7 @@ const HOME_CONTENT_INSET_LEFT = 20;
 export const HomeScreenPage = () => {
   const {
     firstName,
+    banners,
     myEvents,
     plans,
     pastEvents,
@@ -21,6 +22,7 @@ export const HomeScreenPage = () => {
     isLoading,
     openEvent,
     handleLiveSlidePress,
+    handleOpenWebsiteToCreateEvent,
   } = useHomeScreen();
 
   if (isLoading) {
@@ -41,10 +43,10 @@ export const HomeScreenPage = () => {
         contentContainerStyle={[styles.scrollContent, !hasEvents && styles.scrollContentWhenEmpty]}
         showsVerticalScrollIndicator={false}
       >
-        {hasEvents ? (
-          <HomeLiveEventsCarousel onSlidePress={handleLiveSlidePress} />
+        {banners.length > 0 ? (
+          <HomeLiveEventsCarousel banners={banners} onSlidePress={handleLiveSlidePress} />
         ) : (
-          <HomeFirstEventPromoCard />
+          <HomeFirstEventPromoCard onPress={handleOpenWebsiteToCreateEvent} />
         )}
 
         {!hasEvents ? (

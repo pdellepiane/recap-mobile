@@ -1,8 +1,8 @@
-import { eventDateBadgeParts } from '../utils/eventDisplay';
 import type { Event } from '@/src/domain/entities';
 import { colors } from '@/src/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { eventDateBadgeParts, formatEventGuestCountLabel } from '../utils/eventDisplay';
 
 const CARD_W = 268;
 const IMG_H = 148;
@@ -15,7 +15,7 @@ type Props = {
 
 export function HomeEventCarouselCard({ event, onPress }: Props) {
   const { day, month } = eventDateBadgeParts(event.date);
-  const guestLabel = '+20 invitados';
+  const guestLabel = formatEventGuestCountLabel(event.guestCount ?? 0);
 
   return (
     <Pressable
