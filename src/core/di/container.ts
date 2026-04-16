@@ -7,7 +7,8 @@ import { EventRepository } from '@/src/features/events/data/repositories/EventRe
 
 /**
  * Email OTP + JWT + logout and authenticated home event lists hit the real API (`EXPO_PUBLIC_API_BASE_URL`).
- * Event detail by id still uses {@link MockHttpClient} until the detail endpoint is wired.
+ * Event detail merges {@link EventRepository.getLocalEventById} (home cache) with GET `api/events/:id`
+ * (or mock when `EXPO_PUBLIC_MOCK_EVENT_DETAIL_API` / home mock flags apply). Legacy `evt-*` ids still use {@link MockHttpClient}.
  */
 const apiBaseUrl =
   process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://dev.api.recap.sinenvolturas.com';

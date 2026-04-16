@@ -1,6 +1,6 @@
-import type { EventDetailExtras } from '../data/eventDetailExtras';
 import { CountdownTimer, colors } from '@/src/ui';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import type { EventDetailExtras } from '../data/eventDetailExtras';
 
 const ICON_EVENT_LOCATION = require('../../../../../assets/images/event-detail/icon-location-lime.png');
 const ICON_EVENT_GUESTS = require('../../../../../assets/images/event-detail/icon-guests-lime.png');
@@ -12,6 +12,10 @@ type EventDetailOverviewTabProps = {
   venueLine1: string;
   venueLine2: string;
   extras: EventDetailExtras | null;
+  /** GET /api/events/:id `hosts` when remote; otherwise {@link EventDetailExtras.hostsLine} for legacy mocks. */
+  hostsLine: string;
+  /** False on the event’s calendar day and when extras hide the countdown (e.g. live). */
+  showDetailCountdown: boolean;
   onOpenMap: () => void;
 };
 
@@ -22,6 +26,8 @@ export function EventDetailOverviewTab({
   venueLine1,
   venueLine2,
   extras,
+  hostsLine,
+  showDetailCountdown,
   onOpenMap,
 }: EventDetailOverviewTabProps) {
   return (
@@ -33,20 +39,20 @@ export function EventDetailOverviewTab({
         </View>
         <View style={styles.creatorsTextCol}>
           <Text style={styles.creatorsLabel}>Evento creado por</Text>
-          <Text style={styles.creatorsNames}>{extras?.creatorsLine ?? 'Organizadores'}</Text>
+          <Text style={styles.creatorsNames}>{hostsLine}</Text>
         </View>
       </View>
 
-      <Text style={styles.sectionHeading}>Información del evento</Text>
-      <Text style={styles.bodyText}>{description}</Text>
-
-      {extras?.hideCountdownInDetail ? null : (
+      {showDetailCountdown ? (
         <CountdownTimer
           endsAt={countdownEndsAt}
           cellBackgroundColor={colors.brand[700]}
           textColor={colors.neutral.primary}
         />
-      )}
+      ) : null}
+
+      <Text style={styles.sectionHeading}>Información del evento</Text>
+      <Text style={styles.bodyText}>{description}</Text>
 
       <Pressable
         disabled={!mapsQuery}

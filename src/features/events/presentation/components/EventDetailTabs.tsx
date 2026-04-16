@@ -1,10 +1,12 @@
-import { EventDetailTab } from '../hooks/useEventDetailScreen';
 import { colors } from '@/src/ui';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { EventDetailTab } from '../hooks/useEventDetailScreen';
 
 type EventDetailTabsProps = {
   activeTab: EventDetailTab;
   onTabPress: (tab: EventDetailTab) => void;
+  /** Subset of tabs to show (e.g. hosted “Mis eventos” on a future calendar day → Detalle + Álbum only). */
+  visibleTabs?: readonly EventDetailTab[];
 };
 
 const DETAIL_TABS: readonly { key: EventDetailTab; label: string; dot?: boolean }[] = [
@@ -14,10 +16,13 @@ const DETAIL_TABS: readonly { key: EventDetailTab; label: string; dot?: boolean 
   { key: EventDetailTab.Album, label: 'Álbum' },
 ];
 
-export function EventDetailTabs({ activeTab, onTabPress }: EventDetailTabsProps) {
+export function EventDetailTabs({ activeTab, onTabPress, visibleTabs }: EventDetailTabsProps) {
+  const allowed = new Set(visibleTabs ?? DETAIL_TABS.map((t) => t.key));
+  const tabs = DETAIL_TABS.filter((t) => allowed.has(t.key));
+
   return (
     <View style={styles.tabsRow}>
-      {DETAIL_TABS.map((t) => {
+      {tabs.map((t) => {
         const active = activeTab === t.key;
         return (
           <Pressable
@@ -46,7 +51,8 @@ export function EventDetailTabs({ activeTab, onTabPress }: EventDetailTabsProps)
 const styles = StyleSheet.create({
   tabsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
     gap: 8,
     marginBottom: 24,
   },

@@ -14,6 +14,8 @@ export const colors = {
     secondary: 'rgba(179, 179, 179, 1)',
     tertiary: 'rgba(138, 138, 138, 1)',
     disabled: 'rgba(92, 92, 92, 1)',
+    /** Primary text on lime / accent CTAs (e.g. home banner “Ingresar”). */
+    onLime: 'rgba(0, 0, 0, 1)',
   },
   brand: {
     700: 'rgba(95, 43, 216, 1)',

@@ -5,7 +5,8 @@ export type EventDetailExtras = {
   venueArea: string;
   /** Address or venue name for Google Maps search. */
   mapsSearchQuery?: string;
-  creatorsLine: string;
+  /** Same role as GET /api/events/:id `hosts` — display names for the event hosts (local mock only). */
+  hostsLine: string;
   guestsConfirmed: number;
   guestsPending: number;
   confirmedGuests: { id: string; name: string }[];
@@ -32,7 +33,7 @@ const EXTRAS: Record<string, EventDetailExtras> = {
   'evt-live-1': {
     venueArea: 'Barranco',
     mapsSearchQuery: 'Convención de Gala Plutón, Barranco, Lima, Perú',
-    creatorsLine: 'Mariel Santos y Jorge Panduro',
+    hostsLine: 'Mariel Santos y Jorge Panduro',
     guestsConfirmed: 20,
     guestsPending: 32,
     confirmedGuests: [{ id: 'g1', name: 'Marco Fernandez' }],
@@ -42,7 +43,7 @@ const EXTRAS: Record<string, EventDetailExtras> = {
   'evt-live-2': {
     venueArea: 'Santiago de Surco',
     mapsSearchQuery: 'Jardín Los Olivos, Lima, Perú',
-    creatorsLine: 'Camila Ríos y Andrés Mendoza',
+    hostsLine: 'Camila Ríos y Andrés Mendoza',
     guestsConfirmed: 48,
     guestsPending: 12,
     confirmedGuests: [

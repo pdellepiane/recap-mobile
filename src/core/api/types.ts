@@ -143,3 +143,50 @@ export type HomeBannersListResponse = {
   errors: unknown;
   error: string | null;
 };
+
+/** GET /api/events/:id — full event resource. */
+export type EventDetailData = {
+  id: number;
+  slug: string;
+  name: string;
+  hosts: string;
+  guests: string;
+  type: string;
+  type_detail: string;
+  datetime: string;
+  with_time: number;
+  stage: string;
+  city: string;
+  country_id: number;
+  location: string;
+  cover: string;
+  is_visible: number;
+  is_public: number;
+  user_id: number;
+  timezone: string;
+  created_at: string;
+  updated_at: string;
+  guests_going: HomeEventGuestItem[];
+};
+
+export type EventDetailApiResponse = {
+  data: EventDetailData;
+  status: boolean;
+  errors: unknown;
+  error: string | null;
+};
+
+/** Row from GET /api/events/:id/ranking. */
+export type EventRankingApiItem = {
+  id: number;
+  name: string;
+  lastname: string;
+  points: number;
+};
+
+export type EventRankingListResponse = {
+  data: EventRankingApiItem[];
+  status: boolean;
+  errors: unknown;
+  error: string | null;
+};

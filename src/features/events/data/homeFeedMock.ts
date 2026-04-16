@@ -8,6 +8,7 @@ import {
   GUESTS_DESPEDIDA_11003,
   GUESTS_GRAD_12002,
   GUESTS_RETIRO_11008,
+  GUESTS_TODAY_11009,
   GUESTS_WEDDING_11001,
   GUESTS_WORKSHOP_11005,
 } from '@/src/features/events/data/homeFeedMockGuests';
@@ -23,6 +24,17 @@ export function isMockHomeFeedEnabled(): boolean {
 }
 
 const MOCK_TS = '2026-01-15T12:00:00.000000Z';
+
+/** Lima calendar “today” at 19:00 -05:00 so one mock host row always matches el día actual. */
+function mockHostEventDatetimeTodayLima(): string {
+  const limaDateStr = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Lima',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+  return `${limaDateStr}T19:00:00-05:00`;
+}
 
 /** Remote covers (Unsplash) so {@link Image.getSize} and carousel layout work like production. */
 const COVER_WEDDING =
@@ -50,6 +62,22 @@ const COVER_WELLNESS =
  * API-shaped “Mis eventos” rows (Spanish copy, Lima-area venues).
  */
 export const MOCK_HOME_HOST_EVENTS: HomeEventItem[] = [
+  {
+    id: 11009,
+    slug: 'brunch-equipo-recap',
+    name: 'Brunch equipo Recap',
+    type: 'Corporativo',
+    datetime: mockHostEventDatetimeTodayLima(),
+    with_time: 1,
+    stage: 'Hoy',
+    city: 'Miraflores',
+    location: 'Hotel Belmond — terraza',
+    cover: COVER_DINNER,
+    guests: GUESTS_TODAY_11009,
+    timezone: 'America/Lima',
+    created_at: MOCK_TS,
+    updated_at: MOCK_TS,
+  },
   {
     id: 11001,
     slug: 'boda-mariel-jorge',

@@ -95,8 +95,15 @@ function withPreEventRanking(rows: RankingRow[]): RankingRow[] {
   }));
 }
 
-export function getEventRanking(eventId: string): RankingRow[] {
-  const rows = RANKING_BY_EVENT[eventId] ?? RANKING_BY_EVENT['evt-live-1'] ?? [];
+/**
+ * Offline / first-paint rows only for legacy mock event ids (e.g. `evt-live-1`).
+ * Numeric ids from the API rely on {@link EventRepository.fetchEventRankingRemote} instead.
+ */
+export function getLocalRankingSnapshot(eventId: string): RankingRow[] {
+  const rows = RANKING_BY_EVENT[eventId];
+  if (!rows) {
+    return [];
+  }
   if (eventId === 'evt-live-1') {
     return withPreEventRanking(rows);
   }

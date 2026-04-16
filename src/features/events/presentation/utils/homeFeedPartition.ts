@@ -1,14 +1,15 @@
 import type { Event } from '@/src/domain/entities';
+import { isEventLocalCalendarDayBeforeToday } from '@/src/features/events/presentation/utils/eventCalendar';
 
 /**
  * Splits hosted home events (“Mis eventos”) into upcoming vs past using {@link Event.date}
- * (ISO datetime from the API). Unparseable dates are treated as upcoming.
+ * (ISO datetime from the API). **Past** means the event’s **local calendar day** is before today’s
+ * (so an event later today stays in Mis eventos until midnight). Unparseable dates are treated as upcoming.
  */
 export function partitionHostEventsByDateTime(
   hostEvents: Event[],
   now: Date = new Date(),
 ): { upcoming: Event[]; past: Event[] } {
-  const nowMs = now.getTime();
   const upcoming: Event[] = [];
   const past: Event[] = [];
 
@@ -18,7 +19,7 @@ export function partitionHostEventsByDateTime(
       upcoming.push(e);
       continue;
     }
-    if (ms < nowMs) {
+    if (isEventLocalCalendarDayBeforeToday(e.date, now)) {
       past.push(e);
     } else {
       upcoming.push(e);

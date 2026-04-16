@@ -14,4 +14,10 @@ export type Event = {
   guestsRespondedCount?: number;
   /** Guests with `will_attend !== 0`. */
   guestsAttendingCount?: number;
+  /** GET /api/events/:id — host line copy. */
+  hostsLine?: string;
+  /** GET /api/events/:id — guest summary line from API. */
+  guestsLine?: string;
+  /** GET /api/events/:id — subtype / extra label. */
+  typeDetail?: string;
 };

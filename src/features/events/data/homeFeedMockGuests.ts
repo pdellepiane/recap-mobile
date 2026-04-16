@@ -178,3 +178,6 @@ export const GUESTS_WORKSHOP_11005 = mockGuestsBulk(54200, 15, 'workshop');
 export const GUESTS_CUMPLE_11006 = mockGuestsBulk(54300, 24, 'cumple');
 export const GUESTS_BAUTIZO_11007 = mockGuestsBulk(54400, 11, 'bautizo');
 export const GUESTS_RETIRO_11008 = mockGuestsBulk(54500, 32, 'retiro');
+
+/** 8 invitados — evento “hoy” en {@link MOCK_HOME_HOST_EVENTS}. */
+export const GUESTS_TODAY_11009 = mockGuestsBulk(54600, 8, 'brunch-hoy');

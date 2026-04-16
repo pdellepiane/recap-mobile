@@ -1,4 +1,5 @@
 import { eventRepository } from '@/src/core/di/container';
+import { seedHomeEventCache } from '@/src/features/events/data/homeEventCache';
 import type { HomeBannerItem } from '@/src/core/api/types';
 import type { Event } from '@/src/domain/entities';
 import { partitionHostEventsByDateTime } from '@/src/features/events/presentation/utils/homeFeedPartition';
@@ -16,7 +17,7 @@ export type HomeFeed = {
 
 /**
  * Loads host events, guest events, and home banners. Hosted “Mis eventos” are split into upcoming
- * vs “Mis eventos pasados” when {@link Event.date} is before now.
+ * vs “Mis eventos pasados” by **calendar day** (see {@link partitionHostEventsByDateTime}).
  * Uses `allSettled` so one failing request does not wipe the others.
  */
 export function useHomeFeed(): HomeFeed & { isLoading: boolean; reload: () => Promise<void> } {
@@ -44,6 +45,12 @@ export function useHomeFeed(): HomeFeed & { isLoading: boolean; reload: () => Pr
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    seedHomeEventCache([...hostEvents, ...plans], {
+      hostedEventIds: hostEvents.map((e) => e.id),
+    });
+  }, [hostEvents, plans]);
 
   const feed = useMemo((): HomeFeed => {
     const { upcoming, past } = partitionHostEventsByDateTime(hostEvents);
