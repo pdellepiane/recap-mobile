@@ -4,14 +4,14 @@ import {
   CAROUSEL_HEIGHT_TRIM,
   FALLBACK_FRAME_H,
 } from './layout';
-import { isBannerFinished, isBannerState2, isBannerState3Live, noBanner } from './bannerKind';
+import { isEventFinished, isLiveEvent, isNoEvent, isScheduledEvent } from './bannerKind';
 
 export function effectiveSlideHeight(banner: HomeBannerItem, measuredRaw: number): number {
   if (
-    noBanner(banner) ||
-    isBannerState2(banner) ||
-    isBannerState3Live(banner) ||
-    isBannerFinished(banner)
+    isNoEvent(banner) ||
+    isScheduledEvent(banner) ||
+    isLiveEvent(banner) ||
+    isEventFinished(banner)
   ) {
     return BANNER_STRUCTURED_FRAME_H;
   }

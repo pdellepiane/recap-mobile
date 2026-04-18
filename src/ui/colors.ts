@@ -28,6 +28,7 @@ export const colors = {
   },
   accent: {
     700: 'rgba(143, 191, 30, 1)',
+    750: 'rgba(143, 191, 30, 0.5)',
     600: 'rgba(169, 224, 36, 1)',
     500: 'rgba(204, 255, 45, 1)',
     400: 'rgba(216, 255, 90, 1)',
@@ -84,12 +85,6 @@ export const colors = {
     homeCardPastelMint: 'rgba(184, 232, 208, 1)',
     homeCardPastelSky: 'rgba(184, 217, 240, 1)',
     homeCardPastelLilac: 'rgba(212, 196, 240, 1)',
-    /** Home banner “sin envolturas” promo CTA / left graphic accent. */
-    bannerPromoLime: 'rgba(212, 255, 91, 1)',
-    /** Live structured banner: avatar ring, status, CTA (Figma ~#C6FF00). */
-    homeBannerLiveLime: '#C6FF00',
-    /** Halo behind the live pulse dot on the structured live banner. */
-    homeBannerLiveDotHalo: 'rgba(60, 80, 35, 0.55)',
   },
 } as const;
 

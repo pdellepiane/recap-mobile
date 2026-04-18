@@ -1,3 +1,4 @@
+import { HomeEmptyState } from './HomeEmptyState';
 import { HomeEventCarouselCard } from './HomeEventCarouselCard';
 import type { Event } from '@/src/domain/entities';
 import { SectionTitle } from '@/src/ui';
@@ -7,14 +8,26 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 const HOME_CONTENT_INSET_LEFT = 20;
 
 type Props = {
+  /** When false, shows {@link HomeEmptyState} instead of carousels. */
+  hasEvents: boolean;
   myEvents: Event[];
   plans: Event[];
   pastEvents: Event[];
   onOpenEvent: (eventId: string) => void;
 };
 
-/** Three horizontal rows: my events, plans, and past (home with feed). */
-export function HomeFeedCarouselSections({ myEvents, plans, pastEvents, onOpenEvent }: Props) {
+/** Empty state, or three horizontal rows: my events, plans, and past. */
+export function HomeFeedCarouselSections({
+  hasEvents,
+  myEvents,
+  plans,
+  pastEvents,
+  onOpenEvent,
+}: Props) {
+  if (!hasEvents) {
+    return <HomeEmptyState />;
+  }
+
   const rows: {
     title: string;
     events: Event[];
