@@ -1,4 +1,5 @@
 import { colors } from './colors';
+import { fontFamilies } from './typography';
 import type { StyleProp, TextStyle } from 'react-native';
 import { StyleSheet, Text } from 'react-native';
 
@@ -16,10 +17,11 @@ export function SectionTitle({ children, style }: SectionTitleProps) {
 
 const styles = StyleSheet.create({
   text: {
-    color: colors.neutral.primary,
-    fontSize: 18,
-    fontWeight: '700',
     marginBottom: 14,
     marginTop: 8,
+    fontSize: 20,
+    fontFamily: fontFamilies.signikaRegular,
+    color: colors.neutral.lightest,
+    fontWeight: '400',
   },
 });

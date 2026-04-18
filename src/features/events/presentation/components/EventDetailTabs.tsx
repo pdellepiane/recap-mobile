@@ -1,6 +1,7 @@
-import { colors } from '@/src/ui';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { EventDetailTab } from '../hooks/useEventDetailScreen';
+import { colors } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type EventDetailTabsProps = {
   activeTab: EventDetailTab;
@@ -84,8 +85,10 @@ const styles = StyleSheet.create({
   },
   tabText: {
     color: colors.neutral.primary,
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '400',
+    lineHeight: 20,
+    fontFamily: fontFamilies.signikaRegular,
   },
   tabTextActive: {
     color: colors.states.active,

@@ -3,6 +3,7 @@ import {
   EventChallengePhotoCameraHero,
 } from './EventChallengePhotoCameraHero';
 import { colors } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 const CHALLENGE_PHOTO_CARD_BG = require('../../../../../assets/images/event-detail/challenges/reto-photo-card-bg.png');
@@ -118,18 +119,22 @@ const styles = StyleSheet.create({
   },
   challengeLabel: {
     color: colors.states.active,
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '400',
+    lineHeight: 28,
+    fontFamily: fontFamilies.signikaRegular,
     textAlign: 'center',
     marginBottom: 14,
   },
   instruction: {
     color: colors.neutral.primary,
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: '500',
     textAlign: 'center',
-    lineHeight: 30,
+    lineHeight: 36,
+    fontFamily: fontFamilies.signikaRegular,
     paddingHorizontal: 4,
+    marginBottom: 10,
   },
   instructionParaSpacing: {
     marginBottom: 10,

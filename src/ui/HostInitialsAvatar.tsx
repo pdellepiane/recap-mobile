@@ -1,4 +1,5 @@
 import { colors } from './colors';
+import { fontFamilies } from './typography';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 const HOST_AVATAR_BACKGROUNDS = [
@@ -107,7 +108,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   initials: {
-    fontWeight: '700',
-    letterSpacing: -0.3,
+    fontWeight: '600',
+    lineHeight: 20,
+    fontFamily: fontFamilies.signikaMedium,
+    color: colors.background.primary,
   },
 });

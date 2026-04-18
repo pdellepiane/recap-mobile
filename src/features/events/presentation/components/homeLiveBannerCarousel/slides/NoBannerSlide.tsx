@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.signikaRegular,
     fontSize: 14,
     fontWeight: '400',
-    lineHeight: 28,
+    lineHeight: 20,
   },
   logo: {
     width: 168,

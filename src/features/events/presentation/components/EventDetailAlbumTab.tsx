@@ -1,7 +1,8 @@
-import { colors } from '@/src/ui';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import type { AlbumPhoto } from '../data/eventAlbum';
 import { EventDetailAlbumTile } from './EventDetailAlbumTile';
+import { colors } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 const SCROLL_PADDING_X = 20;
 const COL_GAP = 8;
@@ -65,8 +66,10 @@ export function EventDetailAlbumTab({ photos }: Props) {
 const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.neutral.primary,
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaSemiBold,
     marginBottom: 16,
   },
   empty: {

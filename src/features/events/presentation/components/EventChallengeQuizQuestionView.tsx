@@ -1,4 +1,5 @@
 import { colors } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 const CHALLENGE_TRIVIA_BUBBLES = require('../../../../../assets/images/event-detail/challenges/reto-trivia-bubbles.png');
@@ -94,17 +95,20 @@ const styles = StyleSheet.create({
   },
   challengeKicker: {
     color: colors.brand[300],
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '400',
+    lineHeight: 28,
+    fontFamily: fontFamilies.signikaRegular,
     textAlign: 'center',
     marginBottom: 6,
   },
   question: {
     color: colors.neutral.primary,
     fontSize: 28,
-    fontWeight: '800',
+    fontWeight: '500',
     textAlign: 'center',
-    lineHeight: 34,
+    lineHeight: 36,
+    fontFamily: fontFamilies.medium,
     marginBottom: 16,
   },
   options: {
@@ -127,8 +131,10 @@ const styles = StyleSheet.create({
   },
   optionText: {
     color: colors.neutral.primary,
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaSemiBold,
   },
   radioOuter: {
     width: 22,

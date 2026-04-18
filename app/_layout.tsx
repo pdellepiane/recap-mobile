@@ -24,6 +24,8 @@ export default function RootLayout() {
     'Signika-Light': require('../assets/fonts/Signika-Light.ttf'),
     'Signika-Regular': require('../assets/fonts/Signika-Regular.ttf'),
     'Signika-Medium': require('../assets/fonts/Signika-Medium.ttf'),
+    'Signika-Bold': require('../assets/fonts/Signika-Bold.ttf'),
+    'Signika-SemiBold': require('../assets/fonts/Signika-SemiBold.ttf'),
   });
 
   useEffect(() => {

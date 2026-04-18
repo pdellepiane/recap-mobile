@@ -1,8 +1,9 @@
-import { colors } from '@/src/ui';
-import { StyleSheet, Text, View } from 'react-native';
 import type { RankingRow } from '../data/eventRanking';
 import { EventDetailRankIndicator } from './EventDetailRankIndicator';
 import { EventDetailRankingAvatar } from './EventDetailRankingAvatar';
+import { colors } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
+import { StyleSheet, Text, View } from 'react-native';
 
 const INTRO = 'Resuelve la mayor cantidad de challenges para subir en el ranking de invitados';
 const INTRO_PRE_EVENT =
@@ -55,14 +56,18 @@ export function EventDetailRankingTab({ rows }: Props) {
 const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.neutral.primary,
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaSemiBold,
     marginBottom: 10,
   },
   intro: {
     color: colors.neutral.primary,
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: fontFamilies.signikaLight,
+    fontWeight: '300',
     opacity: 0.88,
     marginBottom: 20,
   },
@@ -93,11 +98,15 @@ const styles = StyleSheet.create({
     minWidth: 0,
     color: colors.neutral.primary,
     fontSize: 16,
-    fontWeight: '600',
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaSemiBold,
+    fontWeight: '400',
   },
   points: {
     color: colors.states.active,
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '400',
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaRegular,
   },
 });

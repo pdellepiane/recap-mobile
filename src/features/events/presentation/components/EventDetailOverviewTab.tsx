@@ -1,6 +1,7 @@
-import { CountdownTimer, colors, HostInitialsAvatar, parseHostsFromLine } from '@/src/ui';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { EventDetailExtras } from '../data/eventDetailExtras';
+import { colors, CountdownTimer, HostInitialsAvatar, parseHostsFromLine } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 const ICON_EVENT_LOCATION = require('../../../../../assets/images/event-detail/icon-location-lime.png');
 const ICON_EVENT_GUESTS = require('../../../../../assets/images/event-detail/icon-guests-lime.png');
@@ -55,9 +56,7 @@ export function EventDetailOverviewTab({
         </View>
       </View>
 
-      {showDetailCountdown ? (
-        <CountdownTimer endsAt={countdownEndsAt} />
-      ) : null}
+      {showDetailCountdown ? <CountdownTimer endsAt={countdownEndsAt} /> : null}
 
       <Text style={styles.sectionHeading}>Información del evento</Text>
       <Text style={styles.bodyText}>{description}</Text>
@@ -119,24 +118,33 @@ const styles = StyleSheet.create({
   },
   creatorsLabel: {
     color: colors.neutral.secondary,
-    fontSize: 13,
+    fontSize: 12,
+    lineHeight: 16,
+    fontFamily: fontFamilies.signikaLight,
+    fontWeight: '300',
   },
   creatorsNames: {
     color: colors.neutral.primary,
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '400',
+    lineHeight: 28,
+    fontFamily: fontFamilies.signikaRegular,
     marginTop: 2,
   },
   sectionHeading: {
     color: colors.neutral.primary,
-    fontSize: 17,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaSemiBold,
     marginBottom: 10,
   },
   bodyText: {
     color: colors.neutral.primary,
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: fontFamilies.signikaLight,
+    fontWeight: '300',
     marginBottom: 20,
   },
   infoCard: {
@@ -157,13 +165,18 @@ const styles = StyleSheet.create({
   },
   infoCardTitle: {
     color: colors.neutral.primary,
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '400',
+    lineHeight: 28,
+    fontFamily: fontFamilies.signikaRegular,
   },
   infoCardSub: {
     color: colors.neutral.secondary,
-    fontSize: 14,
-    marginTop: 4,
+    fontSize: 12,
+    lineHeight: 16,
+    fontFamily: fontFamilies.signikaLight,
+    fontWeight: '300',
+    marginTop: 2,
   },
   pressed: {
     opacity: 0.85,
@@ -184,11 +197,23 @@ const styles = StyleSheet.create({
   },
   guestInitial: {
     color: colors.neutral.primary,
-    fontWeight: '700',
-    fontSize: 16,
+    fontWeight: '400',
+    fontSize: 20,
+    lineHeight: 28,
+    fontFamily: fontFamilies.signikaRegular,
   },
   guestName: {
     color: colors.neutral.primary,
+    fontSize: 12,
+    lineHeight: 16,
+    fontFamily: fontFamilies.signikaLight,
+    fontWeight: '300',
+  },
+  guestNameBold: {
+    fontWeight: '600',
     fontSize: 16,
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaSemiBold,
+    color: colors.neutral.primary,
   },
 });

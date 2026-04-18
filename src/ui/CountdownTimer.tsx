@@ -1,4 +1,5 @@
 import { colors } from './colors';
+import { fontFamilies } from './typography';
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -94,15 +95,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   value: {
-    fontSize: 28,
-    fontWeight: '800',
-    lineHeight: 34,
-    letterSpacing: -0.5,
+    fontSize: 20,
+    fontWeight: '400',
+    lineHeight: 28,
+    fontFamily: fontFamilies.signikaRegular,
   },
   label: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: '300',
     lineHeight: 16,
+    fontFamily: fontFamilies.signikaLight,
     marginTop: 6,
     textAlign: 'center',
   },

@@ -8,5 +8,7 @@ export const fontFamilies = {
   signikaLight: 'Signika-Light',
   signikaRegular: 'Signika-Regular',
   signikaMedium: 'Signika-Medium',
+  signikaBold: 'Signika-Bold',
+  signikaSemiBold: 'Signika-SemiBold',
   arial: 'Arial',
 } as const;

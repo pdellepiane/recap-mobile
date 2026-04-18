@@ -1,5 +1,6 @@
 import { EventDetailLiveAvatarRow } from './EventDetailLiveAvatarRow';
 import { colors } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
 import { Ionicons } from '@expo/vector-icons';
 import type { ImageSourcePropType } from 'react-native';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -130,9 +131,11 @@ const styles = StyleSheet.create({
   },
   eventTitle: {
     color: colors.neutral.primary,
-    fontSize: 26,
-    fontWeight: '700',
+    fontSize: 28,
+    fontWeight: '500',
+    lineHeight: 36,
     textAlign: 'center',
+    fontFamily: fontFamilies.medium,
     marginBottom: 20,
   },
 });

@@ -1,11 +1,12 @@
+import type { EventChallenge } from '../data/eventChallenges';
 import { colors } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import type { EventChallenge } from '../data/eventChallenges';
 
 const CHALLENGE_CHEVRON = require('../../../../../assets/images/event-detail/challenges/reto-chevron-right.png');
 const CHALLENGE_QUIZ_CORNER = require('../../../../../assets/images/event-detail/challenges/reto-quiz-corner.png');
-const CHALLENGE_QUIZ_LABEL_ICON = require('../../../../../assets/images/event-detail/challenges/reto-quiz-label-icon.png');
+const CHALLENGE_QUIZ_LABEL_ICON = require('../../../../../assets/images/question-icon.png');
 const CHALLENGE_PHOTO_CORNER = require('../../../../../assets/images/event-detail/challenges/reto-photo-corner.png');
 const CHALLENGE_PHOTO_LABEL_ICON = require('../../../../../assets/images/event-detail/challenges/reto-photo-label-icon.png');
 
@@ -149,14 +150,18 @@ export function EventDetailChallengesTab({
 const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.neutral.primary,
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaSemiBold,
     marginBottom: 10,
   },
   intro: {
     color: colors.neutral.secondary,
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: fontFamilies.signikaLight,
+    fontWeight: '300',
     marginBottom: 20,
   },
   empty: {
@@ -238,13 +243,17 @@ const styles = StyleSheet.create({
     height: 18,
   },
   challengeLabel: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaSemiBold,
   },
   completedPoints: {
     color: CHALLENGE_ACCENT_LIME,
-    fontSize: 13,
-    fontWeight: '800',
+    fontSize: 12,
+    fontWeight: '400',
+    lineHeight: 16,
+    fontFamily: fontFamilies.signikaRegular,
   },
   completedPointsZero: {
     color: colors.states.error,
@@ -259,6 +268,7 @@ const styles = StyleSheet.create({
     color: colors.neutral.primary,
     fontSize: 16,
     fontWeight: '600',
-    lineHeight: 22,
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaSemiBold,
   },
 });

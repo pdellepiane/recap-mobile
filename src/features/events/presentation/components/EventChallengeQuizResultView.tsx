@@ -1,4 +1,5 @@
 import { colors } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
@@ -187,16 +188,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   resultChallenge: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '400',
+    lineHeight: 28,
+    fontFamily: fontFamilies.signikaRegular,
     color: colors.background.primary,
     marginBottom: 6,
   },
   resultTitle: {
-    fontSize: 34,
+    fontSize: 28,
     fontWeight: '500',
     color: colors.background.primary,
     marginBottom: 18,
+    fontFamily: fontFamilies.signikaRegular,
+    lineHeight: 36,
     textAlign: 'center',
   },
   resultCard: {
@@ -221,7 +226,7 @@ const styles = StyleSheet.create({
   resultPillSpacer: { height: 12 },
   resultQuestion: {
     color: colors.neutral.primary,
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: '500',
     textAlign: 'center',
     lineHeight: 36,
@@ -239,7 +244,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
   },
-  resultAnswerText: { color: colors.neutral.primary, fontSize: 15, fontWeight: '600' },
+  resultAnswerText: {
+    color: colors.neutral.primary,
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaSemiBold,
+  },
   resultAnswerRowFeedback: { justifyContent: 'flex-start', paddingHorizontal: 16 },
   resultAnswerTextFlex: { flex: 1, flexShrink: 1 },
   pointsPill: {
@@ -252,7 +263,13 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   pointsPillWrong: { backgroundColor: colors.brand[500] },
-  pointsText: { color: colors.neutral.primary, fontSize: 16, fontWeight: '600' },
+  pointsText: {
+    color: colors.neutral.primary,
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaSemiBold,
+  },
   rankingBtn: {
     width: '100%',
     height: 60,
@@ -263,6 +280,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
   },
-  rankingBtnText: { fontSize: 18, fontWeight: '700', color: colors.background.primary },
+  rankingBtnText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.background.primary,
+    lineHeight: 16,
+    fontFamily: fontFamilies.bold,
+  },
   pressed: { opacity: 0.85 },
 });

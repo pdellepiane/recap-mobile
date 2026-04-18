@@ -2,6 +2,7 @@ import { EventChallengeQuizQuestionView } from '../components/EventChallengeQuiz
 import { EventChallengeQuizResultView } from '../components/EventChallengeQuizResultView';
 import { useEventChallengeQuizScreen } from '../hooks/useEventChallengeQuizScreen';
 import { colors } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -164,7 +165,9 @@ const styles = StyleSheet.create({
   },
   finishText: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '700',
+    lineHeight: 16,
+    fontFamily: fontFamilies.bold,
   },
   finishTextEnabled: {
     color: colors.background.primary,
