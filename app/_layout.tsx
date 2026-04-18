@@ -5,7 +5,6 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { Text, TextInput, type TextInputProps, type TextProps } from 'react-native';
-import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 SplashScreen.preventAutoHideAsync();
@@ -23,6 +22,8 @@ export default function RootLayout() {
     'PlusJakartaSans-Italic': require('../assets/fonts/PlusJakartaSans-Italic.ttf'),
     'PlusJakartaSans-Light': require('../assets/fonts/PlusJakartaSans-Light.ttf'),
     'Signika-Light': require('../assets/fonts/Signika-Light.ttf'),
+    'Signika-Regular': require('../assets/fonts/Signika-Regular.ttf'),
+    'Signika-Medium': require('../assets/fonts/Signika-Medium.ttf'),
   });
 
   useEffect(() => {
@@ -65,10 +66,7 @@ export default function RootLayout() {
           <Stack.Screen name="login" />
           <Stack.Screen name="verify-code" />
           <Stack.Screen name="home" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="in-app-web"
-            options={{ headerShown: false, presentation: 'modal' }}
-          />
+          <Stack.Screen name="in-app-web" options={{ headerShown: false, presentation: 'modal' }} />
           <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
         </Stack>
       </AuthProvider>

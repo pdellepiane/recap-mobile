@@ -7,6 +7,7 @@ export type { FloatingCameraFabProps } from './FloatingCameraFab';
 export { FloatingReactions, useFloatingReactions } from './FloatingReactions';
 export type { FloatingReactionPayload, SpawnFloatingReaction } from './FloatingReactions';
 export { Form } from './Form';
+export { HostInitialsAvatar, initialsFromFullName, parseHostsFromLine } from './HostInitialsAvatar';
 export { HorizontalEmojiReactionBar } from './HorizontalEmojiReactionBar';
 export { InputField } from './InputField';
 export { ScreenLoading } from './ScreenLoading';

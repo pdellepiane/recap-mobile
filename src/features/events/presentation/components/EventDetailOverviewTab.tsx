@@ -1,4 +1,4 @@
-import { CountdownTimer, colors } from '@/src/ui';
+import { CountdownTimer, colors, HostInitialsAvatar, parseHostsFromLine } from '@/src/ui';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { EventDetailExtras } from '../data/eventDetailExtras';
 
@@ -30,12 +30,24 @@ export function EventDetailOverviewTab({
   showDetailCountdown,
   onOpenMap,
 }: EventDetailOverviewTabProps) {
+  const hostNames = parseHostsFromLine(hostsLine);
+
   return (
     <>
       <View style={styles.creatorsRow}>
         <View style={styles.creatorAvatars}>
-          <View style={[styles.creatorCircle, styles.creator1]} />
-          <View style={[styles.creatorCircle, styles.creator2]} />
+          {hostNames.map((name, i) => (
+            <HostInitialsAvatar
+              key={`${name}-${i}`}
+              fullName={name}
+              colorIndex={i}
+              style={
+                i > 0
+                  ? { marginLeft: -14, zIndex: hostNames.length - i }
+                  : { zIndex: hostNames.length }
+              }
+            />
+          ))}
         </View>
         <View style={styles.creatorsTextCol}>
           <Text style={styles.creatorsLabel}>Evento creado por</Text>
@@ -44,11 +56,7 @@ export function EventDetailOverviewTab({
       </View>
 
       {showDetailCountdown ? (
-        <CountdownTimer
-          endsAt={countdownEndsAt}
-          cellBackgroundColor={colors.brand[700]}
-          textColor={colors.neutral.primary}
-        />
+        <CountdownTimer endsAt={countdownEndsAt} />
       ) : null}
 
       <Text style={styles.sectionHeading}>Información del evento</Text>
@@ -105,22 +113,6 @@ const styles = StyleSheet.create({
   creatorAvatars: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  creatorCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 2,
-    borderColor: colors.background.primary,
-  },
-  creator1: {
-    backgroundColor: colors.brand[500],
-    zIndex: 2,
-  },
-  creator2: {
-    backgroundColor: colors.states.error,
-    marginLeft: -14,
-    zIndex: 1,
   },
   creatorsTextCol: {
     flex: 1,

@@ -1,13 +1,8 @@
+import { HomeEmptyState, HomeFeedCarouselSections, HomeLiveEventsCarousel } from '../components';
+import { useHomeScreen } from '../hooks/useHomeScreen';
 import { colors, Spinner } from '@/src/ui';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  HomeEmptyState,
-  HomeFeedCarouselSections,
-  HomeFirstEventPromoCard,
-  HomeLiveEventsCarousel,
-} from '../components';
-import { useHomeScreen } from '../hooks/useHomeScreen';
 
 const HOME_CONTENT_INSET_LEFT = 20;
 
@@ -22,7 +17,6 @@ export const HomeScreenPage = () => {
     isLoading,
     openEvent,
     handleLiveSlidePress,
-    handleOpenWebsiteToCreateEvent,
   } = useHomeScreen();
 
   if (isLoading) {
@@ -43,11 +37,7 @@ export const HomeScreenPage = () => {
         contentContainerStyle={[styles.scrollContent, !hasEvents && styles.scrollContentWhenEmpty]}
         showsVerticalScrollIndicator={false}
       >
-        {banners.length > 0 ? (
-          <HomeLiveEventsCarousel banners={banners} onSlidePress={handleLiveSlidePress} />
-        ) : (
-          <HomeFirstEventPromoCard onPress={handleOpenWebsiteToCreateEvent} />
-        )}
+        <HomeLiveEventsCarousel banners={banners} onSlidePress={handleLiveSlidePress} />
 
         {!hasEvents ? (
           <HomeEmptyState />

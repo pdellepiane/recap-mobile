@@ -114,12 +114,13 @@ export type HomeEventsListResponse = {
   error: string | null;
 };
 
-export type HomeBannerType =
-  | 'event_to_start'
-  | 'event_live'
-  | 'event_finished'
-  | 'no_event'
-  | string;
+/** Home banner carousel variant from GET /api/home/banners (drives slider layout in the app). */
+export enum HomeBannerType {
+  EventToStart = 'event_to_start',
+  EventLive = 'event_live',
+  EventFinished = 'event_finished',
+  NoEvent = 'no_event',
+}
 
 /** Row from GET /api/home/banners (slider cards; `banner_type` drives layout). */
 export type HomeBannerItem = {

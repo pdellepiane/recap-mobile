@@ -1,4 +1,4 @@
-import type { HomeBannerItem, HomeEventItem } from '@/src/core/api/types';
+import { HomeBannerType, type HomeBannerItem, type HomeEventItem } from '@/src/core/api/types';
 import {
   GUESTS_ANNIVERSARY_11002,
   GUESTS_BABY_SHOWER_12001,
@@ -57,6 +57,16 @@ const COVER_CHAPEL =
   'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1200&auto=format&fit=crop&q=85';
 const COVER_WELLNESS =
   'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&auto=format&fit=crop&q=85';
+
+/** Guest faces for finished-event home banners (`guest_images`, max 6 shown). */
+const MOCK_COLLAGE_PORTRAIT =
+  'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=240&h=240&auto=format&fit=crop&q=80';
+
+/** Six URLs for `event_finished` banner collage (mock repeats one portrait like design). */
+export const MOCK_BANNER_FINISHED_GUEST_IMAGES: string[] = Array.from(
+  { length: 6 },
+  () => MOCK_COLLAGE_PORTRAIT,
+);
 
 /**
  * API-shaped “Mis eventos” rows (Spanish copy, Lima-area venues).
@@ -251,8 +261,36 @@ export const MOCK_HOME_GUEST_EVENTS: HomeEventItem[] = [
  */
 export const MOCK_HOME_BANNERS: HomeBannerItem[] = [
   {
+    id: 0,
+    banner_type: HomeBannerType.NoEvent,
+    slug: 'promo-primer-evento',
+    name: 'Crea tu primer evento',
+    type: 'Promo',
+    datetime: '',
+    with_time: 0,
+    cover: '',
+    guest_images: [],
+    timezone: 'America/Lima',
+    created_at: MOCK_TS,
+    updated_at: MOCK_TS,
+  },
+  {
+    id: 12001,
+    banner_type: HomeBannerType.EventToStart,
+    slug: 'baby-shower-valentina',
+    name: 'Boda de Pepsi&Coca',
+    type: 'Baby shower',
+    datetime: '2026-04-18T11:00:00-05:00',
+    with_time: 1,
+    cover: COVER_BABY,
+    guest_images: [],
+    timezone: 'America/Lima',
+    created_at: MOCK_TS,
+    updated_at: MOCK_TS,
+  },
+  {
     id: 11001,
-    banner_type: 'event_live',
+    banner_type: HomeBannerType.EventLive,
     slug: 'boda-mariel-jorge',
     name: 'Boda Mariel & Jorge',
     type: 'Boda',
@@ -265,36 +303,22 @@ export const MOCK_HOME_BANNERS: HomeBannerItem[] = [
     updated_at: MOCK_TS,
   },
   {
-    id: 12001,
-    banner_type: 'event_to_start',
-    slug: 'baby-shower-valentina',
-    name: 'Baby shower de Valentina',
-    type: 'Baby shower',
-    datetime: '2026-04-18T11:00:00-05:00',
-    with_time: 1,
-    cover: COVER_BABY,
-    guest_images: [],
-    timezone: 'America/Lima',
-    created_at: MOCK_TS,
-    updated_at: MOCK_TS,
-  },
-  {
     id: 11002,
-    banner_type: 'event_finished',
+    banner_type: HomeBannerType.EventFinished,
     slug: 'aniversario-lucia-martin',
     name: 'Aniversario Lucía & Martín',
     type: 'Aniversario',
     datetime: '2026-09-20T19:30:00-05:00',
     with_time: 1,
     cover: COVER_GARDEN,
-    guest_images: [],
+    guest_images: [...MOCK_BANNER_FINISHED_GUEST_IMAGES],
     timezone: 'America/Lima',
     created_at: MOCK_TS,
     updated_at: MOCK_TS,
   },
   {
     id: 12002,
-    banner_type: 'event_to_start',
+    banner_type: HomeBannerType.EventToStart,
     slug: 'graduacion-medicina-ucsur',
     name: 'Graduación Medicina — promo 2021',
     type: 'Ceremonia',
@@ -308,21 +332,21 @@ export const MOCK_HOME_BANNERS: HomeBannerItem[] = [
   },
   {
     id: 11003,
-    banner_type: 'event_finished',
+    banner_type: HomeBannerType.EventFinished,
     slug: 'despedida-soltera-andrea',
     name: 'Despedida de soltera — Andrea',
     type: 'Fiesta',
     datetime: '2025-11-30T22:00:00-05:00',
     with_time: 1,
     cover: COVER_NIGHT,
-    guest_images: [],
+    guest_images: [...MOCK_BANNER_FINISHED_GUEST_IMAGES],
     timezone: 'America/Lima',
     created_at: MOCK_TS,
     updated_at: MOCK_TS,
   },
   {
     id: 11006,
-    banner_type: 'event_to_start',
+    banner_type: HomeBannerType.EventToStart,
     slug: 'cumple-bruno-8',
     name: 'Cumple Bruno · 8 años',
     type: 'Cumpleaños',
@@ -342,7 +366,6 @@ export function getMockHomeEventApiById(eventId: string): HomeEventItem | undefi
     return undefined;
   }
   return (
-    MOCK_HOME_HOST_EVENTS.find((e) => e.id === n) ??
-    MOCK_HOME_GUEST_EVENTS.find((e) => e.id === n)
+    MOCK_HOME_HOST_EVENTS.find((e) => e.id === n) ?? MOCK_HOME_GUEST_EVENTS.find((e) => e.id === n)
   );
 }

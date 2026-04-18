@@ -6,5 +6,7 @@ export const fontFamilies = {
   bold: 'PlusJakartaSans-Bold',
   italic: 'PlusJakartaSans-Italic',
   signikaLight: 'Signika-Light',
+  signikaRegular: 'Signika-Regular',
+  signikaMedium: 'Signika-Medium',
   arial: 'Arial',
 } as const;

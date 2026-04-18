@@ -1,4 +1,5 @@
 export { authUserPaths, eventPaths, homePaths } from './paths';
+export { HomeBannerType } from './types';
 export type {
   ApiErrorBody,
   EventDetailApiResponse,

@@ -40,6 +40,10 @@ export function mapEventDetailDataToDomain(data: EventDetailData): DomainEvent {
     }
   }
   const cover = data.cover?.trim();
+  const previewGuestNames = guests
+    .map((g) => g.name?.trim())
+    .filter((n): n is string => Boolean(n && n.length > 0))
+    .slice(0, 3);
   return {
     id: String(data.id),
     title: data.name,
@@ -54,6 +58,8 @@ export function mapEventDetailDataToDomain(data: EventDetailData): DomainEvent {
     hostsLine: data.hosts,
     guestsLine: data.guests,
     typeDetail: data.type_detail,
+    stage: data.stage,
+    ...(previewGuestNames.length > 0 ? { previewGuestNames } : {}),
   };
 }
 

@@ -10,6 +10,101 @@ const LANG_ES_PE: LoginCodeLanguagePayload = {
   name: 'Español',
 };
 
+/** First / last pools for {@link mockGuestsBulk} — mixes common Perú / Latinoamérica names. */
+const MOCK_GUEST_FIRST_NAMES = [
+  'María',
+  'Carlos',
+  'Ana',
+  'Luis',
+  'Rosa',
+  'Pedro',
+  'Lucía',
+  'Jorge',
+  'Carmen',
+  'Miguel',
+  'Patricia',
+  'Roberto',
+  'Gabriela',
+  'Fernando',
+  'Daniela',
+  'Ricardo',
+  'Valentina',
+  'Andrés',
+  'Camila',
+  'Diego',
+  'Sofía',
+  'Martín',
+  'Paula',
+  'Sergio',
+  'Jimena',
+  'Óscar',
+  'Natalia',
+  'Eduardo',
+  'Isabel',
+  'Raúl',
+  'Ximena',
+  'Javier',
+  'Elena',
+  'Felipe',
+  'Mariana',
+  'Hugo',
+  'Claudia',
+  'Álvaro',
+  'Verónica',
+  'Emilio',
+] as const;
+
+const MOCK_GUEST_LAST_NAMES = [
+  'García',
+  'Rodríguez',
+  'López',
+  'Martínez',
+  'González',
+  'Herrera',
+  'Sánchez',
+  'Torres',
+  'Ramírez',
+  'Flores',
+  'Vargas',
+  'Castro',
+  'Mendoza',
+  'Ríos',
+  'Silva',
+  'Morales',
+  'Vega',
+  'Paredes',
+  'Salazar',
+  'Quispe',
+  'Chávez',
+  'Espinoza',
+  'Medina',
+  'Cruz',
+  'Reyes',
+  'Campos',
+  'Delgado',
+  'Fuentes',
+  'Ibáñez',
+  'Montes',
+  'Duarte',
+  'Rojas',
+  'Valdivia',
+  'Zevallos',
+  'Bustamante',
+  'Aguilar',
+  'Ponce',
+  'Tapia',
+  'Córdova',
+  'Salinas',
+] as const;
+
+function mockBulkGuestDisplayName(indexZeroBased: number): string {
+  const i = indexZeroBased;
+  const first = MOCK_GUEST_FIRST_NAMES[i % MOCK_GUEST_FIRST_NAMES.length];
+  const last =
+    MOCK_GUEST_LAST_NAMES[(i * 11 + Math.floor(i / MOCK_GUEST_FIRST_NAMES.length)) % MOCK_GUEST_LAST_NAMES.length];
+  return `${first} ${last}`;
+}
+
 function mkGuest(
   base: Pick<HomeEventGuestItem, 'id' | 'name' | 'email'> &
     Partial<
@@ -45,7 +140,7 @@ function mockGuestsBulk(
     const willAttend = hasResponded !== 0 && i % 6 !== 0 ? 1 : 0;
     return mkGuest({
       id: startId + i,
-      name: `Invitado ${String(n)}`,
+      name: mockBulkGuestDisplayName(i),
       email: `${emailPrefix}-${String(n)}@demo.recap.test`,
       full_phone: `+51 987 ${String(100000 + i).slice(-6)}`,
       has_responded: hasResponded,

@@ -11,6 +11,7 @@ export const colors = {
   },
   neutral: {
     primary: 'rgba(255, 255, 255, 1)',
+    lightest: '#FCFCFC',
     secondary: 'rgba(179, 179, 179, 1)',
     tertiary: 'rgba(138, 138, 138, 1)',
     disabled: 'rgba(92, 92, 92, 1)',
@@ -57,6 +58,11 @@ export const colors = {
     white55: 'rgba(255, 255, 255, 0.55)',
     white65: 'rgba(255, 255, 255, 0.65)',
   },
+  /** Countdown blocks (event detail / promos): deep purple cells, lavender border on charcoal. */
+  countdown: {
+    cellBackground: 'rgba(72, 40, 128, 1)',
+    cellBorder: 'rgba(123, 82, 171, 1)',
+  },
   /** Event detail screen & home feed accents (quiz label, ranking medals, carousel dots, etc.). */
   events: {
     challengeQuizLabel: 'rgba(196, 181, 253, 1)',
@@ -68,6 +74,22 @@ export const colors = {
     carouselDotInactive: 'rgba(63, 63, 70, 1)',
     guestsOnCard: 'rgba(196, 181, 253, 1)',
     locationPin: 'rgba(167, 139, 250, 1)',
+    /** Home carousel “Evento en vivo” row. */
+    homeCardLive: 'rgba(163, 207, 61, 1)',
+    homeCardLiveHalo: 'rgba(163, 207, 61, 0.38)',
+    /** Teal host / “Por ti” chip on card cover. */
+    homeCardCoverTeal: 'rgba(46, 196, 182, 1)',
+    homeCardCoverOnTeal: 'rgba(15, 31, 26, 1)',
+    /** Pastel facepile fills (home carousel). */
+    homeCardPastelMint: 'rgba(184, 232, 208, 1)',
+    homeCardPastelSky: 'rgba(184, 217, 240, 1)',
+    homeCardPastelLilac: 'rgba(212, 196, 240, 1)',
+    /** Home banner “sin envolturas” promo CTA / left graphic accent. */
+    bannerPromoLime: 'rgba(212, 255, 91, 1)',
+    /** Live structured banner: avatar ring, status, CTA (Figma ~#C6FF00). */
+    homeBannerLiveLime: '#C6FF00',
+    /** Halo behind the live pulse dot on the structured live banner. */
+    homeBannerLiveDotHalo: 'rgba(60, 80, 35, 0.55)',
   },
 } as const;
 

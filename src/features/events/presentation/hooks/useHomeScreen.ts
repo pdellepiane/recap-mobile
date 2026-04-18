@@ -1,6 +1,8 @@
+import { HomeBannerType } from '@/src/core/api/types';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { NO_EVENT_CAROUSEL_FALLBACK } from '../components/homeLiveBannerCarousel/noEventFallbackBanner';
 import { firstNameFromDisplayName } from '../utils/eventDisplay';
 import { useHomeFeed } from './useHomeFeed';
 
@@ -16,6 +18,12 @@ export function useHomeScreen() {
 
   const firstName = session ? firstNameFromDisplayName(session.user.name) : 'Invitado';
 
+  /** Same ordering as {@link HomeLiveEventsCarousel} (fallback when GET /banners is empty). */
+  const carouselBanners = useMemo(
+    () => (banners.length > 0 ? banners : [NO_EVENT_CAROUSEL_FALLBACK]),
+    [banners],
+  );
+
   const openEvent = useCallback(
     (id: string) => {
       goToEventDetail(id);
@@ -25,17 +33,18 @@ export function useHomeScreen() {
 
   const handleLiveSlidePress = useCallback(
     (index: number) => {
-      const item = banners[index] ?? banners[0];
-      if (item) {
-        openEvent(String(item.id));
+      const item = carouselBanners[index] ?? carouselBanners[0];
+      if (!item) {
+        return;
       }
+      if (item.banner_type === HomeBannerType.NoEvent) {
+        goToHomeWeb(SIN_ENVOLTURAS_MARKETING_URL);
+        return;
+      }
+      openEvent(String(item.id));
     },
-    [banners, openEvent],
+    [carouselBanners, goToHomeWeb, openEvent],
   );
-
-  const handleOpenWebsiteToCreateEvent = useCallback(() => {
-    goToHomeWeb(SIN_ENVOLTURAS_MARKETING_URL);
-  }, [goToHomeWeb]);
 
   return {
     firstName,
@@ -47,6 +56,5 @@ export function useHomeScreen() {
     isLoading,
     openEvent,
     handleLiveSlidePress,
-    handleOpenWebsiteToCreateEvent,
   };
 }
