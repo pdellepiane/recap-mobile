@@ -1,4 +1,4 @@
-import { HomeEmptyState, HomeFeedCarouselSections, HomeLiveEventsCarousel } from '../components';
+import { HomeBannerCarousel, HomeFeedCarouselSections } from '../components';
 import { useHomeScreen } from '../hooks/useHomeScreen';
 import { colors, Spinner } from '@/src/ui';
 import { ScrollView, StyleSheet, Text } from 'react-native';
@@ -37,18 +37,15 @@ export const HomeScreenPage = () => {
         contentContainerStyle={[styles.scrollContent, !hasEvents && styles.scrollContentWhenEmpty]}
         showsVerticalScrollIndicator={false}
       >
-        <HomeLiveEventsCarousel banners={banners} onSlidePress={handleLiveSlidePress} />
+        <HomeBannerCarousel banners={banners} onSlidePress={handleLiveSlidePress} />
 
-        {!hasEvents ? (
-          <HomeEmptyState />
-        ) : (
-          <HomeFeedCarouselSections
-            myEvents={myEvents}
-            plans={plans}
-            pastEvents={pastEvents}
-            onOpenEvent={openEvent}
-          />
-        )}
+        <HomeFeedCarouselSections
+          hasEvents={hasEvents}
+          myEvents={myEvents}
+          plans={plans}
+          pastEvents={pastEvents}
+          onOpenEvent={openEvent}
+        />
       </ScrollView>
     </SafeAreaView>
   );

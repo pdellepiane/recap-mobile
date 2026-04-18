@@ -58,15 +58,18 @@ const COVER_CHAPEL =
 const COVER_WELLNESS =
   'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&auto=format&fit=crop&q=85';
 
-/** Guest faces for finished-event home banners (`guest_images`, max 6 shown). */
-const MOCK_COLLAGE_PORTRAIT =
-  'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=240&h=240&auto=format&fit=crop&q=80';
-
-/** Six URLs for `event_finished` banner collage (mock repeats one portrait like design). */
-export const MOCK_BANNER_FINISHED_GUEST_IMAGES: string[] = Array.from(
-  { length: 6 },
-  () => MOCK_COLLAGE_PORTRAIT,
-);
+/**
+ * Six distinct URLs for `event_finished` banner collage (`guest_images`, max 6 shown):
+ * one group shot, then five different individual portraits.
+ */
+export const MOCK_BANNER_FINISHED_GUEST_IMAGES: string[] = [
+  'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=240&h=240&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=240&h=240&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=240&h=240&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=240&h=240&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=240&h=240&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=240&h=240&auto=format&fit=crop&q=80',
+];
 
 /**
  * API-shaped “Mis eventos” rows (Spanish copy, Lima-area venues).

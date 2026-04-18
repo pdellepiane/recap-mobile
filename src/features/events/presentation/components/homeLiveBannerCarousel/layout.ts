@@ -21,7 +21,9 @@ export const LIVE_BANNER_RADIUS = 24;
  */
 export const BANNER_STRUCTURED_FRAME_H = 158;
 
-export const COLLAGE_CELL = 58;
+export const COLLAGE_CELL = 54;
 export const COLLAGE_COL_OVERLAP = -20;
 export const COLLAGE_ROW_OVERLAP = -13;
 export const COLLAGE_STAGGER = 18;
+/** Circular guest collage on the finished-event banner (must match `rightPanel` in slide columns). */
+export const FINISHED_GUEST_COLLAGE_FRAME = 214;

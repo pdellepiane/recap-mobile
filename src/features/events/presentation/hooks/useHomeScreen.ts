@@ -18,7 +18,7 @@ export function useHomeScreen() {
 
   const firstName = session ? firstNameFromDisplayName(session.user.name) : 'Invitado';
 
-  /** Same ordering as {@link HomeLiveEventsCarousel} (fallback when GET /banners is empty). */
+  /** Same ordering as {@link HomeBannerCarousel} (fallback when GET /banners is empty). */
   const carouselBanners = useMemo(
     () => (banners.length > 0 ? banners : [NO_EVENT_CAROUSEL_FALLBACK]),
     [banners],
