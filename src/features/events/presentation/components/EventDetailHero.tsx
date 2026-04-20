@@ -11,18 +11,17 @@ type EventDetailHeroProps = {
   title: string;
   onBackPress: () => void;
   onReactionPress?: (source: ImageSourcePropType, center: { x: number; y: number }) => void;
-  onProfileAvatarPress?: () => void;
-  liveReactionImages?: readonly [
+  onProfileAvatarPress: () => void;
+  liveRowCenterImage: ImageSourcePropType;
+  liveReactionImages: readonly [
     ImageSourcePropType,
     ImageSourcePropType,
     ImageSourcePropType,
     ImageSourcePropType,
   ];
-  profileImage?: ImageSourcePropType;
 };
 
 const HERO_H = 260;
-const AVATAR = 100;
 
 export function EventDetailHero({
   insetsTop,
@@ -31,8 +30,8 @@ export function EventDetailHero({
   onBackPress,
   onReactionPress,
   onProfileAvatarPress,
+  liveRowCenterImage,
   liveReactionImages,
-  profileImage,
 }: EventDetailHeroProps) {
   return (
     <>
@@ -55,22 +54,12 @@ export function EventDetailHero({
         </View>
       </View>
 
-      {liveReactionImages && profileImage ? (
-        <EventDetailLiveAvatarRow
-          profileImage={profileImage}
-          reactionSources={liveReactionImages}
-          onReactionPress={onReactionPress}
-          onProfileAvatarPress={onProfileAvatarPress}
-        />
-      ) : (
-        <View style={styles.avatarOverlap}>
-          {profileImage ? (
-            <Image source={profileImage} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatar, styles.avatarPlaceholder]} />
-          )}
-        </View>
-      )}
+      <EventDetailLiveAvatarRow
+        profileImage={liveRowCenterImage}
+        reactionSources={liveReactionImages}
+        onReactionPress={onReactionPress}
+        onProfileAvatarPress={onProfileAvatarPress}
+      />
 
       <Text style={styles.eventTitle}>{title}</Text>
     </>
@@ -113,21 +102,6 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.85,
-  },
-  avatarOverlap: {
-    marginTop: -AVATAR / 2,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  avatar: {
-    width: AVATAR,
-    height: AVATAR,
-    borderRadius: AVATAR / 2,
-    borderWidth: 4,
-    borderColor: colors.states.active,
-  },
-  avatarPlaceholder: {
-    backgroundColor: colors.background.tertiary,
   },
   eventTitle: {
     color: colors.neutral.primary,

@@ -1,4 +1,3 @@
-import { isEventHostedFromHomeFeed } from '@/src/features/events/data/homeEventCache';
 import { getEventAlbum } from '../data/eventAlbum';
 import type { EventChallenge } from '../data/eventChallenges';
 import { getEventChallenges } from '../data/eventChallenges';
@@ -12,15 +11,21 @@ import {
   getEventDetailExtras,
   getMapsSearchQueryForEvent,
 } from '../data/eventDetailExtras';
+import { EVENT_DETAIL_LIVE_ROW_AVATAR_FALLBACK } from '../data/eventDetailLiveRowAvatarFallback';
 import type { RankingRow } from '../data/eventRanking';
 import { getLocalRankingSnapshot } from '../data/eventRanking';
+import { getEventStoriesBundle } from '../data/eventStories';
+import {
+  isEventCalendarDayStrictlyAfterToday,
+  isEventCalendarDayToday,
+} from '../utils/eventCalendar';
 import { useEventDetail } from './useEventDetail';
 import { useLaunchDeviceCamera } from './useLaunchDeviceCamera';
 import { eventRepository } from '@/src/core/di/container';
+import { isEventHostedFromHomeFeed } from '@/src/features/events/data/homeEventCache';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { isEventCalendarDayStrictlyAfterToday, isEventCalendarDayToday } from '../utils/eventCalendar';
-import { BackHandler } from 'react-native';
+import { BackHandler, type ImageSourcePropType } from 'react-native';
 
 export enum EventDetailTab {
   Overview = 'detalle',
@@ -245,12 +250,24 @@ export function useEventDetailScreen({
     };
   }, [event?.id]);
 
-  const handleProfileAvatarPress = useMemo(() => {
-    if (!event || event.id !== 'evt-live-2') {
-      return undefined;
+  /** Center avatar in the reaction row: story author when statuses exist, otherwise event cover. */
+  const liveRowCenterImage = useMemo((): ImageSourcePropType => {
+    if (!event) {
+      return EVENT_DETAIL_LIVE_ROW_AVATAR_FALLBACK;
     }
-    return () => goToEventStories(event.id);
-  }, [event, goToEventStories]);
+    const bundle = getEventStoriesBundle(event.id);
+    if (bundle) {
+      return { uri: bundle.authorAvatarUrl };
+    }
+    return heroSource ?? EVENT_DETAIL_LIVE_ROW_AVATAR_FALLBACK;
+  }, [event, heroSource]);
+
+  const handleProfileAvatarPress = useCallback(() => {
+    if (getEventStoriesBundle(eventId) == null) {
+      return;
+    }
+    goToEventStories(eventId);
+  }, [eventId, goToEventStories]);
 
   const handleOpenMap = useCallback(() => {
     if (event && mapsQuery) {
@@ -281,6 +298,7 @@ export function useEventDetailScreen({
     rankingRows,
     albumPhotos,
     handleProfileAvatarPress,
+    liveRowCenterImage,
     handleOpenMap,
     hostsLine,
   };

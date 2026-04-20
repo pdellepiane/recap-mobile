@@ -4,8 +4,8 @@ import type { ImageSourcePropType } from 'react-native';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 const AVATAR = 100;
-const EMOJI = 44;
-const REACTION_IMG = 28;
+const EMOJI = 64;
+const REACTION_IMG = 53;
 
 const REACTION_A11Y = ['Fiesta', 'Triste', 'Risa', 'Corazones'] as const;
 
@@ -20,8 +20,8 @@ type Props = {
   ];
   /** When set, each tap measures the window center and triggers the floating animation. */
   onReactionPress?: (source: ImageSourcePropType, center: { x: number; y: number }) => void;
-  /** Tap on the center avatar (e.g. open stories). */
-  onProfileAvatarPress?: () => void;
+  /** Tap on the center avatar (e.g. open stories when available). */
+  onProfileAvatarPress: () => void;
 };
 
 /**
@@ -67,23 +67,19 @@ export function EventDetailLiveAvatarRow({
               itemRefs.current[index] = el;
             }}
             collapsable={false}
-            style={styles.emojiCircle}
+            style={styles.reactionHit}
           >
             <Image source={source} style={styles.reactionImg} resizeMode="contain" />
           </View>
         </Pressable>
       ))}
-      {onProfileAvatarPress ? (
-        <Pressable
-          onPress={onProfileAvatarPress}
-          accessibilityRole="button"
-          accessibilityLabel="Ver estados"
-        >
-          <Image source={profileImage} style={styles.avatar} />
-        </Pressable>
-      ) : (
-        <Image source={profileImage} style={styles.avatar} />
-      )}
+      <Pressable
+        onPress={onProfileAvatarPress}
+        accessibilityRole="button"
+        accessibilityLabel="Ver estados"
+      >
+        <Image source={profileImage} style={styles.avatar} resizeMode="cover" />
+      </Pressable>
       {cells.slice(2, 4).map(({ source, index }) => (
         <Pressable
           key={index}
@@ -97,7 +93,7 @@ export function EventDetailLiveAvatarRow({
               itemRefs.current[index] = el;
             }}
             collapsable={false}
-            style={styles.emojiCircle}
+            style={styles.reactionHit}
           >
             <Image source={source} style={styles.reactionImg} resizeMode="contain" />
           </View>
@@ -117,13 +113,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingHorizontal: 4,
   },
-  emojiCircle: {
+  reactionHit: {
     width: EMOJI,
     height: EMOJI,
-    borderRadius: EMOJI / 2,
-    backgroundColor: colors.overlay.black45,
-    borderWidth: 3,
-    borderColor: colors.neutral.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -137,5 +129,6 @@ const styles = StyleSheet.create({
     borderRadius: AVATAR / 2,
     borderWidth: 4,
     borderColor: colors.states.active,
+    overflow: 'hidden',
   },
 });

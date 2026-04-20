@@ -9,6 +9,7 @@ import {
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EventDetailScrollBody } from '../components/EventDetailScrollBody';
+import { DEFAULT_LIVE_REACTION_IMAGES } from '../data/eventDetailExtras';
 import { EventDetailTab, useEventDetailScreen } from '../hooks/useEventDetailScreen';
 
 type EventDetailScreenPageProps = {
@@ -47,6 +48,7 @@ export const EventDetailScreenPage = ({
     rankingRows,
     albumPhotos,
     handleProfileAvatarPress,
+    liveRowCenterImage,
     handleOpenMap,
     detailVisibleTabs,
     hostsLine,
@@ -79,8 +81,8 @@ export const EventDetailScreenPage = ({
               onBackPress={handleDetailBack}
               onReactionPress={(source, center) => spawnAt(source, center.x, center.y)}
               onProfileAvatarPress={handleProfileAvatarPress}
-              liveReactionImages={extras?.reactionImages}
-              profileImage={extras?.profileImage}
+              liveRowCenterImage={liveRowCenterImage}
+              liveReactionImages={extras?.reactionImages ?? DEFAULT_LIVE_REACTION_IMAGES}
               activeTab={activeTab}
               onTabPress={setActiveTab}
               description={description}

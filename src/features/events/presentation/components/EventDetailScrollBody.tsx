@@ -21,14 +21,15 @@ export type EventDetailScrollBodyProps = {
   title: string;
   onBackPress: () => void;
   onReactionPress: (source: ImageSourcePropType, center: { x: number; y: number }) => void;
-  onProfileAvatarPress?: () => void;
-  liveReactionImages?: readonly [
+  onProfileAvatarPress: () => void;
+  /** Center image in the reaction row (cover, or story author when statuses exist). */
+  liveRowCenterImage: ImageSourcePropType;
+  liveReactionImages: readonly [
     ImageSourcePropType,
     ImageSourcePropType,
     ImageSourcePropType,
     ImageSourcePropType,
   ];
-  profileImage?: ImageSourcePropType;
   activeTab: EventDetailTab;
   onTabPress: (tab: EventDetailTab) => void;
   description: string;
@@ -61,8 +62,8 @@ export function EventDetailScrollBody({
   onBackPress,
   onReactionPress,
   onProfileAvatarPress,
+  liveRowCenterImage,
   liveReactionImages,
-  profileImage,
   activeTab,
   onTabPress,
   description,
@@ -94,8 +95,8 @@ export function EventDetailScrollBody({
         onBackPress={onBackPress}
         onReactionPress={onReactionPress}
         onProfileAvatarPress={onProfileAvatarPress}
+        liveRowCenterImage={liveRowCenterImage}
         liveReactionImages={liveReactionImages}
-        profileImage={profileImage}
       />
 
       <EventDetailTabs activeTab={activeTab} onTabPress={onTabPress} visibleTabs={visibleTabs} />

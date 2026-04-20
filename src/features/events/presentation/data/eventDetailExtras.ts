@@ -1,6 +1,19 @@
 import type { Event } from '@/src/domain/entities';
 import type { ImageSourcePropType } from 'react-native';
 
+/** Default four reaction chips (left×2, right×2) for event detail hero when extras omit `reactionImages`. */
+export const DEFAULT_LIVE_REACTION_IMAGES = [
+  require('../../../../../assets/images/event-detail/reactions/1-party.png'),
+  require('../../../../../assets/images/event-detail/reactions/2-sad.png'),
+  require('../../../../../assets/images/event-detail/reactions/3-fun.png'),
+  require('../../../../../assets/images/event-detail/reactions/4-hearts.png'),
+] as const satisfies readonly [
+  ImageSourcePropType,
+  ImageSourcePropType,
+  ImageSourcePropType,
+  ImageSourcePropType,
+];
+
 export type EventDetailExtras = {
   venueArea: string;
   /** Address or venue name for Google Maps search. */
@@ -12,8 +25,6 @@ export type EventDetailExtras = {
   confirmedGuests: { id: string; name: string }[];
   /** Local hero image; falls back to the event `coverImageUrl` when missing. */
   heroImage?: number;
-  /** Circular photo over the hero (couple / group), local asset. */
-  profileImage: number;
   /** Event already started: UI with emojis around the avatar, etc. */
   isLiveExecution?: boolean;
   /**
@@ -38,7 +49,6 @@ const EXTRAS: Record<string, EventDetailExtras> = {
     guestsPending: 32,
     confirmedGuests: [{ id: 'g1', name: 'Marco Fernandez' }],
     heroImage: require('../../../../../assets/images/event-detail/hero-boda-mariel-jorge.png'),
-    profileImage: require('../../../../../assets/images/event-detail/avatar-boda-mariel-jorge.png'),
   },
   'evt-live-2': {
     venueArea: 'Santiago de Surco',
@@ -50,14 +60,7 @@ const EXTRAS: Record<string, EventDetailExtras> = {
       { id: 'g1', name: 'Marco Fernandez' },
       { id: 'g2', name: 'Lucía Vargas' },
     ],
-    profileImage: require('../../../../../assets/images/event-detail/avatar-boda-mariel-jorge.png'),
     isLiveExecution: true,
-    reactionImages: [
-      require('../../../../../assets/images/event-detail/reactions/1-party.png'),
-      require('../../../../../assets/images/event-detail/reactions/2-sad.png'),
-      require('../../../../../assets/images/event-detail/reactions/3-fun.png'),
-      require('../../../../../assets/images/event-detail/reactions/4-hearts.png'),
-    ],
     hideCountdownInDetail: true,
   },
 };
