@@ -1,4 +1,4 @@
-import { EventChallengePhotoCameraScreenPage } from '@/src/features/events/presentation/screens/EventChallengePhotoCameraScreenPage';
+import { EventChallengePhotoCameraScreenPage } from '@/src/features/event-detail/presentation/screens/EventChallengePhotoCameraScreenPage';
 import { useLocalSearchParams } from 'expo-router';
 
 function firstString(v: string | string[] | undefined): string | undefined {

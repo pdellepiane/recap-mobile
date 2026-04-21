@@ -68,6 +68,7 @@ export class FetchHttpClient implements HttpClient {
       const token = await this.options.getAccessToken?.();
       if (token) {
         headers.Authorization = `Bearer ${token}`;
+        console.log('Authorization', headers.Authorization);
       }
     }
     return headers;

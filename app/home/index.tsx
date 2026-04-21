@@ -1,4 +1,4 @@
-import { HomeScreenPage } from '@/src/features/events/presentation/screens/HomeScreenPage';
+import { HomeScreenPage } from '@/src/features/home/presentation/screens/HomeScreenPage';
 
 export default function HomeRoute() {
   return <HomeScreenPage />;

@@ -1,3 +1,4 @@
+import { images } from '@/src/assets/images';
 import { colors } from '@/src/ui/colors';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -16,7 +17,7 @@ export function StartButton({ onPress, bottomInset }: StartButtonProps) {
       >
         <Text style={styles.buttonText}>Empezar</Text>
         <Image
-          source={require('../../../../../assets/images/common/start-icon.png')}
+          source={images.common.start}
           style={styles.buttonIcon}
           resizeMode="contain"
         />

@@ -1,3 +1,4 @@
+import { images } from '@/src/assets/images';
 import { colors } from '@/src/ui';
 import { type ImageSourcePropType, type ImageStyle } from 'react-native';
 
@@ -22,15 +23,15 @@ export const SLIDES: OnboardingSlide[] = [
     id: '1',
     backgroundColor: colors.neutral.primary,
     title: 'Tu evento desde todos los puntos de vista.',
-    image: require('@/assets/images/onboarding/onboarding1-image1.png'),
+    image: images.onboarding.step1.hero,
     overlayImages: [
       {
-        source: require('@/assets/images/onboarding/onboarding1-image2.png'),
+        source: images.onboarding.step1.overlay2,
         position: 'topLeft',
         style: { width: 166, height: 166 },
       },
       {
-        source: require('@/assets/images/onboarding/onboarding1-image3.png'),
+        source: images.onboarding.step1.overlay3,
         position: 'left',
         style: { width: 170, height: 128 },
       },
@@ -41,10 +42,10 @@ export const SLIDES: OnboardingSlide[] = [
     id: '2',
     backgroundColor: colors.brand[400],
     title: 'Crea los mejores retos para tus invitados',
-    image: require('@/assets/images/onboarding/onboarding2-image1.png'),
+    image: images.onboarding.step2.hero,
     overlayImages: [
       {
-        source: require('@/assets/images/onboarding/onboarding2-image2.png'),
+        source: images.onboarding.step2.overlay2,
         position: 'custom',
         style: {
           width: 100,
@@ -54,7 +55,7 @@ export const SLIDES: OnboardingSlide[] = [
         },
       },
       {
-        source: require('@/assets/images/onboarding/onboarding2-image3.png'),
+        source: images.onboarding.step2.overlay3,
         position: 'custom',
         style: {
           width: 200,
@@ -65,7 +66,7 @@ export const SLIDES: OnboardingSlide[] = [
         },
       },
       {
-        source: require('@/assets/images/onboarding/onboarding2-image4.png'),
+        source: images.onboarding.step2.overlay4,
         position: 'custom',
         style: {
           width: 80,
@@ -81,10 +82,10 @@ export const SLIDES: OnboardingSlide[] = [
     id: '3',
     backgroundColor: colors.accent[400],
     title: 'Guarda tus recuerdos como interacciones',
-    image: require('@/assets/images/onboarding/onboarding3-image1.png'),
+    image: images.onboarding.step3.hero,
     overlayImages: [
       {
-        source: require('@/assets/images/onboarding/onboarding3-image2.png'),
+        source: images.onboarding.step3.overlay2,
         position: 'custom',
         style: {
           width: 78,
@@ -94,7 +95,7 @@ export const SLIDES: OnboardingSlide[] = [
         },
       },
       {
-        source: require('@/assets/images/onboarding/onboarding3-image3.png'),
+        source: images.onboarding.step3.overlay3,
         position: 'custom',
         style: {
           width: 96,
@@ -104,7 +105,7 @@ export const SLIDES: OnboardingSlide[] = [
         },
       },
       {
-        source: require('@/assets/images/onboarding/onboarding3-image4.png'),
+        source: images.onboarding.step3.overlay4,
         position: 'custom',
         style: {
           width: 132,

@@ -1,3 +1,4 @@
+import { images } from '@/src/assets/images';
 import { useCoordinator } from '../navigation/useCoordinator';
 import { colors } from './colors';
 import { Image, Pressable, StyleSheet, ViewStyle } from 'react-native';
@@ -16,7 +17,7 @@ export function BackButton({ style, hitSlop = 12 }: BackButtonProps) {
       hitSlop={hitSlop}
     >
       <Image
-        source={require('../../assets/images/common/back-icon.png')}
+        source={images.common.back}
         style={styles.backIcon}
         resizeMode="contain"
       />

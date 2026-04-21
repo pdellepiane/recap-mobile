@@ -1,4 +1,4 @@
-import { EventStoriesScreenPage } from '@/src/features/events/presentation/screens/EventStoriesScreenPage';
+import { EventStoriesScreenPage } from '@/src/features/event-detail/presentation/screens/EventStoriesScreenPage';
 import { useLocalSearchParams } from 'expo-router';
 
 export default function EventStoriesRoute() {

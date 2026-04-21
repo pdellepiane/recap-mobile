@@ -1,5 +1,5 @@
-import { EventDetailTab } from '@/src/features/events/presentation/hooks/useEventDetailScreen';
-import { EventDetailScreenPage } from '@/src/features/events/presentation/screens/EventDetailScreenPage';
+import { EventDetailTab } from '@/src/features/event-detail/presentation/hooks/useEventDetailScreen';
+import { EventDetailScreenPage } from '@/src/features/event-detail/presentation/screens/EventDetailScreenPage';
 import { useLocalSearchParams } from 'expo-router';
 
 function firstQuery(v: string | string[] | undefined): string | undefined {

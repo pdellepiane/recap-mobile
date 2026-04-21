@@ -191,3 +191,39 @@ export type EventRankingListResponse = {
   errors: unknown;
   error: string | null;
 };
+
+/** Nested under GET /api/events/:id/challenges items when the guest has submitted an answer. */
+export type EventChallengeGuestAnswerApi = {
+  id?: string;
+  guest_id?: string;
+  event_challenge_option_id?: string;
+  points?: string | number;
+  photos?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+/** Row from GET /api/events/:id/challenges. */
+export type EventChallengeApiItem = {
+  id: number;
+  type: string;
+  title: string;
+  question: string;
+  points: number;
+  position: number;
+  is_active: boolean;
+  event_id: number;
+  event_host_id: number;
+  /** Often JSON: string[] or `{ text, is_correct }[]`. */
+  options?: string | null;
+  current_guest_answer?: EventChallengeGuestAnswerApi | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type EventChallengesListResponse = {
+  data: EventChallengeApiItem[];
+  status: boolean;
+  errors: unknown;
+  error: string | null;
+};

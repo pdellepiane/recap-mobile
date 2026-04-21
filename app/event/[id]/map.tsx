@@ -1,4 +1,4 @@
-import { EventMapScreenPage } from '@/src/features/events/presentation/screens/EventMapScreenPage';
+import { EventMapScreenPage } from '@/src/features/event-detail/presentation/screens/EventMapScreenPage';
 import { useLocalSearchParams } from 'expo-router';
 
 function firstString(v: string | string[] | undefined): string | undefined {

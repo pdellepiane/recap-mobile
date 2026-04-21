@@ -16,4 +16,7 @@ export const eventPaths = {
   /** GET /api/events/:id/ranking — guest points leaderboard. */
   ranking: (id: string | number) =>
     `api/events/${encodeURIComponent(String(id))}/ranking`,
+  /** GET /api/events/:id/challenges — event challenges for guests. */
+  challenges: (id: string | number) =>
+    `api/events/${encodeURIComponent(String(id))}/challenges`,
 } as const;

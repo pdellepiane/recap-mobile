@@ -5,9 +5,12 @@
 export const colors = {
   background: {
     primary: 'rgba(34, 34, 34, 1)',
-    secondary: 'rgba(42, 42, 42, 1)',
+    secondary: '#2A2A2A',
     tertiary: 'rgba(51, 51, 51, 1)',
-    elevated: 'rgba(61, 61, 61, 1)',
+    elevated: '#3D3D3D',
+  },
+  primary: {
+    lighttest: '#FAEFEF',
   },
   neutral: {
     primary: 'rgba(255, 255, 255, 1)',
@@ -17,6 +20,9 @@ export const colors = {
     disabled: 'rgba(92, 92, 92, 1)',
     /** Primary text on lime / accent CTAs (e.g. home banner “Ingresar”). */
     onLime: 'rgba(0, 0, 0, 1)',
+  },
+  typography: {
+    subColor: '#747688',
   },
   brand: {
     700: 'rgba(95, 43, 216, 1)',

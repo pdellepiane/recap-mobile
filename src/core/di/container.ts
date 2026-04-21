@@ -3,7 +3,7 @@ import { MockHttpClient } from '@/src/core/http/MockHttpClient';
 import { getAuthAccessToken } from '@/src/core/http/authSession';
 import { AuthRepository } from '@/src/features/auth/data/repositories/AuthRepository';
 import { getPersistedAccessToken } from '@/src/features/auth/data/sessionStorage';
-import { EventRepository } from '@/src/features/events/data/repositories/EventRepository';
+import { EventRepository } from '@/src/features/home/data/repositories/EventRepository';
 
 /**
  * Email OTP + JWT + logout and authenticated home event lists hit the real API (`EXPO_PUBLIC_API_BASE_URL`).
