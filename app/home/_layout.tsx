@@ -1,4 +1,5 @@
 import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Tabs } from 'expo-router';
@@ -17,6 +18,8 @@ function TabBarIcon({ source }: { source: ImageSourcePropType }) {
 }
 
 export default function HomeTabsLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -39,7 +42,7 @@ export default function HomeTabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Eventos',
+          title: t('tabs.events'),
           tabBarIcon: ({ focused }) => (
             <TabBarIcon source={focused ? images.tabs.homeActive : images.tabs.homeInactive} />
           ),
@@ -48,7 +51,7 @@ export default function HomeTabsLayout() {
       <Tabs.Screen
         name="notifications"
         options={{
-          title: 'Notificaciones',
+          title: t('tabs.notifications'),
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               source={focused ? images.tabs.notificationsActive : images.tabs.notificationsInactive}
@@ -59,7 +62,7 @@ export default function HomeTabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Mi perfil',
+          title: t('tabs.profile'),
           tabBarIcon: ({ focused }) => (
             <TabBarIcon source={focused ? images.tabs.profileActive : images.tabs.profileInactive} />
           ),

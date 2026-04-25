@@ -1,7 +1,7 @@
 import type { HomeBannerItem } from '@/src/core/api/types';
 import { eventRepository } from '@/src/core/di/container';
 import type { Event } from '@/src/domain/entities';
-import { seedHomeEventCache } from '@/src/features/home/data/homeEventCache';
+import { seedHomeEventCache } from '@/src/features/events/data/homeEventCache';
 import { partitionHostEventsByDateTime } from '@/src/features/home/presentation/utils/homeFeedPartition';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

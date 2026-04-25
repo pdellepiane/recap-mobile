@@ -1,54 +1,21 @@
-import { useHomeFeed } from '../hooks/useHomeFeed';
-import { HomeBannerType } from '@/src/core/api/types';
-import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
-import { NO_EVENT_CAROUSEL_FALLBACK } from '@/src/features/home/presentation/components/homeLiveBannerCarousel/noEventFallbackBanner';
-import { firstNameFromDisplayName } from '@/src/features/home/presentation/utils/eventDisplay';
-import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { useCallback, useMemo } from 'react';
-
-const SIN_ENVOLTURAS_MARKETING_URL = 'https://sinenvolturas.com';
+import { HomeBannerCarousel } from '../components/HomeBannerCarousel';
+import { HomeFeedCarouselSections } from '../components/HomeFeedCarouselSections';
+import { useHomeScreen } from '../hooks/useHomeScreen';
+import { images } from '@/src/assets/images';
+import { ScreenLoading, colors, useInvalidateRemoteImageCache } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
+import { Image } from 'expo-image';
+import { useCallback } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 /**
- * Home screen orchestration: greeting + feed data + event navigation handlers.
+ * Home tab: greeting, banner carousel, and event carousels (or empty state).
  */
-export function useHomeScreen() {
-  const { session } = useAuth();
-  const { goToEventDetail, goToHomeWeb } = useCoordinator();
-  const { banners, myEvents, plans, pastEvents, hasEvents, isLoading, isRefreshing, reload } =
-    useHomeFeed();
-
-  const firstName = session ? firstNameFromDisplayName(session.user.name) : 'Invitado';
-
-  /** Same ordering as {@link HomeBannerCarousel} (fallback when GET /banners is empty). */
-  const carouselBanners = useMemo(
-    () => (banners.length > 0 ? banners : [NO_EVENT_CAROUSEL_FALLBACK]),
-    [banners],
-  );
-
-  const openEvent = useCallback(
-    (id: string) => {
-      goToEventDetail(id);
-    },
-    [goToEventDetail],
-  );
-
-  const handleLiveSlidePress = useCallback(
-    (index: number) => {
-      const item = carouselBanners[index] ?? carouselBanners[0];
-      if (!item) {
-        return;
-      }
-      if (item.banner_type === HomeBannerType.NoEvent) {
-        goToHomeWeb(SIN_ENVOLTURAS_MARKETING_URL);
-        return;
-      }
-      openEvent(String(item.id));
-    },
-    [carouselBanners, goToHomeWeb, openEvent],
-  );
-
-  return {
-    firstName,
+export function HomeScreenPage() {
+  const invalidateRemoteImageCache = useInvalidateRemoteImageCache();
+  const {
+    greeting,
     banners,
     myEvents,
     plans,
@@ -58,6 +25,84 @@ export function useHomeScreen() {
     isRefreshing,
     reload,
     openEvent,
-    handleLiveSlidePress,
-  };
+    handleSlidePress,
+  } = useHomeScreen();
+
+  const handleRefresh = useCallback(async () => {
+    await invalidateRemoteImageCache();
+    await reload();
+  }, [invalidateRemoteImageCache, reload]);
+
+  if (isLoading) {
+    return <ScreenLoading />;
+  }
+
+  return (
+    <View style={styles.root}>
+      <Image
+        source={images.home.background}
+        style={styles.backgroundImage}
+        contentFit="contain"
+        contentPosition="top left"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      />
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={() => void handleRefresh()}
+              tintColor={colors.neutral.primary}
+              colors={[colors.neutral.primary]}
+              progressBackgroundColor={colors.background.primary}
+            />
+          }
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={styles.greeting}>{greeting}</Text>
+          <HomeBannerCarousel banners={banners} onSlidePress={handleSlidePress} />
+          <HomeFeedCarouselSections
+            hasEvents={hasEvents}
+            myEvents={myEvents}
+            plans={plans}
+            pastEvents={pastEvents}
+            onOpenEvent={openEvent}
+          />
+        </ScrollView>
+      </SafeAreaView>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors.background.secondary,
+  },
+  /** Decorative asset: anchored top-left (not centered like full-screen ImageBackground + contain). */
+  backgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    maxWidth: '100%',
+    width: '100%',
+    height: 280,
+  },
+  safe: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 24,
+  },
+  greeting: {
+    fontSize: 24,
+    lineHeight: 30,
+    fontFamily: fontFamilies.signikaSemiBold,
+    color: colors.neutral.primary,
+    paddingHorizontal: 20,
+    marginBottom: 16,
+    marginTop: 16,
+  },
+});

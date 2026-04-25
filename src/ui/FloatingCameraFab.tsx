@@ -1,3 +1,4 @@
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -5,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type FloatingCameraFabProps = {
   onPress: () => void;
-  /** Defaults to “Abrir cámara”. */
+  /** Defaults to {@link common.openCamera}. */
   accessibilityLabel?: string;
 };
 
@@ -15,8 +16,10 @@ export type FloatingCameraFabProps = {
  */
 export function FloatingCameraFab({
   onPress,
-  accessibilityLabel = 'Abrir cámara',
+  accessibilityLabel: accessibilityLabelProp,
 }: FloatingCameraFabProps) {
+  const { t } = useTranslation();
+  const accessibilityLabel = accessibilityLabelProp ?? t('common.openCamera');
   const insets = useSafeAreaInsets();
   const bottom = Math.max(insets.bottom, 16) + 8;
 

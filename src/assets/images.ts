@@ -9,6 +9,12 @@ export const images = {
     checkGrey: require('@/assets/images/common/check-grey-icon.png'),
     goToRight: require('@/assets/images/common/go-to-right-icon.png'),
     live: require('@/assets/images/common/live-icon.png'),
+    camera: {
+      close: require('@/assets/images/common/camera/close-icon.png'),
+      flash: require('@/assets/images/common/camera/flash-icon.png'),
+      gallery: require('@/assets/images/common/camera/gallery-icon.png'),
+      switch: require('@/assets/images/common/camera/switch-icon.png'),
+    },
   },
   tabs: {
     homeActive: require('@/assets/images/tabs/home-icon-active.png'),
@@ -37,8 +43,6 @@ export const images = {
     noEvents: require('@/assets/images/home/no-events-icon.png'),
   },
   eventDetail: {
-    avatarMariel: require('@/assets/images/event-detail/avatar-boda-mariel-jorge.png'),
-    heroMariel: require('@/assets/images/event-detail/hero-boda-mariel-jorge.png'),
     icons: {
       locationLime: require('@/assets/images/event-detail/icon-location-lime.png'),
       guestsLime: require('@/assets/images/event-detail/icon-guests-lime.png'),
@@ -62,10 +66,11 @@ export const images = {
 
       photoCorner: require('@/assets/images/event-detail/challenges/reto-photo-corner.png'),
       photoLabelIcon: require('@/assets/images/event-detail/challenges/reto-photo-label-icon.png'),
+      /** Host empty state (“0 retos”) in challenges tab. */
+      sadFaceIcon: require('@/assets/images/event-detail/challenges/sad-face-icon.png'),
     },
     ranking: {
       badgeScallop: require('@/assets/images/event-detail/ranking/ranking-badge-scallop.png'),
-      weddingSprite: require('@/assets/images/event-detail/ranking/wedding-ranking-sprite.png'),
     },
   },
   onboarding: {

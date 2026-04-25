@@ -1,6 +1,7 @@
 import { BannerCoverCirclePlaceholder } from './BannerCoverCirclePlaceholder';
-import { colors } from '@/src/ui';
-import { Image, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { appendRemoteImageEpoch, colors, useRemoteImageCacheEpoch } from '@/src/ui';
+import { Image as ExpoImage } from 'expo-image';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
 /** Dark olive outer ring (px). */
 const LIVE_OUTER_RING = 6;
@@ -21,8 +22,10 @@ export function BannerSlideCoverCircle({
   variant,
   style,
 }: BannerSlideCoverCircleProps) {
+  const mediaCacheEpoch = useRemoteImageCacheEpoch();
   const r = diameter / 2;
   const trimmed = uri.trim();
+  const sourceUri = trimmed ? appendRemoteImageEpoch(trimmed, mediaCacheEpoch) : '';
 
   if (variant === 'live') {
     const innerSize = diameter - 2 * LIVE_OUTER_RING;
@@ -49,11 +52,13 @@ export function BannerSlideCoverCircle({
             },
           ]}
         >
-          {trimmed ? (
-            <Image
-              source={{ uri: trimmed }}
+          {sourceUri ? (
+            <ExpoImage
+              source={{ uri: sourceUri }}
               style={[styles.image, { borderRadius: innerR }]}
-              resizeMode="cover"
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              transition={100}
             />
           ) : (
             <BannerCoverCirclePlaceholder />
@@ -75,11 +80,13 @@ export function BannerSlideCoverCircle({
         style,
       ]}
     >
-      {trimmed ? (
-        <Image
-          source={{ uri: trimmed }}
+      {sourceUri ? (
+        <ExpoImage
+          source={{ uri: sourceUri }}
           style={[styles.image, { borderRadius: r }]}
-          resizeMode="cover"
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          transition={100}
         />
       ) : (
         <BannerCoverCirclePlaceholder />

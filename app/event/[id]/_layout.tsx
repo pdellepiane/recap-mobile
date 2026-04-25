@@ -11,6 +11,14 @@ export default function EventIdLayout() {
       }}
     >
       <Stack.Screen name="index" />
+      <Stack.Screen
+        name="camera"
+        options={{
+          presentation: 'modal',
+          gestureEnabled: false,
+          animation: 'slide_from_bottom',
+        }}
+      />
       <Stack.Screen name="map" />
       <Stack.Screen name="challenge-quiz" />
       <Stack.Screen name="challenge-photo" />

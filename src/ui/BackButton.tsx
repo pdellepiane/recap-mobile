@@ -6,15 +6,18 @@ import { Image, Pressable, StyleSheet, ViewStyle } from 'react-native';
 type BackButtonProps = {
   style?: ViewStyle | ViewStyle[];
   hitSlop?: number;
+  accessibilityLabel?: string;
 };
 
-export function BackButton({ style, hitSlop = 12 }: BackButtonProps) {
+export function BackButton({ style, hitSlop = 12, accessibilityLabel }: BackButtonProps) {
   const { goBack } = useCoordinator();
   return (
     <Pressable
       style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed, style]}
       onPress={goBack}
       hitSlop={hitSlop}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
     >
       <Image
         source={images.common.back}

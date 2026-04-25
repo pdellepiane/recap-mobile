@@ -16,22 +16,21 @@ type Params = {
 /**
  * Owns quiz interaction/result state and related navigation handlers.
  */
-export function useEventChallengeQuizScreen({ eventId, challengeId, challengeNumber }: Params) {
+export function useEventChallengeQuizScreen({ eventId, challengeId }: Params) {
   const insets = useSafeAreaInsets();
   const { goBack, goToEventDetailTabWithCompletedChallenge, goToEventChallengesCompleted } =
     useCoordinator();
-  const quiz = useMemo(
-    () => getEventChallengeQuiz(challengeId, challengeNumber),
-    [challengeId, challengeNumber],
-  );
+  const quiz = useMemo(() => getEventChallengeQuiz(challengeId), [challengeId]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
 
-  const canFinish = selectedIndex !== null;
-  const isCorrect = selectedIndex !== null && selectedIndex === quiz.correctIndex;
-  const selectedLabel = selectedIndex !== null ? (quiz.options[selectedIndex] ?? '') : '';
-  const correctLabel = quiz.options[quiz.correctIndex] ?? '';
-  const pointsEarned = isCorrect ? quiz.points : 0;
+  const canFinish = quiz !== null && selectedIndex !== null;
+  const isCorrect =
+    quiz !== null && selectedIndex !== null && selectedIndex === quiz.correctIndex;
+  const selectedLabel =
+    quiz !== null && selectedIndex !== null ? (quiz.options[selectedIndex] ?? '') : '';
+  const correctLabel = quiz?.options[quiz.correctIndex] ?? '';
+  const pointsEarned = isCorrect ? (quiz?.points ?? 0) : 0;
   const resultHeaderBottomApprox = insets.top + 6 + 44;
   const resultCircleMarginTop = Math.max(0, 185 - resultHeaderBottomApprox);
   const contentTopInset = insets.top + 36;
@@ -67,7 +66,7 @@ export function useEventChallengeQuizScreen({ eventId, challengeId, challengeNum
   };
 
   const finalize = () => {
-    if (!canFinish) {
+    if (!canFinish || !quiz) {
       return;
     }
     setShowResult(true);

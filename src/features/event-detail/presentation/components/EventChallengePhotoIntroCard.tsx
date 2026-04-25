@@ -3,6 +3,7 @@ import {
   EventChallengePhotoCameraHero,
 } from './EventChallengePhotoCameraHero';
 import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -15,7 +16,7 @@ const CARD_TOP = 118;
 const PHOTO_HERO_H = EVENT_CHALLENGE_PHOTO_CAMERA_HERO_SIZE;
 const PHOTO_HERO_HALF_UP = Math.round(PHOTO_HERO_H / 2);
 
-type EventChallengePhotoIntroCardProps = {
+type Props = {
   numberLabel: string;
   instructionParagraphs: string[];
   onOpenCamera: () => void;
@@ -25,7 +26,8 @@ export function EventChallengePhotoIntroCard({
   numberLabel,
   instructionParagraphs,
   onOpenCamera,
-}: EventChallengePhotoIntroCardProps) {
+}: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.cardShell}>
       <View style={styles.card}>
@@ -62,7 +64,7 @@ export function EventChallengePhotoIntroCard({
             onPress={onOpenCamera}
             style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}
             accessibilityRole="button"
-            accessibilityLabel="Tomar foto"
+            accessibilityLabel={t('common.takePhoto')}
           >
             <Image
               source={images.eventDetail.challenges.photoCtaButton}

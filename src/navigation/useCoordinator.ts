@@ -24,6 +24,8 @@ export const useCoordinator = () => {
     goToHomeWeb: (url: string) => router.push(routePaths.homeWeb(url) as Href),
     goToEventDetail: (eventId: string, tab?: 'detalle' | 'challenges' | 'ranking' | 'album') =>
       router.push(routePaths.eventDetail(eventId, tab) as Href),
+    goToEventDetailCamera: (eventId: string, title?: string) =>
+      router.push(routePaths.eventDetailCamera(eventId, title) as Href),
     goToEventDetailTab: (eventId: string, tab: 'detalle' | 'challenges' | 'ranking' | 'album') =>
       router.replace(routePaths.eventDetail(eventId, tab) as Href),
     /** Switches detail tab while keeping the completed challenge in the query string. */
@@ -51,7 +53,7 @@ export const useCoordinator = () => {
       const qs = new URLSearchParams({ q: mapsQuery }).toString();
       router.push(`${routePaths.eventMap(eventId)}?${qs}` as Href);
     },
-    /** WhatsApp-style stories (mock photos for `evt-live-2`). */
+    /** WhatsApp-style stories viewer (when story data is available). */
     goToEventStories: (eventId: string) => router.push(routePaths.eventStories(eventId) as Href),
     /** Opens a trivia-style challenge (question + options). */
     goToEventChallengeQuiz: (eventId: string, challengeId: string, challengeNumber: number) =>

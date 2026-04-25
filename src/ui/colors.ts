@@ -5,6 +5,7 @@
 export const colors = {
   background: {
     primary: 'rgba(34, 34, 34, 1)',
+    primaryOpacity5: 'rgba(34, 34, 34, 0.5)',
     secondary: '#2A2A2A',
     tertiary: 'rgba(51, 51, 51, 1)',
     elevated: '#3D3D3D',
@@ -77,20 +78,9 @@ export const colors = {
     rankingGold: 'rgba(212, 175, 55, 1)',
     rankingSilver: 'rgba(142, 142, 142, 1)',
     rankingBronze: 'rgba(169, 113, 66, 1)',
-    rankingRowHighlight: 'rgba(44, 44, 46, 1)',
     carouselDotInactive: 'rgba(63, 63, 70, 1)',
     guestsOnCard: 'rgba(196, 181, 253, 1)',
     locationPin: 'rgba(167, 139, 250, 1)',
-    /** Home carousel “Evento en vivo” row. */
-    homeCardLive: 'rgba(163, 207, 61, 1)',
-    homeCardLiveHalo: 'rgba(163, 207, 61, 0.38)',
-    /** Teal host / “Por ti” chip on card cover. */
-    homeCardCoverTeal: 'rgba(46, 196, 182, 1)',
-    homeCardCoverOnTeal: 'rgba(15, 31, 26, 1)',
-    /** Pastel facepile fills (home carousel). */
-    homeCardPastelMint: 'rgba(184, 232, 208, 1)',
-    homeCardPastelSky: 'rgba(184, 217, 240, 1)',
-    homeCardPastelLilac: 'rgba(212, 196, 240, 1)',
   },
 } as const;
 

@@ -1,29 +1,30 @@
-import {
-  type HomeEventCarouselCardVariant,
-  useHomeEventCarouselCard,
-} from '../hooks/useHomeEventCarouselCard';
+import { useHomeEventCarouselCard } from '../hooks/useHomeEventCarouselCard';
+import { HomeEventVariant } from '../types';
 import { HomeEventCarouselCardCover } from './HomeEventCarouselCardCover';
 import { HomeEventCarouselGuestRow } from './HomeEventCarouselGuestRow';
 import { HomeEventCarouselScheduleBadge } from './HomeEventCarouselScheduleBadge';
 import type { Event } from '@/src/domain/entities';
-import { colors } from '@/src/ui';
+import { colors, radii } from '@/src/ui';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 const CARD_W = 280;
-const CARD_RADIUS = 16;
 
 type Props = {
   event: Event;
   onPress: () => void;
   /** Stagger index for list entrance animation */
   index?: number;
-  /** Guest “Planes” row uses “Por ti” + user initials; hosted rows use first host. */
-  variant?: HomeEventCarouselCardVariant;
+  variant?: HomeEventVariant;
 };
 
-export function HomeEventCarouselCard({ event, onPress, index = 0, variant = 'hosted' }: Props) {
-  const { day, month, guestLabel, scheduleKind, faceNames, coverInitials, coverLabel } =
+export function HomeEventCarouselCard({
+  event,
+  onPress,
+  index = 0,
+  variant = HomeEventVariant.Hosted,
+}: Props) {
+  const { day, month, guestLabel, type, faceNames, coverInitials, coverLabel } =
     useHomeEventCarouselCard(event, variant);
 
   return (
@@ -51,7 +52,7 @@ export function HomeEventCarouselCard({ event, onPress, index = 0, variant = 'ho
           />
 
           <View style={styles.body}>
-            <HomeEventCarouselScheduleBadge scheduleKind={scheduleKind} />
+            <HomeEventCarouselScheduleBadge type={type} />
 
             <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
               {event.title}
@@ -70,15 +71,17 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   pressable: {
-    borderRadius: CARD_RADIUS,
+    borderRadius: radii.card,
   },
   card: {
     width: CARD_W,
     backgroundColor: colors.background.secondary,
-    borderRadius: CARD_RADIUS,
+    borderRadius: radii.card,
     borderWidth: 1,
     borderColor: colors.background.elevated,
     overflow: 'hidden',
+    paddingTop: 8,
+    paddingHorizontal: 8,
   },
   cardPressed: {
     opacity: 0.94,

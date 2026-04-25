@@ -1,4 +1,4 @@
-import { isApiRequestError } from '@/src/core/http/ApiRequestError';
+import { messageForVerifyCodeFailure } from '@/src/features/auth/data/verifyCodeErrorMessage';
 import {
   clearVerifyCodeRateState,
   loadVerifyCodeRateState,
@@ -137,7 +137,7 @@ export const useVerifyCode = (onSuccess: () => void, email: string, codeSentAt?:
       }
       setHasError(true);
       setIsCodeValid(false);
-      setErrorMessage(isApiRequestError(e) ? e.message : 'Código incorrecto. Intenta nuevamente.');
+      setErrorMessage(messageForVerifyCodeFailure(e));
     } finally {
       setIsLoading(false);
     }

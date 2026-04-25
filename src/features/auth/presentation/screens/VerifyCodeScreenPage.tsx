@@ -1,11 +1,13 @@
 import { VerifyCodeDigitInputs } from '../components/VerifyCodeDigitInputs';
 import { VerifyCodeResendSection } from '../components/VerifyCodeResendSection';
 import { useVerifyCodeScreen } from '../hooks/useVerifyCodeScreen';
+import { useTranslation } from '@/src/i18n';
 import { Form, colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { StyleSheet, Text, View } from 'react-native';
 
 export const VerifyCodeScreenPage = () => {
+  const { t } = useTranslation();
   const {
     email,
     digits,
@@ -27,8 +29,8 @@ export const VerifyCodeScreenPage = () => {
   }
 
   return (
-    <Form includesGoBack title="Verifica tu correo">
-      <Text style={styles.subtitle}>Debes recibir un correo con tu código</Text>
+    <Form includesGoBack title={t('auth.verifyTitle')}>
+      <Text style={styles.subtitle}>{t('auth.verifySubtitle')}</Text>
       <VerifyCodeDigitInputs
         digits={digits}
         inputRefs={inputRefs}
@@ -46,7 +48,7 @@ export const VerifyCodeScreenPage = () => {
           onResend={handleResend}
         />
 
-        {isLoading && <Text style={styles.loadingText}>Verificando...</Text>}
+        {isLoading && <Text style={styles.loadingText}>{t('auth.verifying')}</Text>}
       </View>
     </Form>
   );

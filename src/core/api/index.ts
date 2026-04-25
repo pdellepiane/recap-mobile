@@ -1,12 +1,16 @@
-export { authUserPaths, eventPaths, homePaths } from './paths';
-export { HomeBannerType } from './types';
+export { authUserPaths, eventPaths, homePaths, userPaths } from './paths';
+export { resolveApiAssetUrl } from './resolveApiAssetUrl';
+export { EventType } from './types';
 export type {
   ApiErrorBody,
+  CurrentUserMeResponse,
   EventChallengeApiItem,
   EventChallengeGuestAnswerApi,
   EventChallengesListResponse,
   EventDetailApiResponse,
   EventDetailData,
+  EventMediaApiItem,
+  EventMediaListResponse,
   EventRankingApiItem,
   EventRankingListResponse,
   HomeBannerItem,

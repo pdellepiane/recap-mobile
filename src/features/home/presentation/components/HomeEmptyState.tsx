@@ -1,4 +1,5 @@
 import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image, StyleSheet, Text, View } from 'react-native';
@@ -6,6 +7,8 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 const ILLUSTRATION_SIZE = 250;
 
 export function HomeEmptyState() {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.root}>
       <Image
@@ -13,13 +16,11 @@ export function HomeEmptyState() {
         style={styles.illustration}
         resizeMode="contain"
         accessibilityRole="image"
-        accessibilityLabel="Sin eventos"
+        accessibilityLabel={t('home.emptyA11y')}
       />
 
-      <Text style={styles.title}>No tienes ningún evento</Text>
-      <Text style={styles.subtitle}>
-        Empieza a crear tus eventos en nuestra página Sin Envolturas
-      </Text>
+      <Text style={styles.title}>{t('home.emptyTitle')}</Text>
+      <Text style={styles.subtitle}>{t('home.emptySubtitle')}</Text>
     </View>
   );
 }

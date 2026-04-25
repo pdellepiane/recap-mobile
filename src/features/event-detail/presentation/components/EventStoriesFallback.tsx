@@ -1,18 +1,20 @@
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 
-type EventStoriesFallbackProps = {
+type Props = {
   topInset: number;
   onBack: () => void;
 };
 
-export function EventStoriesFallback({ topInset, onBack }: EventStoriesFallbackProps) {
+export function EventStoriesFallback({ topInset, onBack }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.fallback, { paddingTop: topInset + 24 }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background.primary} />
-      <Text style={styles.fallbackText}>No hay estados para este evento.</Text>
+      <Text style={styles.fallbackText}>{t('stories.noStories')}</Text>
       <Pressable onPress={onBack} style={styles.fallbackBtn} accessibilityRole="button">
-        <Text style={styles.fallbackBtnText}>Volver</Text>
+        <Text style={styles.fallbackBtnText}>{t('common.back')}</Text>
       </Pressable>
     </View>
   );

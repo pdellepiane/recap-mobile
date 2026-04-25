@@ -1,5 +1,4 @@
 import type { RankingMedal, RankingRow } from '../../data/eventRanking';
-import { EventDetailPreEventRankDecor } from './EventDetailPreEventRankDecor';
 import { images } from '@/src/assets/images';
 import { colors } from '@/src/ui';
 import { Image, StyleSheet, Text, View } from 'react-native';
@@ -13,10 +12,6 @@ const MEDAL_TINT: Record<RankingMedal, string> = {
 };
 
 export function EventDetailRankIndicator({ row }: { row: RankingRow }) {
-  if (row.preEventRankSlot !== undefined) {
-    return <EventDetailPreEventRankDecor slot={row.preEventRankSlot} />;
-  }
-
   if (row.medal) {
     return (
       <View style={styles.medalBadgeWrap}>

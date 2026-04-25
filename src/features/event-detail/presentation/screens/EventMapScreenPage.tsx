@@ -1,4 +1,5 @@
 import { useEventMapScreen } from '../hooks/useEventMapScreen';
+import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { Spinner, colors } from '@/src/ui';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +14,7 @@ type EventMapScreenPageProps = {
 };
 
 export function EventMapScreenPage({ eventId, initialQuery }: EventMapScreenPageProps) {
+  const { t } = useTranslation();
   const { goBack } = useCoordinator();
   const { showLoader, uri } = useEventMapScreen({ eventId, initialQuery });
 
@@ -27,9 +29,9 @@ export function EventMapScreenPage({ eventId, initialQuery }: EventMapScreenPage
   if (!uri) {
     return (
       <SafeAreaView style={[styles.safe, styles.centered]} edges={['top', 'bottom']}>
-        <Text style={styles.errorText}>No hay ubicación para este evento.</Text>
+        <Text style={styles.errorText}>{t('map.noLocation')}</Text>
         <Pressable onPress={goBack} style={styles.fallbackBtn} accessibilityRole="button">
-          <Text style={styles.fallbackBtnText}>Volver</Text>
+          <Text style={styles.fallbackBtnText}>{t('common.back')}</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -43,12 +45,12 @@ export function EventMapScreenPage({ eventId, initialQuery }: EventMapScreenPage
             onPress={goBack}
             style={({ pressed }) => [styles.backCircle, pressed && styles.pressed]}
             accessibilityRole="button"
-            accessibilityLabel="Volver"
+            accessibilityLabel={t('common.back')}
           >
             <Ionicons name="chevron-back" size={26} color={colors.neutral.primary} />
           </Pressable>
           <Text style={styles.headerTitle} numberOfLines={1}>
-            Ubicación
+            {t('map.title')}
           </Text>
           <View style={styles.headerSide} />
         </View>

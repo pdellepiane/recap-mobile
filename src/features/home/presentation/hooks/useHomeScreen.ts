@@ -1,23 +1,39 @@
-import { HomeBannerType } from '@/src/core/api/types';
-import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
-import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { useCallback, useMemo } from 'react';
 import { NO_EVENT_CAROUSEL_FALLBACK } from '../components/homeLiveBannerCarousel/noEventFallbackBanner';
 import { firstNameFromDisplayName } from '../utils/eventDisplay';
 import { useHomeFeed } from './useHomeFeed';
+import { EventType } from '@/src/core/api/types';
+import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
+import { useTranslation } from '@/src/i18n';
+import { useCoordinator } from '@/src/navigation/useCoordinator';
+import * as Linking from 'expo-linking';
+import { useCallback, useMemo } from 'react';
 
-const SIN_ENVOLTURAS_MARKETING_URL = 'https://sinenvolturas.com';
+const SIN_ENVOLTURAS_MARKETING_URL = 'https://sinenvolturas.com/evento/crear/tipo';
 
 /**
  * Home screen orchestration: greeting + feed data + event navigation handlers.
  */
 export function useHomeScreen() {
-  const { session } = useAuth();
-  const { goToEventDetail, goToHomeWeb } = useCoordinator();
-  const { banners, myEvents, plans, pastEvents, hasEvents, isLoading, isRefreshing, reload } =
-    useHomeFeed();
+  const { t } = useTranslation();
+  const { session, refreshUser } = useAuth();
+  const { goToEventDetail } = useCoordinator();
+  const {
+    banners,
+    myEvents,
+    plans,
+    pastEvents,
+    hasEvents,
+    isLoading,
+    isRefreshing,
+    reload: reloadFeed,
+  } = useHomeFeed();
 
-  const firstName = session ? firstNameFromDisplayName(session.user.name) : 'Invitado';
+  const reload = useCallback(async () => {
+    await Promise.all([reloadFeed(), refreshUser()]);
+  }, [reloadFeed, refreshUser]);
+
+  const displayName = session ? firstNameFromDisplayName(session.user.name) : t('home.guest');
+  const greeting = t('home.greeting', { name: displayName });
 
   /** Same ordering as {@link HomeBannerCarousel} (fallback when GET /banners is empty). */
   const carouselBanners = useMemo(
@@ -32,23 +48,23 @@ export function useHomeScreen() {
     [goToEventDetail],
   );
 
-  const handleLiveSlidePress = useCallback(
+  const handleSlidePress = useCallback(
     (index: number) => {
       const item = carouselBanners[index] ?? carouselBanners[0];
       if (!item) {
         return;
       }
-      if (item.banner_type === HomeBannerType.NoEvent) {
-        goToHomeWeb(SIN_ENVOLTURAS_MARKETING_URL);
+      if (item.banner_type === EventType.NoEvent) {
+        void Linking.openURL(SIN_ENVOLTURAS_MARKETING_URL);
         return;
       }
       openEvent(String(item.id));
     },
-    [carouselBanners, goToHomeWeb, openEvent],
+    [carouselBanners, openEvent],
   );
 
   return {
-    firstName,
+    greeting,
     banners,
     myEvents,
     plans,
@@ -58,6 +74,6 @@ export function useHomeScreen() {
     isRefreshing,
     reload,
     openEvent,
-    handleLiveSlidePress,
+    handleSlidePress,
   };
 }

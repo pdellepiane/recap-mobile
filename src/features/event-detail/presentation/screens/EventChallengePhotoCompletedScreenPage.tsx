@@ -1,3 +1,4 @@
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -30,6 +31,7 @@ export function EventChallengePhotoCompletedScreenPage({
   challengeNumber,
   points,
 }: Props) {
+  const { t } = useTranslation();
   const { winW, thumbUri, summaryLine, displayNumber, closeToEvent, goToRanking, circleTop } =
     useEventChallengePhotoCompletedScreen({
       eventId,
@@ -72,7 +74,7 @@ export function EventChallengePhotoCompletedScreenPage({
           onPress={closeToEvent}
           style={({ pressed }) => [styles.closeCircle, pressed && styles.pressed]}
           accessibilityRole="button"
-          accessibilityLabel="Cerrar"
+          accessibilityLabel={t('common.close')}
           hitSlop={12}
         >
           <Ionicons name="close" size={22} color={colors.neutral.primary} />

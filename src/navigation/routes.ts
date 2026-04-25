@@ -8,6 +8,10 @@ export const routePaths = {
   homeWeb: (url: string) => `/in-app-web?url=${encodeURIComponent(url)}`,
   eventDetail: (eventId: string, tab?: 'detalle' | 'challenges' | 'ranking' | 'album') =>
     tab ? `/event/${eventId}?tab=${encodeURIComponent(tab)}` : `/event/${eventId}`,
+  eventDetailCamera: (eventId: string, title?: string) =>
+    title?.trim()
+      ? `/event/${eventId}/camera?title=${encodeURIComponent(title)}`
+      : `/event/${eventId}/camera`,
   eventDetailChallengesCompleted: (eventId: string, completedChallengeId: string, points: number) =>
     `/event/${eventId}?tab=challenges&completedChallengeId=${encodeURIComponent(completedChallengeId)}&points=${encodeURIComponent(String(points))}`,
   eventDetailTabWithCompletedChallenge: (

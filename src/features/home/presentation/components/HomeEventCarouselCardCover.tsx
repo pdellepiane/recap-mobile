@@ -1,6 +1,7 @@
-import { colors } from '@/src/ui';
+import { colors, useRemoteImageCacheEpoch, appendRemoteImageEpoch } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
+import { StyleSheet, Text, View } from 'react-native';
 
 const IMG_H = 160;
 const COVER_CHIP = 28;
@@ -21,13 +22,24 @@ export function HomeEventCarouselCardCover({
   coverInitials,
   coverLabel,
 }: Props) {
+  const mediaCacheEpoch = useRemoteImageCacheEpoch();
+  const sourceUri = coverImageUrl ? appendRemoteImageEpoch(coverImageUrl, mediaCacheEpoch) : null;
   return (
     <View style={styles.imageWrap}>
-      {coverImageUrl ? (
-        <Image source={{ uri: coverImageUrl }} style={styles.image} />
+      {sourceUri ? (
+        <ExpoImage
+          source={{ uri: sourceUri }}
+          style={styles.image}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          transition={120}
+        />
       ) : (
         <View style={[styles.image, styles.imagePlaceholder]} />
       )}
+      <View style={styles.bottomGradientStrong} pointerEvents="none" />
+      <View style={styles.bottomGradientMid} pointerEvents="none" />
+      <View style={styles.bottomGradientLight} pointerEvents="none" />
       <View style={styles.dateBadge}>
         <Text style={styles.dateBadgeDay}>{day}</Text>
         <Text style={styles.dateBadgeMonth}>{month}</Text>
@@ -49,6 +61,8 @@ const styles = StyleSheet.create({
     height: IMG_H,
     width: '100%',
     position: 'relative',
+    borderRadius: 14,
+    overflow: 'hidden',
   },
   image: {
     width: '100%',
@@ -56,6 +70,30 @@ const styles = StyleSheet.create({
   },
   imagePlaceholder: {
     backgroundColor: colors.background.elevated,
+  },
+  bottomGradientStrong: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 72,
+    backgroundColor: 'rgba(34,34,34,0.68)',
+  },
+  bottomGradientMid: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 54,
+    height: 32,
+    backgroundColor: 'rgba(34,34,34,0.32)',
+  },
+  bottomGradientLight: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 80,
+    height: 20,
+    backgroundColor: 'rgba(34,34,34,0.12)',
   },
   dateBadge: {
     position: 'absolute',
@@ -65,8 +103,7 @@ const styles = StyleSheet.create({
     minHeight: 56,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    backgroundColor: colors.overlay.black55,
-    borderRadius: 12,
+    backgroundColor: colors.background.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -98,12 +135,12 @@ const styles = StyleSheet.create({
     width: COVER_CHIP,
     height: COVER_CHIP,
     borderRadius: COVER_CHIP / 2,
-    backgroundColor: colors.events.homeCardCoverTeal,
+    backgroundColor: colors.states.warning,
     alignItems: 'center',
     justifyContent: 'center',
   },
   coverChipInitials: {
-    color: colors.events.homeCardCoverOnTeal,
+    color: colors.background.primary,
     fontSize: 8,
     fontWeight: '600',
     fontFamily: fontFamilies.signikaSemiBold,

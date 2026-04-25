@@ -1,4 +1,10 @@
-import { colors } from '@/src/ui';
+import {
+  EVENT_DETAIL_REACTION_BY_SLOT_INDEX,
+  type EventDetailReactionPressPayload,
+} from '../../data/eventReactions';
+import { useTranslation } from '@/src/i18n';
+import { colors, useRemoteImageCacheEpoch, withRemoteImageCacheEpoch } from '@/src/ui';
+import { Image as ExpoImage } from 'expo-image';
 import { useRef } from 'react';
 import type { ImageSourcePropType } from 'react-native';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
@@ -7,7 +13,12 @@ const AVATAR = 100;
 const EMOJI = 64;
 const REACTION_IMG = 53;
 
-const REACTION_A11Y = ['Fiesta', 'Triste', 'Risa', 'Corazones'] as const;
+const REACTION_A11Y_KEYS = [
+  'eventDetail.reactionParty',
+  'eventDetail.reactionSad',
+  'eventDetail.reactionLaugh',
+  'eventDetail.reactionHearts',
+] as const;
 
 type Props = {
   profileImage: ImageSourcePropType;
@@ -18,8 +29,8 @@ type Props = {
     ImageSourcePropType,
     ImageSourcePropType,
   ];
-  /** When set, each tap measures the window center and triggers the floating animation. */
-  onReactionPress?: (source: ImageSourcePropType, center: { x: number; y: number }) => void;
+  /** When set, each tap measures the window center and triggers the floating animation + API. */
+  onReactionPress?: (payload: EventDetailReactionPressPayload) => void;
   /** Tap on the center avatar (e.g. open stories when available). */
   onProfileAvatarPress: () => void;
 };
@@ -33,6 +44,9 @@ export function EventDetailLiveAvatarRow({
   onReactionPress,
   onProfileAvatarPress,
 }: Props) {
+  const { t } = useTranslation();
+  const mediaCacheEpoch = useRemoteImageCacheEpoch();
+  const cachedProfileImage = withRemoteImageCacheEpoch(profileImage, mediaCacheEpoch);
   const [r0, r1, r2, r3] = reactionSources;
   const itemRefs = useRef<(View | null)[]>([]);
 
@@ -40,8 +54,12 @@ export function EventDetailLiveAvatarRow({
     if (!onReactionPress) {
       return;
     }
+    const reaction = EVENT_DETAIL_REACTION_BY_SLOT_INDEX[index];
+    if (!reaction) {
+      return;
+    }
     itemRefs.current[index]?.measureInWindow((x, y, w, h) => {
-      onReactionPress(source, { x: x + w / 2, y: y + h / 2 });
+      onReactionPress({ reaction, source, center: { x: x + w / 2, y: y + h / 2 } });
     });
   };
 
@@ -58,7 +76,9 @@ export function EventDetailLiveAvatarRow({
         <Pressable
           key={index}
           accessibilityRole="button"
-          accessibilityLabel={`Reacción ${REACTION_A11Y[index] ?? ''}`}
+          accessibilityLabel={t('common.reactionA11y', {
+            label: t(REACTION_A11Y_KEYS[index] ?? 'eventDetail.reactionParty'),
+          })}
           onPress={() => handlePress(index, source)}
           disabled={!onReactionPress}
         >
@@ -76,15 +96,22 @@ export function EventDetailLiveAvatarRow({
       <Pressable
         onPress={onProfileAvatarPress}
         accessibilityRole="button"
-        accessibilityLabel="Ver estados"
+        accessibilityLabel={t('eventDetail.viewStories')}
       >
-        <Image source={profileImage} style={styles.avatar} resizeMode="cover" />
+        <ExpoImage
+          source={cachedProfileImage}
+          style={styles.avatar}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+        />
       </Pressable>
       {cells.slice(2, 4).map(({ source, index }) => (
         <Pressable
           key={index}
           accessibilityRole="button"
-          accessibilityLabel={`Reacción ${REACTION_A11Y[index] ?? ''}`}
+          accessibilityLabel={t('common.reactionA11y', {
+            label: t(REACTION_A11Y_KEYS[index] ?? 'eventDetail.reactionParty'),
+          })}
           onPress={() => handlePress(index, source)}
           disabled={!onReactionPress}
         >

@@ -1,9 +1,10 @@
 import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-type EventChallengePhotoCompletedBodyProps = {
+type Props = {
   circleTop: number;
   displayNumber: number;
   summaryLine: string;
@@ -19,7 +20,8 @@ export function EventChallengePhotoCompletedBody({
   thumbUri,
   points,
   onOpenRanking,
-}: EventChallengePhotoCompletedBodyProps) {
+}: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.content, { paddingTop: circleTop + 44 }]}>
       <View style={styles.iconWrap} pointerEvents="none">
@@ -28,8 +30,10 @@ export function EventChallengePhotoCompletedBody({
         </View>
       </View>
 
-      <Text style={styles.challengeKicker}>{`Challenge ${String(displayNumber)}`}</Text>
-      <Text style={styles.title}>¡Challenge cumplido!</Text>
+      <Text style={styles.challengeKicker}>
+        {t('challenges.challengeNumberLabel', { n: displayNumber })}
+      </Text>
+      <Text style={styles.title}>{t('challenges.completedTitle')}</Text>
 
       <View style={styles.summaryCard}>
         <View style={StyleSheet.absoluteFill} pointerEvents="none">
@@ -57,16 +61,16 @@ export function EventChallengePhotoCompletedBody({
       </View>
 
       <View style={styles.pointsPill} pointerEvents="none">
-        <Text style={styles.pointsText}>{`Obtuviste ${String(points)} ptos`}</Text>
+        <Text style={styles.pointsText}>{t('challenges.pointsEarned', { points })}</Text>
       </View>
 
       <Pressable
         onPress={onOpenRanking}
         style={({ pressed }) => [styles.rankingBtn, pressed && styles.pressed]}
         accessibilityRole="button"
-        accessibilityLabel="Ver ranking"
+        accessibilityLabel={t('common.viewRanking')}
       >
-        <Text style={styles.rankingBtnText}>Ver ranking</Text>
+        <Text style={styles.rankingBtnText}>{t('common.viewRanking')}</Text>
         <Ionicons name="arrow-forward" size={22} color={colors.background.primary} />
       </Pressable>
     </View>

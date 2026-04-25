@@ -1,5 +1,6 @@
 import type { AlbumPhoto } from '../../data/eventAlbum';
-import { colors } from '@/src/ui';
+import { useTranslation } from '@/src/i18n';
+import { appendRemoteImageEpoch, colors, useRemoteImageCacheEpoch } from '@/src/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { StyleSheet, Text, View } from 'react-native';
@@ -7,29 +8,35 @@ import { StyleSheet, Text, View } from 'react-native';
 const COL_GAP = 8;
 const TILE_RADIUS = 12;
 
-type EventDetailAlbumTileProps = {
+type Props = {
   photo: AlbumPhoto;
   width: number;
 };
 
-export function EventDetailAlbumTile({ photo, width }: EventDetailAlbumTileProps) {
+export function EventDetailAlbumTile({ photo, width }: Props) {
+  const { t } = useTranslation();
+  const mediaCacheEpoch = useRemoteImageCacheEpoch();
   const tileH = width / photo.aspectRatio;
+  const photoUri = appendRemoteImageEpoch(photo.uri, mediaCacheEpoch);
+  const authorAvatarUri = photo.authorAvatarUrl
+    ? appendRemoteImageEpoch(photo.authorAvatarUrl, mediaCacheEpoch)
+    : null;
   return (
     <View style={[styles.tileWrap, { width, marginBottom: COL_GAP }]}>
       <Image
-        source={{ uri: photo.uri }}
+        source={{ uri: photoUri }}
         style={[styles.tileImage, { width, height: tileH }]}
         contentFit="cover"
         cachePolicy="memory-disk"
         transition={150}
-        accessibilityLabel={`Foto de ${photo.authorShort}`}
+        accessibilityLabel={t('eventDetail.photoA11y', { author: photo.authorShort })}
       />
       <View style={styles.tileOverlay} pointerEvents="none">
         <View style={styles.tileMetaRow}>
           <View style={styles.author}>
-            {photo.authorAvatarUrl ? (
+            {authorAvatarUri ? (
               <Image
-                source={{ uri: photo.authorAvatarUrl }}
+                source={{ uri: authorAvatarUri }}
                 style={styles.authorAvatar}
                 contentFit="cover"
                 cachePolicy="memory-disk"

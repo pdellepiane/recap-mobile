@@ -1,5 +1,6 @@
 import { useProfile } from './useProfile';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
+import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 
 /**
@@ -7,8 +8,14 @@ import { useCallback, useState } from 'react';
  */
 export function useProfileScreen() {
   const { profile, isLoading } = useProfile();
-  const { logout } = useAuth();
+  const { logout, refreshUser } = useAuth();
   const [isSigningOut, setIsSigningOut] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshUser();
+    }, [refreshUser]),
+  );
 
   const handleLogout = useCallback(async () => {
     setIsSigningOut(true);

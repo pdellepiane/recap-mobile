@@ -1,5 +1,6 @@
 import type { AlbumPhoto } from '../../data/eventAlbum';
 import { EventDetailAlbumTile } from './EventDetailAlbumTile';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -34,6 +35,7 @@ function splitIntoColumns(items: AlbumPhoto[]): [AlbumPhoto[], AlbumPhoto[]] {
  * Album tab: title + two-column grid with author and likes on each photo.
  */
 export function EventDetailAlbumTab({ photos }: Props) {
+  const { t } = useTranslation();
   const { width: winW } = useWindowDimensions();
   const contentW = winW - SCROLL_PADDING_X * 2;
   const colW = (contentW - COL_GAP) / 2;
@@ -41,10 +43,10 @@ export function EventDetailAlbumTab({ photos }: Props) {
 
   return (
     <View>
-      <Text style={styles.sectionTitle}>Fotos subidas al evento</Text>
+      <Text style={styles.sectionTitle}>{t('eventDetail.albumTitle')}</Text>
 
       {photos.length === 0 ? (
-        <Text style={styles.empty}>Aún no hay fotos en este álbum.</Text>
+        <Text style={styles.empty}>{t('eventDetail.albumEmpty')}</Text>
       ) : (
         <View style={styles.masonryRow}>
           <View style={{ width: colW }}>

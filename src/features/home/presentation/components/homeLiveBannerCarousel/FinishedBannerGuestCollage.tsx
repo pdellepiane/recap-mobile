@@ -1,7 +1,8 @@
 import { FINISHED_GUEST_COLLAGE_FRAME } from './layout';
-import { colors } from '@/src/ui';
+import { appendRemoteImageEpoch, colors, useRemoteImageCacheEpoch } from '@/src/ui';
+import { Image as ExpoImage } from 'expo-image';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 type CollageFaceProps = {
   uri: string;
@@ -11,6 +12,8 @@ type CollageFaceProps = {
 };
 
 function CollageFace({ uri, size, style, zIndex }: CollageFaceProps) {
+  const mediaCacheEpoch = useRemoteImageCacheEpoch();
+  const sourceUri = appendRemoteImageEpoch(uri, mediaCacheEpoch);
   const r = size / 2;
   return (
     <View
@@ -27,7 +30,13 @@ function CollageFace({ uri, size, style, zIndex }: CollageFaceProps) {
       ]}
     >
       {uri ? (
-        <Image source={{ uri }} style={{ width: size, height: size }} resizeMode="cover" />
+        <ExpoImage
+          source={{ uri: sourceUri }}
+          style={{ width: size, height: size }}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          transition={100}
+        />
       ) : null}
     </View>
   );

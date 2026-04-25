@@ -1,3 +1,4 @@
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui/colors';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -5,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export type ScreenNotFoundFallbackProps = {
   title: string;
   onBackPress: () => void;
-  /** Defaults to “Volver”. */
+  /** Defaults to {@link common.goBack}. */
   backLabel?: string;
 };
 
@@ -15,8 +16,10 @@ export type ScreenNotFoundFallbackProps = {
 export function ScreenNotFoundFallback({
   title,
   onBackPress,
-  backLabel = 'Volver',
+  backLabel: backLabelProp,
 }: ScreenNotFoundFallbackProps) {
+  const { t } = useTranslation();
+  const backLabel = backLabelProp ?? t('common.goBack');
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <Text style={styles.title}>{title}</Text>

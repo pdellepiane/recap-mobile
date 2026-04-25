@@ -1,5 +1,6 @@
 import { HomeEmptyState } from './HomeEmptyState';
 import { HomeEventCarouselCard } from './HomeEventCarouselCard';
+import { HomeEventVariant } from '../types';
 import type { Event } from '@/src/domain/entities';
 import { SectionTitle } from '@/src/ui';
 import { Fragment } from 'react';
@@ -16,7 +17,7 @@ type Props = {
   onOpenEvent: (eventId: string) => void;
 };
 
-/** Empty state, or three horizontal rows: my events, plans, and past. */
+/** Empty state, or horizontal rows for “Mis eventos”, “Planes”, and “Mis eventos pasados” — each omitted when that list is empty. */
 export function HomeFeedCarouselSections({
   hasEvents,
   myEvents,
@@ -31,17 +32,16 @@ export function HomeFeedCarouselSections({
   const rows: {
     title: string;
     events: Event[];
-    isLast?: boolean;
-    cardVariant: 'hosted' | 'guest';
+    cardVariant: HomeEventVariant;
   }[] = [
-    { title: 'Mis eventos', events: myEvents, cardVariant: 'hosted' },
-    { title: 'Planes', events: plans, cardVariant: 'guest' },
-    { title: 'Mis eventos pasados', events: pastEvents, isLast: true, cardVariant: 'hosted' },
-  ];
+    { title: 'Mis eventos', events: myEvents, cardVariant: HomeEventVariant.Hosted },
+    { title: 'Planes', events: plans, cardVariant: HomeEventVariant.Guest },
+    { title: 'Mis eventos pasados', events: pastEvents, cardVariant: HomeEventVariant.Hosted },
+  ].filter((row) => row.events.length > 0);
 
   return (
     <>
-      {rows.map(({ title, events, isLast, cardVariant }) => (
+      {rows.map(({ title, events, cardVariant }, rowIndex) => (
         <Fragment key={title}>
           <View style={styles.titleInset}>
             <SectionTitle>{title}</SectionTitle>
@@ -49,7 +49,9 @@ export function HomeFeedCarouselSections({
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={isLast ? styles.hRowLast : styles.hRow}
+            contentContainerStyle={
+              rowIndex === rows.length - 1 ? styles.hRowLast : styles.hRow
+            }
           >
             {events.map((item, index) => (
               <HomeEventCarouselCard

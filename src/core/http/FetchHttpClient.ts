@@ -1,3 +1,4 @@
+import { runSessionExpiredFlow } from '@/src/core/auth/sessionExpiredBridge';
 import { ApiRequestError, messageFromUnknownErrorBody } from './ApiRequestError';
 import type { HttpClient, HttpGetOptions, HttpPostOptions } from './HttpClient';
 
@@ -68,7 +69,6 @@ export class FetchHttpClient implements HttpClient {
       const token = await this.options.getAccessToken?.();
       if (token) {
         headers.Authorization = `Bearer ${token}`;
-        console.log('Authorization', headers.Authorization);
       }
     }
     return headers;
@@ -76,7 +76,12 @@ export class FetchHttpClient implements HttpClient {
 
   private async parseResponse<T>(
     res: Response,
-    meta: { method: string; url: string; requestBody?: unknown },
+    meta: {
+      method: string;
+      url: string;
+      requestBody?: unknown;
+      auth?: HttpGetOptions['auth'];
+    },
   ): Promise<T> {
     const text = await res.text();
     logHttp('←', meta.method, meta.url, {
@@ -95,6 +100,9 @@ export class FetchHttpClient implements HttpClient {
         parsed = text;
       }
     }
+    if (res.status === 401 && meta.auth === 'bearer') {
+      await runSessionExpiredFlow(this.baseUrl);
+    }
     if (!res.ok) {
       throw new ApiRequestError(
         messageFromUnknownErrorBody(res.status, parsed),
@@ -112,7 +120,7 @@ export class FetchHttpClient implements HttpClient {
       method: 'GET',
       headers: await this.headersFor(options, false),
     });
-    return this.parseResponse<T>(res, { method: 'GET', url });
+    return this.parseResponse<T>(res, { method: 'GET', url, auth: options.auth });
   }
 
   async post<T>(path: string, body: object, options: HttpPostOptions = {}): Promise<T> {
@@ -123,6 +131,6 @@ export class FetchHttpClient implements HttpClient {
       headers: await this.headersFor(options, true),
       body: JSON.stringify(body),
     });
-    return this.parseResponse<T>(res, { method: 'POST', url, requestBody: body });
+    return this.parseResponse<T>(res, { method: 'POST', url, requestBody: body, auth: options.auth });
   }
 }

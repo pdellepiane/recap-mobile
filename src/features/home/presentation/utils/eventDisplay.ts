@@ -1,3 +1,4 @@
+import { EventType } from '@/src/core/api';
 import {
   isEventCalendarDayStrictlyAfterToday,
   isEventCalendarDayToday,
@@ -56,22 +57,17 @@ export function formatCarouselGuestCountLabel(guestCount: number): string {
   return `+${String(guestCount)} invitados`;
 }
 
-export type HomeCarouselScheduleKind = 'live' | 'scheduled';
-
 /**
  * Home carousel status by **local calendar day**: today → live, strictly future → scheduled, past → none.
  */
-export function getHomeCarouselScheduleKind(
-  isoDate: string,
-  now: Date = new Date(),
-): HomeCarouselScheduleKind | null {
+export function getEventType(isoDate: string, now: Date = new Date()): EventType {
   if (isEventCalendarDayToday(isoDate, now)) {
-    return 'live';
+    return EventType.EventLive;
   }
   if (isEventCalendarDayStrictlyAfterToday(isoDate, now)) {
-    return 'scheduled';
+    return EventType.EventToStart;
   }
-  return null;
+  return EventType.EventFinished;
 }
 
 /** First word or full string for greetings like "Hola Paolo". */

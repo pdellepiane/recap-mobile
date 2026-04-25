@@ -1,21 +1,22 @@
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView } from 'expo-camera';
 import type { RefObject } from 'react';
 import {
+  ActivityIndicator,
+  Image,
   Platform,
   Pressable,
   StyleSheet,
   Text,
   View,
-  Image,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PREVIEW_RADIUS = 24;
 
-type EventChallengePhotoCameraStageProps = {
+type Props = {
   bottomInset: number;
   cameraRef: RefObject<CameraView | null>;
   goBack: () => void;
@@ -30,7 +31,7 @@ type EventChallengePhotoCameraStageProps = {
   instructionParagraphs: string[];
   beginCapture: () => boolean;
   endCapture: () => void;
-  handleCaptureResult: (uri?: string) => void;
+  handleCaptureResult: (asset?: { uri?: string } | string) => void;
   toggleFlash: () => void;
   openGallery: () => Promise<void>;
   discardPreview: () => void;
@@ -69,7 +70,8 @@ export function EventChallengePhotoCameraStage({
   showInfoAlert,
   showPreviewInfoAlert,
   toggleFacing,
-}: EventChallengePhotoCameraStageProps) {
+}: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.root, { paddingBottom: bottomInset }]}>
       <SafeAreaView edges={['top']} style={styles.topSafe}>
@@ -94,7 +96,7 @@ export function EventChallengePhotoCameraStage({
                       style={({ pressed }) => [styles.topBarCircleBtn, pressed && styles.pressed]}
                       hitSlop={10}
                       accessibilityRole="button"
-                      accessibilityLabel="Cerrar"
+                      accessibilityLabel={t('common.close')}
                     >
                       <Ionicons name="close" size={26} color={colors.neutral.primary} />
                     </Pressable>
@@ -104,7 +106,7 @@ export function EventChallengePhotoCameraStage({
                       style={({ pressed }) => [styles.topBarCircleBtn, pressed && styles.pressed]}
                       hitSlop={10}
                       accessibilityRole="button"
-                      accessibilityLabel="Información"
+                      accessibilityLabel={t('common.information')}
                     >
                       <Ionicons
                         name="information-circle-outline"
@@ -136,7 +138,9 @@ export function EventChallengePhotoCameraStage({
                       style={({ pressed }) => [styles.sideControl, pressed && styles.pressed]}
                       hitSlop={8}
                       accessibilityRole="button"
-                      accessibilityLabel={flash === 'on' ? 'Apagar flash' : 'Encender flash'}
+                      accessibilityLabel={
+                        flash === 'on' ? t('common.flashOn') : t('common.flashOff')
+                      }
                     >
                       <Ionicons
                         name={flash === 'on' ? 'flash' : 'flash-off'}
@@ -166,7 +170,7 @@ export function EventChallengePhotoCameraStage({
                         pressed && styles.pressed,
                       ]}
                       accessibilityRole="button"
-                      accessibilityLabel="Hacer foto"
+                      accessibilityLabel={t('common.takePicture')}
                     >
                       <View style={styles.shutterInner} />
                     </Pressable>
@@ -175,7 +179,7 @@ export function EventChallengePhotoCameraStage({
                       style={({ pressed }) => [styles.sideControl, pressed && styles.pressed]}
                       hitSlop={8}
                       accessibilityRole="button"
-                      accessibilityLabel="Cambiar cámara"
+                      accessibilityLabel={t('common.switchCamera')}
                     >
                       <Ionicons
                         name="camera-reverse-outline"
@@ -203,7 +207,7 @@ export function EventChallengePhotoCameraStage({
                       style={({ pressed }) => [styles.topBarCircleBtn, pressed && styles.pressed]}
                       hitSlop={10}
                       accessibilityRole="button"
-                      accessibilityLabel="Descartar y volver a la cámara"
+                      accessibilityLabel={t('challenges.discardRetake')}
                     >
                       <Ionicons name="close" size={26} color={colors.neutral.primary} />
                     </Pressable>
@@ -213,7 +217,7 @@ export function EventChallengePhotoCameraStage({
                       style={({ pressed }) => [styles.topBarCircleBtn, pressed && styles.pressed]}
                       hitSlop={10}
                       accessibilityRole="button"
-                      accessibilityLabel="Información"
+                      accessibilityLabel={t('common.information')}
                     >
                       <Ionicons
                         name="information-circle-outline"
@@ -227,9 +231,9 @@ export function EventChallengePhotoCameraStage({
                       onPress={() => void runUploadSimulation()}
                       style={({ pressed }) => [styles.addPhotoBtn, pressed && styles.pressed]}
                       accessibilityRole="button"
-                      accessibilityLabel="Agregar foto al evento"
+                      accessibilityLabel={t('challenges.addPhoto')}
                     >
-                      <Text style={styles.addPhotoBtnText}>Agregar foto</Text>
+                      <Text style={styles.addPhotoBtnText}>{t('challenges.addPhotoBtn')}</Text>
                       <Ionicons name="arrow-forward" size={22} color={colors.background.primary} />
                     </Pressable>
                   </View>
@@ -249,7 +253,7 @@ export function EventChallengePhotoCameraStage({
                 <View style={styles.uploadScrim} />
                 <View style={styles.uploadCenter} pointerEvents="none">
                   <ActivityIndicator size="large" color={colors.states.active} />
-                  <Text style={styles.uploadLabel}>Subiendo foto…</Text>
+                  <Text style={styles.uploadLabel}>{t('challenges.uploading')}</Text>
                 </View>
               </>
             ) : null}
@@ -262,7 +266,7 @@ export function EventChallengePhotoCameraStage({
                 style={({ pressed }) => [styles.galleryBtn, pressed && styles.pressed]}
                 hitSlop={8}
                 accessibilityRole="button"
-                accessibilityLabel="Abrir galería de fotos"
+                accessibilityLabel={t('common.openPhotoGallery')}
               >
                 <Ionicons name="images-outline" size={26} color={colors.neutral.primary} />
               </Pressable>

@@ -1,4 +1,4 @@
-/** challengeId → points earned on completion (in-memory mock, per event). */
+/** challengeId → points earned on completion (in-memory per session, per event). */
 type CompletionMap = Record<string, number>;
 
 const byEventId: Record<string, CompletionMap> = {};

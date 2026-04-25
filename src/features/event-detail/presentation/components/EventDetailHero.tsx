@@ -1,16 +1,19 @@
+import type { EventDetailReactionPressPayload } from '../../data/eventReactions';
 import { EventDetailLiveAvatarRow } from './EventDetailLiveAvatarRow';
-import { colors } from '@/src/ui';
+import { useTranslation } from '@/src/i18n';
+import { colors, useRemoteImageCacheEpoch, withRemoteImageCacheEpoch } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Ionicons } from '@expo/vector-icons';
+import { Image as ExpoImage } from 'expo-image';
 import type { ImageSourcePropType } from 'react-native';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-type EventDetailHeroProps = {
+type Props = {
   insetsTop: number;
   heroSource: { uri: string } | number | undefined;
   title: string;
   onBackPress: () => void;
-  onReactionPress?: (source: ImageSourcePropType, center: { x: number; y: number }) => void;
+  onReactionPress?: (payload: EventDetailReactionPressPayload) => void;
   onProfileAvatarPress: () => void;
   liveRowCenterImage: ImageSourcePropType;
   liveReactionImages: readonly [
@@ -32,12 +35,20 @@ export function EventDetailHero({
   onProfileAvatarPress,
   liveRowCenterImage,
   liveReactionImages,
-}: EventDetailHeroProps) {
+}: Props) {
+  const { t } = useTranslation();
+  const mediaCacheEpoch = useRemoteImageCacheEpoch();
+  const cachedHeroSource = withRemoteImageCacheEpoch(heroSource, mediaCacheEpoch);
   return (
     <>
       <View style={styles.heroWrap}>
-        {heroSource ? (
-          <Image source={heroSource} style={styles.heroImg} resizeMode="cover" />
+        {cachedHeroSource ? (
+          <ExpoImage
+            source={cachedHeroSource}
+            style={styles.heroImg}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+          />
         ) : (
           <View style={[styles.heroImg, styles.heroPlaceholder]} />
         )}
@@ -47,7 +58,7 @@ export function EventDetailHero({
             onPress={onBackPress}
             style={({ pressed }) => [styles.backCircle, pressed && styles.pressed]}
             accessibilityRole="button"
-            accessibilityLabel="Volver"
+            accessibilityLabel={t('common.back')}
           >
             <Ionicons name="chevron-back" size={26} color={colors.neutral.primary} />
           </Pressable>

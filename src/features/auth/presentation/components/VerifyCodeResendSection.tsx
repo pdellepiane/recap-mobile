@@ -1,3 +1,4 @@
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -13,18 +14,19 @@ export function VerifyCodeResendSection({
   resendDisabled,
   onResend,
 }: VerifyCodeResendSectionProps) {
+  const { t } = useTranslation();
+  const mm = String(Math.floor(resendCooldown / 60)).padStart(2, '0');
+  const ss = String(resendCooldown % 60).padStart(2, '0');
   const cooldownLabel =
-    resendCooldown > 0
-      ? `Reenviar nuevo código en ${String(Math.floor(resendCooldown / 60)).padStart(2, '0')}:${String(resendCooldown % 60).padStart(2, '0')}s`
-      : '';
+    resendCooldown > 0 ? t('auth.resendCooldown', { mm, ss }) : '';
 
   return (
     <>
       <View style={styles.resendContainer}>
-        <Text style={styles.resendText}>¿No recibiste el código? </Text>
+        <Text style={styles.resendText}>{t('auth.resendQuestion')}</Text>
         <Pressable onPress={onResend} disabled={resendDisabled} hitSlop={8}>
           <Text style={[styles.resendLink, resendDisabled && styles.resendLinkDisabled]}>
-            Enviar nuevamente
+            {t('auth.resendAction')}
           </Text>
         </Pressable>
       </View>

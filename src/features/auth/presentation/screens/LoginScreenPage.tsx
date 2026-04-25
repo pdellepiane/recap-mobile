@@ -1,8 +1,10 @@
 import { useLoginScreen } from '../hooks/useLoginScreen';
+import { useTranslation } from '@/src/i18n';
 import { Button, Form, InputField } from '@/src/ui';
 import { StyleSheet } from 'react-native';
 
 export const LoginScreenPage = () => {
+  const { t } = useTranslation();
   const {
     keyboardVisible,
     email,
@@ -14,18 +16,18 @@ export const LoginScreenPage = () => {
   } = useLoginScreen();
 
   return (
-    <Form title="Escribe tu correo" includesGoBack>
+    <Form title={t('auth.loginTitle')} includesGoBack>
       <InputField
         value={email}
         onChangeText={handleEmailChange}
-        placeholder="Coloca aquí tu correo"
+        placeholder={t('auth.emailPlaceholder')}
         keyboardType="email-address"
         error={hasError ? errorMessage : undefined}
       />
 
       <Button
-        title="Continuar"
-        loadingText="Cargando..."
+        title={t('common.continue')}
+        loadingText={t('auth.loading')}
         loading={isLoading}
         onPress={handlePressContinue}
         style={[styles.button, { marginBottom: keyboardVisible ? 8 : 48 }]}

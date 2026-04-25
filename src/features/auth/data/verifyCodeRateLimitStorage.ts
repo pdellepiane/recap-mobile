@@ -2,11 +2,11 @@ import * as SecureStore from 'expo-secure-store';
 
 const STORE_KEY = 'recap_verify_code_rate_v1';
 
-/** Failed verify attempts that trigger a 1-hour resend lock. */
+/** Failed verify attempts that trigger a resend lock. */
 const RESEND_LOCK_AFTER_FAILURES = 3;
 
 /** Resend is disabled until this duration elapses after the 3rd failed verify. */
-const RESEND_LOCK_AFTER_FAILURES_MS = 60 * 60 * 1000;
+const RESEND_LOCK_AFTER_FAILURES_MS = 5 * 60 * 1000;
 
 type VerifyEmailState = {
   failedAttempts: number;
@@ -73,7 +73,7 @@ export async function loadVerifyCodeRateState(email: string): Promise<VerifyEmai
 
 /**
  * Increments failed verify attempts for `email`; after three failures,
- * sets `resendLockedUntil` to now + 1 hour.
+ * sets `resendLockedUntil` to now + 5 minutes.
  */
 export async function recordFailedVerifyAttempt(email: string): Promise<VerifyEmailState> {
   const key = normalizeEmail(email);

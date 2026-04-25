@@ -1,10 +1,11 @@
-import { colors } from '@/src/ui';
+import { useTranslation } from '@/src/i18n';
+import { appendRemoteImageEpoch, colors, useRemoteImageCacheEpoch } from '@/src/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-type EventStoriesChromeProps = {
+type Props = {
   chromeStyle: object;
   tapStripTop: number;
   tapStripBottom: number;
@@ -38,7 +39,10 @@ export function EventStoriesChrome({
   onGoNext,
   onBack,
   onVote,
-}: EventStoriesChromeProps) {
+}: Props) {
+  const { t } = useTranslation();
+  const mediaCacheEpoch = useRemoteImageCacheEpoch();
+  const cachedAuthorAvatarUrl = appendRemoteImageEpoch(authorAvatarUrl, mediaCacheEpoch);
   return (
     <>
       <Animated.View
@@ -49,14 +53,14 @@ export function EventStoriesChrome({
           style={styles.tapThird}
           onPress={onGoPrev}
           accessibilityRole="button"
-          accessibilityLabel="Estado anterior"
+          accessibilityLabel={t('stories.prev')}
         />
         <View style={styles.tapThird} pointerEvents="none" />
         <Pressable
           style={styles.tapThird}
           onPress={onGoNext}
           accessibilityRole="button"
-          accessibilityLabel="Siguiente estado"
+          accessibilityLabel={t('stories.next')}
         />
       </Animated.View>
 
@@ -91,11 +95,15 @@ export function EventStoriesChrome({
             onPress={onBack}
             hitSlop={12}
             accessibilityRole="button"
-            accessibilityLabel="Cerrar estados"
+            accessibilityLabel={t('stories.close')}
           >
             <Ionicons name="close" size={28} color={colors.neutral.primary} />
           </Pressable>
-          <ExpoImage source={{ uri: authorAvatarUrl }} style={styles.headerAvatar} />
+          <ExpoImage
+            source={{ uri: cachedAuthorAvatarUrl }}
+            style={styles.headerAvatar}
+            cachePolicy="memory-disk"
+          />
           <Text style={styles.headerName} numberOfLines={1}>
             {authorName}
           </Text>
@@ -111,7 +119,7 @@ export function EventStoriesChrome({
             onPress={() => onVote('like')}
             style={[styles.actionBtn, vote === 'like' && styles.actionBtnActive]}
             accessibilityRole="button"
-            accessibilityLabel="Me gusta"
+            accessibilityLabel={t('stories.like')}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           >
             <Ionicons
@@ -124,7 +132,7 @@ export function EventStoriesChrome({
             onPress={() => onVote('dislike')}
             style={[styles.actionBtn, vote === 'dislike' && styles.actionBtnActive]}
             accessibilityRole="button"
-            accessibilityLabel="No me gusta"
+            accessibilityLabel={t('stories.dislike')}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           >
             <Ionicons

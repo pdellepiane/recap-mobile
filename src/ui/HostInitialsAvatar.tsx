@@ -9,11 +9,7 @@ const HOST_AVATAR_BACKGROUNDS = [
   colors.brand[400],
 ] as const;
 
-const PASTEL_BACKGROUNDS = [
-  colors.events.homeCardPastelMint,
-  colors.events.homeCardPastelSky,
-  colors.events.homeCardPastelLilac,
-] as const;
+const PASTEL_BACKGROUNDS = [colors.accent[500], colors.states.error, colors.brand[400]] as const;
 
 const AVATAR_SIZE = 36;
 
@@ -38,7 +34,7 @@ export function parseHostsFromLine(hostsLine: string): string[] {
 export function initialsFromFullName(fullName: string): string {
   const parts = fullName.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) {
-    return '?';
+    return '--';
   }
   if (parts.length >= 2) {
     const first = parts[0].charAt(0);

@@ -1,7 +1,7 @@
 import { EventChallengePhotoCameraStage } from '../components/EventChallengePhotoCameraStage';
 import { useEventChallengePhotoCameraScreen } from '../hooks/useEventChallengePhotoCameraScreen';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
-import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRef } from 'react';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -25,6 +25,7 @@ export function EventChallengePhotoCameraScreenPage({
   challengeId,
   challengeNumber,
 }: Props) {
+  const { t } = useTranslation();
   const cameraRef = useRef<InstanceType<typeof CameraView>>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const {
@@ -69,14 +70,12 @@ export function EventChallengePhotoCameraScreenPage({
     return (
       <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
         <View style={styles.permissionBody}>
-          <Text style={styles.permissionText}>
-            Necesitamos acceso a la cámara para este challenge.
-          </Text>
+          <Text style={styles.permissionText}>{t('challenges.cameraPermissionBody')}</Text>
           <Pressable onPress={() => void requestPermission()} style={styles.permissionBtn}>
-            <Text style={styles.permissionBtnLabel}>Permitir cámara</Text>
+            <Text style={styles.permissionBtnLabel}>{t('challenges.allowCamera')}</Text>
           </Pressable>
           <Pressable onPress={goBack} style={styles.permissionSecondary}>
-            <Text style={styles.permissionSecondaryLabel}>Volver</Text>
+            <Text style={styles.permissionSecondaryLabel}>{t('challenges.permissionBack')}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -114,10 +113,7 @@ export function EventChallengePhotoCameraScreenPage({
       />
       {Platform.OS === 'web' ? (
         <View style={styles.webNote} pointerEvents="none">
-          <Text style={styles.webNoteText}>
-            En la web la vista previa puede verse limitada; usá iOS o Android para la cámara y la
-            galería.
-          </Text>
+          <Text style={styles.webNoteText}>{t('challenges.webCameraLimited')}</Text>
         </View>
       ) : null}
     </View>

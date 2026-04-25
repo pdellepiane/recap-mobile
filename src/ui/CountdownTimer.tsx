@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     gap: CELL_GAP,
     marginTop: 8,
+    marginBottom: 30,
   },
   cell: {
     flex: 1,

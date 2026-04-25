@@ -1,6 +1,7 @@
-import { images } from '@/src/assets/images';
 import { HomeBannerCtaPill } from '../HomeBannerCtaPill';
 import { CARD_W } from '../layout';
+import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image, StyleSheet, Text, View } from 'react-native';
@@ -14,12 +15,14 @@ export function NoBannerLeftColumn() {
 }
 
 export function NoBannerRightColumn() {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.right}>
-      <Text style={styles.title}>Crea tu primer evento en</Text>
+      <Text style={styles.title}>{t('home.noBannerTitle')}</Text>
       <Image source={images.homeBanner.state1.logo} style={styles.logo} resizeMode="contain" />
       <HomeBannerCtaPill
-        label="IR A CREAR"
+        label={t('home.noBannerCta')}
         trailingIcon={images.common.goToRight}
         style={styles.ctaSpacing}
       />

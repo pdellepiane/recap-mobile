@@ -1,3 +1,4 @@
+import { registerSessionExpiredHandler } from '@/src/core/auth/sessionExpiredBridge';
 import { authRepository } from '@/src/core/di/container';
 import { getAuthAccessToken, setAuthAccessToken } from '@/src/core/http/authSession';
 import type { AuthSession } from '@/src/domain/entities';
@@ -17,6 +18,8 @@ type AuthContextValue = {
   requestLoginCode: (email: string) => Promise<void>;
   loginWithCode: (email: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
+  /** GET /api/user/me — updates session + SecureStore when successful. */
+  refreshUser: () => Promise<boolean>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -51,19 +54,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  const refreshUser = useCallback(async (): Promise<boolean> => {
+    const access = getAuthAccessToken()?.trim();
+    if (!access) {
+      return false;
+    }
+    try {
+      const user = await authRepository.fetchCurrentUser();
+      await persistSessionSnapshot(access, user);
+      setSession({ user });
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  /** After cold start, reconcile profile with GET /api/user/me (keeps cached user if request fails). */
+  useEffect(() => {
+    if (!isReady || !getAuthAccessToken()?.trim()) {
+      return;
+    }
+    void refreshUser();
+  }, [isReady, refreshUser]);
+
+  useEffect(() => {
+    registerSessionExpiredHandler(() => {
+      setSession(null);
+    });
+    return () => {
+      registerSessionExpiredHandler(null);
+    };
+  }, []);
+
   const requestLoginCode = useCallback(async (email: string) => {
     await authRepository.requestLoginCode(email);
   }, []);
 
-  const loginWithCode = useCallback(async (email: string, code: string) => {
-    const user = await authRepository.loginWithCode(email, code);
-    const access = getAuthAccessToken();
-    if (!access) {
-      throw new Error('Missing access token after login');
-    }
-    await persistSessionSnapshot(access, user);
-    setSession({ user });
-  }, []);
+  const loginWithCode = useCallback(
+    async (email: string, code: string) => {
+      const user = await authRepository.loginWithCode(email, code);
+      const access = getAuthAccessToken();
+      if (!access) {
+        throw new Error('Missing access token after login');
+      }
+      await persistSessionSnapshot(access, user);
+      setSession({ user });
+      await refreshUser();
+    },
+    [refreshUser],
+  );
 
   const logout = useCallback(async () => {
     try {
@@ -82,8 +121,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       requestLoginCode,
       loginWithCode,
       logout,
+      refreshUser,
     }),
-    [isReady, session, requestLoginCode, loginWithCode, logout],
+    [isReady, session, requestLoginCode, loginWithCode, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

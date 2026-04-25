@@ -1,8 +1,10 @@
+import { useTranslation } from '@/src/i18n';
 import { Button, colors, Form, Spinner } from '@/src/ui';
 import { StyleSheet, Text } from 'react-native';
 import { useProfileScreen } from '../hooks/useProfileScreen';
 
 export const ProfileScreenPage = () => {
+  const { t } = useTranslation();
   const { profile, isLoading, isSigningOut, handleLogout } = useProfileScreen();
 
   if (isLoading) {
@@ -10,14 +12,28 @@ export const ProfileScreenPage = () => {
   }
 
   return (
-    <Form title="My Profile">
-      <Text style={styles.field}>Name: {profile?.name ?? '-'}</Text>
-      <Text style={styles.field}>Email: {profile?.email ?? '-'}</Text>
+    <Form title={t('profile.title')}>
+      <Text style={styles.field}>
+        {t('profile.name')}: {profile?.name ?? '-'}
+      </Text>
+      <Text style={styles.field}>
+        {t('profile.email')}: {profile?.email ?? '-'}
+      </Text>
+      {profile?.fullPhone ? (
+        <Text style={styles.field}>
+          {t('profile.phone')}: {profile.fullPhone}
+        </Text>
+      ) : null}
+      {profile?.languageName ? (
+        <Text style={styles.field}>
+          {t('profile.language')}: {profile.languageName}
+        </Text>
+      ) : null}
       <Button
-        title="Cerrar sesión"
+        title={t('profile.logout')}
         onPress={handleLogout}
         loading={isSigningOut}
-        loadingText="Cerrando…"
+        loadingText={t('profile.loggingOut')}
         style={styles.logoutButton}
       />
     </Form>

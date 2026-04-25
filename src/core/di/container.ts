@@ -1,14 +1,12 @@
 import { FetchHttpClient } from '@/src/core/http/FetchHttpClient';
-import { MockHttpClient } from '@/src/core/http/MockHttpClient';
 import { getAuthAccessToken } from '@/src/core/http/authSession';
 import { AuthRepository } from '@/src/features/auth/data/repositories/AuthRepository';
 import { getPersistedAccessToken } from '@/src/features/auth/data/sessionStorage';
-import { EventRepository } from '@/src/features/home/data/repositories/EventRepository';
+import { EventRepository } from '@/src/features/events/data/repositories/EventRepository';
 
 /**
- * Email OTP + JWT + logout and authenticated home event lists hit the real API (`EXPO_PUBLIC_API_BASE_URL`).
- * Event detail merges {@link EventRepository.getLocalEventById} (home cache) with GET `api/events/:id`
- * (or mock when `EXPO_PUBLIC_MOCK_EVENT_DETAIL_API` / home mock flags apply). Legacy `evt-*` ids still use {@link MockHttpClient}.
+ * Email OTP + JWT + logout and authenticated event endpoints use the real API (`EXPO_PUBLIC_API_BASE_URL`).
+ * Event detail merges {@link EventRepository.getLocalEventById} (home cache) with GET /api/events/:id.
  */
 const apiBaseUrl =
   process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://dev.api.recap.sinenvolturas.com';
@@ -29,7 +27,6 @@ async function authAccessTokenForRequests(): Promise<string | null> {
 const authHttp = new FetchHttpClient(apiBaseUrl, { getAccessToken: authAccessTokenForRequests });
 
 const eventsApi = new FetchHttpClient(apiBaseUrl, { getAccessToken: authAccessTokenForRequests });
-const eventsMock = new MockHttpClient();
 
 export const authRepository = new AuthRepository(authHttp);
-export const eventRepository = new EventRepository(eventsApi, eventsMock);
+export const eventRepository = new EventRepository(eventsApi);

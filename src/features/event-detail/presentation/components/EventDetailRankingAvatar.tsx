@@ -1,6 +1,6 @@
 import type { RankingRow } from '../../data/eventRanking';
 import { colors } from '@/src/ui';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 const AVATAR = 44;
 
@@ -17,10 +17,6 @@ function initialsFromName(name: string): string {
 
 export function EventDetailRankingAvatar({ row }: { row: RankingRow }) {
   const letters = row.initials ?? initialsFromName(row.name);
-
-  if (row.avatarUrl) {
-    return <Image source={{ uri: row.avatarUrl }} style={styles.avatar} />;
-  }
 
   return (
     <View style={[styles.avatar, styles.avatarInitials]}>

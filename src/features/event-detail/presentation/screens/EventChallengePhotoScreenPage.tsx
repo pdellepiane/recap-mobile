@@ -1,8 +1,8 @@
 import { EventChallengePhotoIntroCard } from '../components/EventChallengePhotoIntroCard';
 import { useEventChallengePhotoScreen } from '../hooks/useEventChallengePhotoScreen';
-import { colors } from '@/src/ui';
-import { Ionicons } from '@expo/vector-icons';
-import { Dimensions, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useTranslation } from '@/src/i18n';
+import { BackButton, colors } from '@/src/ui';
+import { Dimensions, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const SCREEN_BG = colors.background.primary;
@@ -18,42 +18,34 @@ type Props = {
  * Photo challenge: card with decorative camera and “Take photo” action.
  */
 export function EventChallengePhotoScreenPage({ eventId, challengeId, challengeNumber }: Props) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { goBack, numberLabel, instructionParagraphs, handleOpenCamera } =
-    useEventChallengePhotoScreen({
-      eventId,
-      challengeId,
-      challengeNumber,
-    });
+  const { numberLabel, instructionParagraphs, handleOpenCamera } = useEventChallengePhotoScreen({
+    eventId,
+    challengeId,
+    challengeNumber,
+  });
 
   return (
     <View style={styles.root}>
-      <SafeAreaView edges={['top']} style={styles.topSafe}>
-        <Pressable
-          onPress={goBack}
-          style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
-          accessibilityRole="button"
-          accessibilityLabel="Volver"
-          hitSlop={12}
-        >
-          <Ionicons name="chevron-back" size={28} color={colors.neutral.primary} />
-        </Pressable>
-      </SafeAreaView>
+      <SafeAreaView edges={['top']} style={styles.safe}>
+        <BackButton style={styles.backButton} accessibilityLabel={t('common.back')} />
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: insets.bottom + 24, minHeight: WIN_H },
-        ]}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <EventChallengePhotoIntroCard
-          numberLabel={numberLabel}
-          instructionParagraphs={instructionParagraphs}
-          onOpenCamera={handleOpenCamera}
-        />
-      </ScrollView>
+        <ScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + 24, minHeight: WIN_H },
+          ]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <EventChallengePhotoIntroCard
+            numberLabel={numberLabel}
+            instructionParagraphs={instructionParagraphs}
+            onOpenCamera={handleOpenCamera}
+          />
+        </ScrollView>
+      </SafeAreaView>
     </View>
   );
 }
@@ -63,18 +55,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: SCREEN_BG,
   },
-  topSafe: {
+  safe: {
     paddingHorizontal: 8,
     paddingBottom: 4,
   },
-  backBtn: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pressed: {
-    opacity: 0.85,
+  /** {@link BackButton} default `marginBottom` is for form layouts; header row uses none. */
+  backButton: {
+    marginBottom: 0,
   },
   scrollContent: {
     flexGrow: 1,

@@ -1,3 +1,4 @@
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -12,13 +13,17 @@ export function HomeBannerCarouselDots({
   activeIndex,
   onDotPress,
 }: HomeBannerCarouselDotsProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.row}>
       {Array.from({ length: count }, (_, i) => (
         <Pressable
           key={`dot-${String(i)}`}
           accessibilityRole="button"
-          accessibilityLabel={`Ir a banner ${String(i + 1)} de ${String(count)}`}
+          accessibilityLabel={t('common.bannerPage', {
+            current: i + 1,
+            total: count,
+          })}
           accessibilityState={{ selected: i === activeIndex }}
           hitSlop={8}
           onPress={() => {

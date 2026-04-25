@@ -1,7 +1,7 @@
 import { EventStoriesChrome } from '../components/EventStoriesChrome';
 import { EventStoriesFallback } from '../components/EventStoriesFallback';
 import { useEventStoriesScreen } from '../hooks/useEventStoriesScreen';
-import { Ionicons } from '@expo/vector-icons';
+import { appendRemoteImageEpoch, useRemoteImageCacheEpoch } from '@/src/ui';
 import { Image as ExpoImage } from 'expo-image';
 import { Dimensions, StatusBar, StyleSheet, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
@@ -17,6 +17,7 @@ type Props = {
  * Full-screen WhatsApp-style stories: photos, segmented progress, like / dislike.
  */
 export function EventStoriesScreenPage({ eventId }: Props) {
+  const mediaCacheEpoch = useRemoteImageCacheEpoch();
   const {
     insets,
     goBack,
@@ -41,6 +42,10 @@ export function EventStoriesScreenPage({ eventId }: Props) {
     return <EventStoriesFallback topInset={insets.top} onBack={goBack} />;
   }
 
+  const slideImageUrl = slide?.imageUrl
+    ? appendRemoteImageEpoch(slide.imageUrl, mediaCacheEpoch)
+    : undefined;
+
   return (
     <GestureDetector gesture={panGesture}>
       <View style={styles.root} collapsable={false}>
@@ -48,10 +53,11 @@ export function EventStoriesScreenPage({ eventId }: Props) {
         <Animated.View style={dimmerStyle} pointerEvents="none" />
         <Animated.View style={mediaShellStyle}>
           <ExpoImage
-            source={{ uri: slide?.imageUrl }}
+            source={slideImageUrl ? { uri: slideImageUrl } : undefined}
             style={styles.mediaFill}
             contentFit="cover"
             recyclingKey={slide?.id}
+            cachePolicy="memory-disk"
           />
         </Animated.View>
 

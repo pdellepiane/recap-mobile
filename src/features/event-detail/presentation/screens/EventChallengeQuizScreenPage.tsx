@@ -1,6 +1,8 @@
+import { EventChallengeQuizFinishButton } from '../components/EventChallengeQuizFinishButton';
 import { EventChallengeQuizQuestionView } from '../components/EventChallengeQuizQuestionView';
 import { EventChallengeQuizResultView } from '../components/EventChallengeQuizResultView';
 import { useEventChallengeQuizScreen } from '../hooks/useEventChallengeQuizScreen';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +16,7 @@ type Props = {
 };
 
 export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNumber }: Props) {
+  const { t } = useTranslation();
   const {
     goBack,
     quiz,
@@ -31,6 +34,37 @@ export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNu
     toggleOption,
     finalize,
   } = useEventChallengeQuizScreen({ eventId, challengeId, challengeNumber });
+
+  if (!quiz) {
+    return (
+      <View style={styles.root}>
+        <SafeAreaView edges={['top']} style={styles.headerSafe}>
+          <View style={styles.headerRow}>
+            <Pressable
+              onPress={goBack}
+              style={({ pressed }) => [styles.backCircle, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.back')}
+              hitSlop={12}
+            >
+              <Ionicons name="chevron-back" size={26} color={colors.neutral.primary} />
+            </Pressable>
+            <View style={styles.headerSide} />
+          </View>
+        </SafeAreaView>
+        <View
+          style={{
+            paddingTop: contentTopInset,
+            flex: 1,
+            paddingHorizontal: 24,
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={styles.unavailableText}>{t('quiz.unavailable')}</Text>
+        </View>
+      </View>
+    );
+  }
 
   if (showResult && selectedIndex !== null) {
     return (
@@ -56,7 +90,7 @@ export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNu
             onPress={goBack}
             style={({ pressed }) => [styles.backCircle, pressed && styles.pressed]}
             accessibilityRole="button"
-            accessibilityLabel="Volver"
+            accessibilityLabel={t('common.back')}
             hitSlop={12}
           >
             <Ionicons name="chevron-back" size={26} color={colors.neutral.primary} />
@@ -74,26 +108,7 @@ export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNu
       </View>
 
       <SafeAreaView edges={['bottom']} style={styles.footerSafe}>
-        <Pressable
-          disabled={!canFinish}
-          onPress={finalize}
-          style={({ pressed }) => [
-            styles.finishBtn,
-            canFinish ? styles.finishBtnEnabled : styles.finishBtnDisabled,
-            pressed && canFinish && styles.pressed,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Finalizar"
-        >
-          <Text
-            style={[
-              styles.finishText,
-              canFinish ? styles.finishTextEnabled : styles.finishTextDisabled,
-            ]}
-          >
-            Finalizar
-          </Text>
-        </Pressable>
+        <EventChallengeQuizFinishButton canFinish={canFinish} onPress={finalize} />
       </SafeAreaView>
     </View>
   );
@@ -102,7 +117,8 @@ export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNu
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    /** Matches quiz question card area (`EventChallengeQuizQuestionView`). */
+    backgroundColor: '#121212',
   },
   headerSafe: {
     position: 'absolute',
@@ -149,30 +165,11 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     backgroundColor: 'transparent',
   },
-  finishBtn: {
-    height: 64,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.background.secondary,
-  },
-  finishBtnEnabled: {
-    backgroundColor: colors.states.active,
-  },
-  finishBtnDisabled: {
-    backgroundColor: colors.background.elevated,
-    opacity: 0.6,
-  },
-  finishText: {
-    fontSize: 18,
-    fontWeight: '700',
-    lineHeight: 16,
-    fontFamily: fontFamilies.bold,
-  },
-  finishTextEnabled: {
-    color: colors.background.primary,
-  },
-  finishTextDisabled: {
-    color: colors.neutral.tertiary,
+  unavailableText: {
+    fontSize: 16,
+    lineHeight: 22,
+    color: colors.neutral.secondary,
+    textAlign: 'center',
+    fontFamily: fontFamilies.regular,
   },
 });

@@ -25,7 +25,10 @@ export type LoginCodeLanguagePayload = {
   name: string;
 };
 
-/** {@link AuthUserResource} from POST /api/auth/login-code. */
+/**
+ * User resource from POST /api/auth/login-code or GET /api/user/me (`data`).
+ * `language` may be omitted on some responses.
+ */
 export type LoginCodeUserPayload = {
   id: number;
   email: string;
@@ -34,9 +37,17 @@ export type LoginCodeUserPayload = {
   full_name: string;
   full_phone: string;
   language_id: number | null;
-  language: LoginCodeLanguagePayload;
+  language?: LoginCodeLanguagePayload | null;
   created_at: string | null;
   updated_at: string | null;
+};
+
+/** GET /api/user/me */
+export type CurrentUserMeResponse = {
+  data: LoginCodeUserPayload | null;
+  status: boolean;
+  errors: unknown;
+  error: string | null;
 };
 
 /** POST /api/auth/login-code success body (`status` + `user` + JWT fields). */
@@ -114,8 +125,11 @@ export type HomeEventsListResponse = {
   error: string | null;
 };
 
-/** Home banner carousel variant from GET /api/home/banners (drives slider layout in the app). */
-export enum HomeBannerType {
+/**
+ * API discriminator for event presentation / lifecycle in feeds (e.g. `banner_type` on
+ * GET /api/home/banners). String values match the backend contract.
+ */
+export enum EventType {
   EventToStart = 'event_to_start',
   EventLive = 'event_live',
   EventFinished = 'event_finished',
@@ -125,7 +139,7 @@ export enum HomeBannerType {
 /** Row from GET /api/home/banners (slider cards; `banner_type` drives layout). */
 export type HomeBannerItem = {
   id: number;
-  banner_type: HomeBannerType;
+  banner_type: EventType;
   slug: string;
   name: string;
   type: string;
@@ -192,6 +206,19 @@ export type EventRankingListResponse = {
   error: string | null;
 };
 
+/** POST /api/events/:id/reactions — `body.reaction`. */
+export type EventReactionKind = 'party' | 'sad' | 'laugh' | 'love';
+
+export type EventReactionPostBody = {
+  reaction: EventReactionKind;
+};
+
+export type EventReactionPostResponse = {
+  status: boolean;
+  errors: unknown;
+  error: string | null;
+};
+
 /** Nested under GET /api/events/:id/challenges items when the guest has submitted an answer. */
 export type EventChallengeGuestAnswerApi = {
   id?: string;
@@ -214,8 +241,11 @@ export type EventChallengeApiItem = {
   is_active: boolean;
   event_id: number;
   event_host_id: number;
-  /** Often JSON: string[] or `{ text, is_correct }[]`. */
-  options?: string | null;
+  /** JSON string, or decoded array of strings / `{ option?, text?, is_correct }` (GET challenges). */
+  options?: string | null | unknown[];
+  /** Guest answers / submissions count (if API exposes it). */
+  responses_count?: number;
+  answers_count?: number;
   current_guest_answer?: EventChallengeGuestAnswerApi | null;
   created_at: string;
   updated_at: string;
@@ -223,6 +253,24 @@ export type EventChallengeApiItem = {
 
 export type EventChallengesListResponse = {
   data: EventChallengeApiItem[];
+  status: boolean;
+  errors: unknown;
+  error: string | null;
+};
+
+/** Row from GET /api/events/:id/media. */
+export type EventMediaApiItem = {
+  id: number;
+  type: string;
+  path: string;
+  event_id: number;
+  event_challenge_answer_photo_id: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type EventMediaListResponse = {
+  data: EventMediaApiItem[];
   status: boolean;
   errors: unknown;
   error: string | null;

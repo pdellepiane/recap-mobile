@@ -1,4 +1,5 @@
 import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui/colors';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -9,13 +10,15 @@ type StartButtonProps = {
 };
 
 export function StartButton({ onPress, bottomInset }: StartButtonProps) {
+  const { t } = useTranslation();
+
   return (
     <View style={[styles.buttonContainer, { paddingBottom: bottomInset + 20 }]}>
       <Pressable
         style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
         onPress={onPress}
       >
-        <Text style={styles.buttonText}>Empezar</Text>
+        <Text style={styles.buttonText}>{t('onboarding.start')}</Text>
         <Image
           source={images.common.start}
           style={styles.buttonIcon}

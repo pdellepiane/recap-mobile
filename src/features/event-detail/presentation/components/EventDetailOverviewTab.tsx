@@ -1,17 +1,18 @@
 import type { EventDetailExtras } from '../../data/eventDetailExtras';
 import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
 import { colors, CountdownTimer, HostInitialsAvatar, parseHostsFromLine } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-type EventDetailOverviewTabProps = {
+type Props = {
   description: string;
   countdownEndsAt: Date;
   mapsQuery: string | null;
   venueLine1: string;
   venueLine2: string;
   extras: EventDetailExtras | null;
-  /** GET /api/events/:id `hosts` when remote; otherwise {@link EventDetailExtras.hostsLine} for legacy mocks. */
+  /** GET /api/events/:id `hosts` when remote; otherwise {@link EventDetailExtras.hostsLine} when provided. */
   hostsLine: string;
   /** False on the event’s calendar day and when extras hide the countdown (e.g. live). */
   showDetailCountdown: boolean;
@@ -28,7 +29,8 @@ export function EventDetailOverviewTab({
   hostsLine,
   showDetailCountdown,
   onOpenMap,
-}: EventDetailOverviewTabProps) {
+}: Props) {
+  const { t } = useTranslation();
   const hostNames = parseHostsFromLine(hostsLine);
 
   return (
@@ -49,14 +51,14 @@ export function EventDetailOverviewTab({
           ))}
         </View>
         <View style={styles.creatorsTextCol}>
-          <Text style={styles.creatorsLabel}>Evento creado por</Text>
+          <Text style={styles.creatorsLabel}>{t('eventDetail.creatorsLabel')}</Text>
           <Text style={styles.creatorsNames}>{hostsLine}</Text>
         </View>
       </View>
 
       {showDetailCountdown ? <CountdownTimer endsAt={countdownEndsAt} /> : null}
 
-      <Text style={styles.sectionHeading}>Información del evento</Text>
+      <Text style={styles.sectionHeading}>{t('eventDetail.infoHeading')}</Text>
       <Text style={styles.bodyText}>{description}</Text>
 
       <Pressable
@@ -64,7 +66,7 @@ export function EventDetailOverviewTab({
         onPress={onOpenMap}
         style={({ pressed }) => [styles.infoCard, pressed && mapsQuery ? styles.pressed : null]}
         accessibilityRole="button"
-        accessibilityLabel="Ver ubicación en Google Maps"
+        accessibilityLabel={t('common.viewLocationInGoogleMaps')}
       >
         <Image
           source={images.eventDetail.icons.locationLime}
@@ -85,25 +87,29 @@ export function EventDetailOverviewTab({
         />
         <View style={styles.infoCardText}>
           <Text style={styles.infoCardTitle}>
-            {extras ? `${String(extras.guestsConfirmed)} invitados confirmados` : 'Invitados'}
+            {extras
+              ? t('eventDetail.guestsConfirmedTitle', { count: extras.guestsConfirmed })
+              : t('eventDetail.guestsCardTitle')}
           </Text>
           {extras ? (
             <Text style={styles.infoCardSub}>
-              {`${String(extras.guestsPending)} invitados por confirmar`}
+              {t('eventDetail.guestsPendingSub', { count: extras.guestsPending })}
             </Text>
           ) : null}
         </View>
       </View>
 
-      <Text style={styles.sectionHeading}>Lista de invitados confirmados</Text>
-      {(extras?.confirmedGuests ?? [{ id: 'x', name: 'Invitado' }]).map((g) => (
-        <View key={g.id} style={styles.guestRow}>
-          <View style={styles.guestAvatar}>
-            <Text style={styles.guestInitial}>{g.name.charAt(0)}</Text>
+      <Text style={styles.sectionHeading}>{t('eventDetail.guestListHeading')}</Text>
+      {(extras?.confirmedGuests ?? [{ id: 'x', name: t('eventDetail.guestPlaceholder') }]).map(
+        (g) => (
+          <View key={g.id} style={styles.guestRow}>
+            <View style={styles.guestAvatar}>
+              <Text style={styles.guestInitial}>{g.name.charAt(0)}</Text>
+            </View>
+            <Text style={styles.guestName}>{g.name}</Text>
           </View>
-          <Text style={styles.guestName}>{g.name}</Text>
-        </View>
-      ))}
+        ),
+      )}
     </>
   );
 }

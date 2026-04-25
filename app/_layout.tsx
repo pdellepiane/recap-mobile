@@ -1,5 +1,7 @@
+import '@/src/i18n';
 import { AuthSync } from '@/src/features/auth/presentation/AuthSync';
 import { AuthProvider } from '@/src/features/auth/presentation/context/AuthContext';
+import { RemoteImageCacheProvider } from '@/src/ui';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -60,18 +62,20 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <AuthSync />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="onboarding" />
-          <Stack.Screen name="login" />
-          <Stack.Screen name="verify-code" />
-          <Stack.Screen name="home" options={{ headerShown: false }} />
-          <Stack.Screen name="in-app-web" options={{ headerShown: false, presentation: 'modal' }} />
-          <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
-        </Stack>
-      </AuthProvider>
+      <RemoteImageCacheProvider>
+        <AuthProvider>
+          <AuthSync />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="onboarding" />
+            <Stack.Screen name="login" />
+            <Stack.Screen name="verify-code" />
+            <Stack.Screen name="home" options={{ headerShown: false }} />
+            <Stack.Screen name="in-app-web" options={{ headerShown: false, presentation: 'modal' }} />
+            <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
+          </Stack>
+        </AuthProvider>
+      </RemoteImageCacheProvider>
     </GestureHandlerRootView>
   );
 }

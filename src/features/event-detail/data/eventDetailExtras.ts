@@ -19,7 +19,7 @@ export type EventDetailExtras = {
   venueArea: string;
   /** Address or venue name for Google Maps search. */
   mapsSearchQuery?: string;
-  /** Same role as GET /api/events/:id `hosts` — display names for the event hosts (local mock only). */
+  /** Same role as GET /api/events/:id `hosts` when not provided by the API. */
   hostsLine: string;
   guestsConfirmed: number;
   guestsPending: number;
@@ -41,57 +41,20 @@ export type EventDetailExtras = {
   hideCountdownInDetail?: boolean;
 };
 
-const EXTRAS: Record<string, EventDetailExtras> = {
-  'evt-live-1': {
-    venueArea: 'Barranco',
-    mapsSearchQuery: 'Convención de Gala Plutón, Barranco, Lima, Perú',
-    hostsLine: 'Mariel Santos y Jorge Panduro',
-    guestsConfirmed: 20,
-    guestsPending: 32,
-    confirmedGuests: [{ id: 'g1', name: 'Marco Fernandez' }],
-    heroImage: images.eventDetail.heroMariel,
-  },
-  'evt-live-2': {
-    venueArea: 'Santiago de Surco',
-    mapsSearchQuery: 'Jardín Los Olivos, Lima, Perú',
-    hostsLine: 'Camila Ríos y Andrés Mendoza',
-    guestsConfirmed: 48,
-    guestsPending: 12,
-    confirmedGuests: [
-      { id: 'g1', name: 'Marco Fernandez' },
-      { id: 'g2', name: 'Lucía Vargas' },
-    ],
-    isLiveExecution: true,
-    hideCountdownInDetail: true,
-  },
-};
-
 /**
- * Extra UI data for the event detail screen (two-line venue, guests, local hero, etc.).
+ * Optional UI-only data for the event detail screen (two-line venue, guests, local hero, etc.).
  */
-export function getEventDetailExtras(eventId: string): EventDetailExtras | null {
-  return EXTRAS[eventId] ?? null;
+export function getEventDetailExtras(_eventId: string): EventDetailExtras | null {
+  return null;
 }
 
-/** Title shown on detail (mock aligned to design). */
+/** Title shown on detail. */
 export function displayTitleForEvent(event: Event): string {
-  if (event.id === 'evt-live-1') {
-    return 'Boda Mariel & Jorge';
-  }
-  if (event.id === 'evt-live-2') {
-    return 'Boda Camila & Andrés';
-  }
   return event.title;
 }
 
 /** Long description on the detail screen. */
 export function displayDescriptionForEvent(event: Event): string {
-  if (event.id === 'evt-live-1') {
-    return 'Es el momento más especial del día, donde dos personas se unen en amor y compromiso frente a sus seres queridos!';
-  }
-  if (event.id === 'evt-live-2') {
-    return 'El evento ya comenzó: disfruta cada momento con los novios, participa en los challenges y comparte el álbum en vivo. ¡Gracias por ser parte de este día!';
-  }
   return event.description;
 }
 

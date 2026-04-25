@@ -1,26 +1,28 @@
-import { EventDetailTab } from '../../../home/presentation/hooks/useEventDetailScreen';
+import { EventDetailTab } from '../hooks/useEventDetailScreen';
 import { AlbumPhoto } from '@/src/features/event-detail/data/eventAlbum';
 import { EventChallenge } from '@/src/features/event-detail/data/eventChallenges';
 import { EventDetailExtras } from '@/src/features/event-detail/data/eventDetailExtras';
 import { RankingRow } from '@/src/features/event-detail/data/eventRanking';
+import type { EventDetailReactionPressPayload } from '@/src/features/event-detail/data/eventReactions';
 import { EventDetailAlbumTab } from '@/src/features/event-detail/presentation/components/EventDetailAlbumTab';
 import { EventDetailChallengesTab } from '@/src/features/event-detail/presentation/components/EventDetailChallengesTab';
 import { EventDetailHero } from '@/src/features/event-detail/presentation/components/EventDetailHero';
 import { EventDetailOverviewTab } from '@/src/features/event-detail/presentation/components/EventDetailOverviewTab';
 import { EventDetailRankingTab } from '@/src/features/event-detail/presentation/components/EventDetailRankingTab';
 import { EventDetailTabs } from '@/src/features/event-detail/presentation/components/EventDetailTabs';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import type { ImageSourcePropType } from 'react-native';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-export type EventDetailScrollBodyProps = {
+export type Props = {
   insetsTop: number;
   /** Bottom spacer inside the scroll (safe area + extra for FAB). */
   scrollBottomPadding: number;
   heroSource: { uri: string } | number | undefined;
   title: string;
   onBackPress: () => void;
-  onReactionPress: (source: ImageSourcePropType, center: { x: number; y: number }) => void;
+  onReactionPress?: (payload: EventDetailReactionPressPayload) => void;
   onProfileAvatarPress: () => void;
   /** Center image in the reaction row (cover, or story author when statuses exist). */
   liveRowCenterImage: ImageSourcePropType;
@@ -46,9 +48,11 @@ export type EventDetailScrollBodyProps = {
   albumPhotos: AlbumPhoto[];
   /** When set, only these tabs are shown (e.g. Detalle + Álbum for hosted events on a future calendar day). */
   visibleTabs?: readonly EventDetailTab[];
-  /** Host names line (API `hosts` or extras mock). */
+  /** Host names line (API `hosts` or optional {@link EventDetailExtras.hostsLine}). */
   hostsLine: string;
   showDetailCountdown: boolean;
+  /** Anfitrión (evento en “Mis eventos”): copy y vacío distintos en Retos. */
+  isEventHost?: boolean;
   refreshing?: boolean;
   onRefresh?: () => void;
 };
@@ -83,9 +87,12 @@ export function EventDetailScrollBody({
   visibleTabs,
   hostsLine,
   showDetailCountdown,
+  isEventHost = false,
   refreshing = false,
   onRefresh,
-}: EventDetailScrollBodyProps) {
+}: Props) {
+  const { t } = useTranslation();
+
   return (
     <ScrollView
       style={styles.scroll}
@@ -132,14 +139,15 @@ export function EventDetailScrollBody({
           challenges={challenges}
           onChallengePress={onChallengePress}
           completedByChallengeId={completedByChallengeId}
+          isEventHost={isEventHost}
         />
       ) : activeTab === EventDetailTab.Ranking ? (
-        <EventDetailRankingTab rows={rankingRows} />
+        <EventDetailRankingTab rows={rankingRows} isEventHost={isEventHost} />
       ) : activeTab === EventDetailTab.Album ? (
         <EventDetailAlbumTab photos={albumPhotos} />
       ) : (
         <View style={styles.tabPlaceholder}>
-          <Text style={styles.tabPlaceholderText}>Contenido disponible pronto</Text>
+          <Text style={styles.tabPlaceholderText}>{t('eventDetail.tabPlaceholder')}</Text>
         </View>
       )}
 
