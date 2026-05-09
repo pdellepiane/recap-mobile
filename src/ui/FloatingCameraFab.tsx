@@ -1,7 +1,7 @@
+import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui/colors';
-import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image as RNImage, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type FloatingCameraFabProps = {
@@ -33,7 +33,7 @@ export function FloatingCameraFab({
         accessibilityLabel={accessibilityLabel}
         hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}
       >
-        <Ionicons name="camera" size={28} color={colors.background.primary} />
+        <RNImage source={images.common.camera.icon} style={styles.fabIcon} resizeMode="contain" />
       </TouchableOpacity>
     </View>
   );
@@ -48,9 +48,9 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: colors.states.active,
     alignItems: 'center',
     justifyContent: 'center',
@@ -60,5 +60,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 8,
+  },
+  fabIcon: {
+    width: 20,
+    height: 20,
   },
 });

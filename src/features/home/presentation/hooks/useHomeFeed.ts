@@ -2,7 +2,7 @@ import type { HomeBannerItem } from '@/src/core/api/types';
 import { eventRepository } from '@/src/core/di/container';
 import type { Event } from '@/src/domain/entities';
 import { seedHomeEventCache } from '@/src/features/events/data/homeEventCache';
-import { partitionHostEventsByDateTime } from '@/src/features/home/presentation/utils/homeFeedPartition';
+import { partitionHomeFeedEvents } from '@/src/features/home/presentation/utils/homeFeedPartition';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export type HomeFeed = {
@@ -11,13 +11,15 @@ export type HomeFeed = {
   myEvents: Event[];
   plans: Event[];
   pastEvents: Event[];
+  /** Event ids from GET /api/home/host-events (for past-row card variant). */
+  hostedEventIds: ReadonlySet<string>;
   /** True when host or guest event lists have at least one row. */
   hasEvents: boolean;
 };
 
 /**
- * Loads host events, guest events, and home banners. Hosted “Mis eventos” are split into upcoming
- * vs “Mis eventos pasados” by **calendar day** (see {@link partitionHostEventsByDateTime}).
+ * Loads host events, guest events, and home banners. “Mis eventos pasados” includes every event
+ * (hosted or guest) with start +24h in the past; active lists exclude those (see {@link partitionHomeFeedEvents}).
  * Uses `allSettled` so one failing request does not wipe the others.
  */
 export function useHomeFeed(): HomeFeed & {
@@ -66,13 +68,16 @@ export function useHomeFeed(): HomeFeed & {
   }, [hostEvents, plans]);
 
   const feed = useMemo((): HomeFeed => {
-    const { upcoming, past } = partitionHostEventsByDateTime(hostEvents);
-    const hasEvents = upcoming.length > 0 || past.length > 0 || plans.length > 0;
+    const hostedEventIds = new Set(hostEvents.map((e) => e.id));
+    const { myEvents, plans: activePlans, pastEvents } = partitionHomeFeedEvents(hostEvents, plans);
+    const hasEvents =
+      myEvents.length > 0 || pastEvents.length > 0 || activePlans.length > 0;
     return {
       banners,
-      myEvents: upcoming,
-      plans,
-      pastEvents: past,
+      myEvents,
+      plans: activePlans,
+      pastEvents,
+      hostedEventIds,
       hasEvents,
     };
   }, [banners, hostEvents, plans]);

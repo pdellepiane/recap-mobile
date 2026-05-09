@@ -2,6 +2,7 @@ import { HomeEmptyState } from './HomeEmptyState';
 import { HomeEventCarouselCard } from './HomeEventCarouselCard';
 import { HomeEventVariant } from '../types';
 import type { Event } from '@/src/domain/entities';
+import { useTranslation } from '@/src/i18n';
 import { SectionTitle } from '@/src/ui';
 import { Fragment } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -14,6 +15,8 @@ type Props = {
   myEvents: Event[];
   plans: Event[];
   pastEvents: Event[];
+  /** From host feed; past-row cards use guest styling when the id is not hosted. */
+  hostedEventIds: ReadonlySet<string>;
   onOpenEvent: (eventId: string) => void;
 };
 
@@ -23,28 +26,48 @@ export function HomeFeedCarouselSections({
   myEvents,
   plans,
   pastEvents,
+  hostedEventIds,
   onOpenEvent,
 }: Props) {
+  const { t } = useTranslation();
+
   if (!hasEvents) {
     return <HomeEmptyState />;
   }
 
-  const rows: {
-    title: string;
+  const allRows: {
+    rowKey: string;
+    titleKey: string;
     events: Event[];
-    cardVariant: HomeEventVariant;
+    cardVariant: HomeEventVariant | 'byHostMembership';
   }[] = [
-    { title: 'Mis eventos', events: myEvents, cardVariant: HomeEventVariant.Hosted },
-    { title: 'Planes', events: plans, cardVariant: HomeEventVariant.Guest },
-    { title: 'Mis eventos pasados', events: pastEvents, cardVariant: HomeEventVariant.Hosted },
-  ].filter((row) => row.events.length > 0);
+    {
+      rowKey: 'myEvents',
+      titleKey: 'home.carouselMyEvents',
+      events: myEvents,
+      cardVariant: HomeEventVariant.Hosted,
+    },
+    {
+      rowKey: 'plans',
+      titleKey: 'home.carouselPlans',
+      events: plans,
+      cardVariant: HomeEventVariant.Guest,
+    },
+    {
+      rowKey: 'past',
+      titleKey: 'home.carouselPastEvents',
+      events: pastEvents,
+      cardVariant: 'byHostMembership',
+    },
+  ];
+  const rows = allRows.filter((row) => row.events.length > 0);
 
   return (
     <>
-      {rows.map(({ title, events, cardVariant }, rowIndex) => (
-        <Fragment key={title}>
+      {rows.map(({ rowKey, titleKey, events, cardVariant }, rowIndex) => (
+        <Fragment key={rowKey}>
           <View style={styles.titleInset}>
-            <SectionTitle>{title}</SectionTitle>
+            <SectionTitle>{t(titleKey)}</SectionTitle>
           </View>
           <ScrollView
             horizontal
@@ -58,7 +81,13 @@ export function HomeFeedCarouselSections({
                 key={item.id}
                 event={item}
                 index={index}
-                variant={cardVariant}
+                variant={
+                  cardVariant === 'byHostMembership'
+                    ? hostedEventIds.has(item.id)
+                      ? HomeEventVariant.Hosted
+                      : HomeEventVariant.Guest
+                    : cardVariant
+                }
                 onPress={() => onOpenEvent(item.id)}
               />
             ))}

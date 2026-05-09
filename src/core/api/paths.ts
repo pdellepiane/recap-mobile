@@ -24,10 +24,23 @@ export const eventPaths = {
   /** GET /api/events/:id/challenges — event challenges for guests. */
   challenges: (id: string | number) =>
     `api/events/${encodeURIComponent(String(id))}/challenges`,
+  /** GET /api/events/:id/challenges/pending — whether the user has incomplete challenges (Bearer). */
+  challengesPending: (id: string | number) =>
+    `api/events/${encodeURIComponent(String(id))}/challenges/pending`,
   /** POST /api/events/:id/reactions — send a reaction (Bearer). */
   reactions: (id: string | number) =>
     `api/events/${encodeURIComponent(String(id))}/reactions`,
   /** GET /api/events/:id/media — album / gallery items (Bearer). */
   media: (id: string | number) =>
     `api/events/${encodeURIComponent(String(id))}/media`,
+  /** POST /api/events/:id/media/:mediaId/likes — toggle/record like (Bearer). */
+  mediaLike: (eventId: string | number, mediaId: string | number) =>
+    `api/events/${encodeURIComponent(String(eventId))}/media/${encodeURIComponent(String(mediaId))}/likes`,
+  /** PATCH /api/events/:id/settings — event settings (Bearer). */
+  settings: (id: string | number) =>
+    `api/events/${encodeURIComponent(String(id))}/settings`,
+  /** GET /api/event-challenge-suggestions/questions — suggested quiz questions (Bearer). */
+  challengeQuestionSuggestions: 'api/event-challenge-suggestions/questions',
+  /** GET /api/event-challenge-suggestions/photos — suggested photo challenges (Bearer). */
+  challengePhotoSuggestions: 'api/event-challenge-suggestions/photos',
 } as const;

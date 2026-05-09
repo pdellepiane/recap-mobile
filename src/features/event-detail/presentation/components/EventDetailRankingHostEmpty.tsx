@@ -8,8 +8,8 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 const MEDAL_SIZE = 40;
 
 const MEDAL_TINT: Record<RankingMedal, string> = {
-  gold: colors.events.rankingGold,
-  silver: colors.events.rankingSilver,
+  gold: colors.states.warning,
+  silver: colors.neutral.secondary,
   bronze: colors.events.rankingBronze,
 };
 

@@ -1,4 +1,5 @@
 import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
 import { FinishedBannerGuestCollage } from '../FinishedBannerGuestCollage';
 import { HomeBannerCtaPill } from '../HomeBannerCtaPill';
 import { CARD_W, FINISHED_GUEST_COLLAGE_FRAME } from '../layout';
@@ -11,16 +12,17 @@ type LeftProps = {
 };
 
 export function FinishedBannerLeftColumn({ eventName }: LeftProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.left}>
       <View style={styles.statusRow}>
         <Image source={images.common.checkGrey} style={styles.checkIcon} resizeMode="contain" />
-        <Text style={styles.statusLabel}>Recuerdo</Text>
+        <Text style={styles.statusLabel}>{t('home.bannerMemoryLabel')}</Text>
       </View>
       <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
         {eventName}
       </Text>
-      <HomeBannerCtaPill label="VER RECUERDO" style={styles.ctaSpacing} />
+      <HomeBannerCtaPill label={t('home.bannerViewMemoryCta')} style={styles.ctaSpacing} />
     </View>
   );
 }

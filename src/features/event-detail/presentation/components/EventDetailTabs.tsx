@@ -10,18 +10,29 @@ type Props = {
   onTabPress: (tab: EventDetailTab) => void;
   /** Subset of tabs to show (e.g. hosted “Mis eventos” on a future calendar day → Detalle + Álbum only). */
   visibleTabs?: readonly EventDetailTab[];
+  /** GET …/challenges/pending `has_pending` (solo ventana en vivo). */
+  showChallengesPendingDot?: boolean;
 };
 
-export function EventDetailTabs({ activeTab, onTabPress, visibleTabs }: Props) {
+export function EventDetailTabs({
+  activeTab,
+  onTabPress,
+  visibleTabs,
+  showChallengesPendingDot = false,
+}: Props) {
   const { t } = useTranslation();
   const detailTabs = useMemo(
     () => [
-      { key: EventDetailTab.Overview, label: t('eventDetail.tabOverview') },
-      { key: EventDetailTab.Challenges, label: t('eventDetail.tabChallenges'), dot: true },
-      { key: EventDetailTab.Ranking, label: t('eventDetail.tabRanking') },
-      { key: EventDetailTab.Album, label: t('eventDetail.tabAlbum') },
+      { key: EventDetailTab.Overview, label: t('eventDetail.tabOverview'), showDot: false },
+      {
+        key: EventDetailTab.Challenges,
+        label: t('eventDetail.tabChallenges'),
+        showDot: showChallengesPendingDot,
+      },
+      { key: EventDetailTab.Ranking, label: t('eventDetail.tabRanking'), showDot: false },
+      { key: EventDetailTab.Album, label: t('eventDetail.tabAlbum'), showDot: false },
     ],
-    [t],
+    [t, showChallengesPendingDot],
   );
 
   const allowed = new Set(visibleTabs ?? detailTabs.map((x) => x.key));
@@ -38,7 +49,7 @@ export function EventDetailTabs({ activeTab, onTabPress, visibleTabs }: Props) {
             style={[styles.tab, active ? styles.tabActive : styles.tabInactive]}
           >
             <View style={styles.tabInner}>
-              {tab.dot === true ? <View style={styles.challengesDot} /> : null}
+              {tab.showDot ? <View style={styles.challengesDot} /> : null}
               <Text
                 style={[
                   styles.tabText,
@@ -87,7 +98,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.events.challengesDot,
+    backgroundColor: colors.states.error,
   },
   tabText: {
     color: colors.neutral.primary,

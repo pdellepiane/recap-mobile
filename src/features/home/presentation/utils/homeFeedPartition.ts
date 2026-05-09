@@ -1,33 +1,59 @@
 import type { Event } from '@/src/domain/entities';
-import { isEventLocalCalendarDayBeforeToday } from '@/src/features/home/presentation/components/utils/eventCalendar';
+import { isAfterEventStartPlus24hWindow } from '@/src/features/home/presentation/components/utils/eventCalendar';
 
 /**
- * Splits hosted home events (“Mis eventos”) into upcoming vs past using {@link Event.date}
- * (ISO datetime from the API). **Past** means the event’s **local calendar day** is before today’s
- * (so an event later today stays in Mis eventos until midnight). Unparseable dates are treated as upcoming.
+ * Partitions home feed lists:
+ * - **Mis eventos**: hosted rows that are not yet past ({@link isAfterEventStartPlus24hWindow}).
+ * - **Planes**: guest rows still within the post-start +24h window (same “not past” rule).
+ * - **Mis eventos pasados**: every hosted or guest event whose start was more than 24h ago (deduped by id; host payload wins on overlap).
+ *
+ * Unparseable `Event.date` stays in Mis eventos / Planes (not moved to past).
  */
-export function partitionHostEventsByDateTime(
+export function partitionHomeFeedEvents(
   hostEvents: Event[],
+  guestEvents: Event[],
   now: Date = new Date(),
-): { upcoming: Event[]; past: Event[] } {
-  const upcoming: Event[] = [];
-  const past: Event[] = [];
-
+): { myEvents: Event[]; plans: Event[]; pastEvents: Event[] } {
+  const myEvents: Event[] = [];
   for (const e of hostEvents) {
     const ms = Date.parse(e.date);
     if (Number.isNaN(ms)) {
-      upcoming.push(e);
+      myEvents.push(e);
       continue;
     }
-    if (isEventLocalCalendarDayBeforeToday(e.date, now)) {
-      past.push(e);
-    } else {
-      upcoming.push(e);
+    if (!isAfterEventStartPlus24hWindow(e.date, now)) {
+      myEvents.push(e);
     }
   }
 
-  past.sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
-  upcoming.sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+  const plans: Event[] = [];
+  for (const e of guestEvents) {
+    const ms = Date.parse(e.date);
+    if (Number.isNaN(ms)) {
+      plans.push(e);
+      continue;
+    }
+    if (!isAfterEventStartPlus24hWindow(e.date, now)) {
+      plans.push(e);
+    }
+  }
 
-  return { upcoming, past };
+  const pastById = new Map<string, Event>();
+  for (const e of hostEvents) {
+    const ms = Date.parse(e.date);
+    if (!Number.isNaN(ms) && isAfterEventStartPlus24hWindow(e.date, now)) {
+      pastById.set(e.id, e);
+    }
+  }
+  for (const e of guestEvents) {
+    const ms = Date.parse(e.date);
+    if (!Number.isNaN(ms) && isAfterEventStartPlus24hWindow(e.date, now) && !pastById.has(e.id)) {
+      pastById.set(e.id, e);
+    }
+  }
+
+  const pastEvents = [...pastById.values()].sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+  myEvents.sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+
+  return { myEvents, plans, pastEvents };
 }

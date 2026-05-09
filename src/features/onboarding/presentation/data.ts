@@ -11,7 +11,8 @@ export type OverlayImage = {
 export type OnboardingSlide = {
   id: string;
   backgroundColor: string;
-  title: string;
+  /** i18n key under `onboarding.*` */
+  titleKey: string;
   image: ImageSourcePropType;
   decorativeImages?: ImageSourcePropType[];
   overlayImages?: OverlayImage[];
@@ -22,7 +23,7 @@ export const SLIDES: OnboardingSlide[] = [
   {
     id: '1',
     backgroundColor: colors.neutral.primary,
-    title: 'Tu evento desde todos los puntos de vista.',
+    titleKey: 'onboarding.slide1Title',
     image: images.onboarding.step1.hero,
     overlayImages: [
       {
@@ -41,7 +42,7 @@ export const SLIDES: OnboardingSlide[] = [
   {
     id: '2',
     backgroundColor: colors.brand[400],
-    title: 'Crea los mejores retos para tus invitados',
+    titleKey: 'onboarding.slide2Title',
     image: images.onboarding.step2.hero,
     overlayImages: [
       {
@@ -81,7 +82,7 @@ export const SLIDES: OnboardingSlide[] = [
   {
     id: '3',
     backgroundColor: colors.accent[400],
-    title: 'Guarda tus recuerdos como interacciones',
+    titleKey: 'onboarding.slide3Title',
     image: images.onboarding.step3.hero,
     overlayImages: [
       {

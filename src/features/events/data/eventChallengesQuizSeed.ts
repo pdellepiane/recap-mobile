@@ -1,4 +1,5 @@
 import type { EventChallengeApiItem } from '@/src/core/api/types';
+import { i18n } from '@/src/i18n';
 import { EventChallengeKind } from '@/src/features/event-detail/data/eventChallenges';
 import type { EventChallengeQuiz } from '@/src/features/event-detail/data/eventChallengeQuiz';
 import { mapChallengeApiTypeToKind } from './eventChallengesMap';
@@ -76,12 +77,12 @@ function buildQuizFromApiItem(item: EventChallengeApiItem): EventChallengeQuiz |
   const labels =
     parsed && parsed.labels.length > 0
       ? parsed.labels
-      : ['Opción 1', 'Opción 2', 'Opción 3', 'Opción 4'];
+      : [1, 2, 3, 4].map((n) => i18n.t('quiz.fallbackOption', { n }));
   const position = typeof item.position === 'number' && item.position > 0 ? item.position : 1;
   return {
     challengeId: String(item.id),
     number: position,
-    question: item.question?.trim() || item.title?.trim() || 'Challenge',
+    question: item.question?.trim() || item.title?.trim() || i18n.t('quiz.fallbackQuestionTitle'),
     options: labels,
     correctIndex: parsed?.correctIndex ?? 0,
     points: typeof item.points === 'number' ? item.points : 10,

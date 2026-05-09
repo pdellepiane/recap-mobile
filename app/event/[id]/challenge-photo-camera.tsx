@@ -10,17 +10,18 @@ function firstString(v: string | string[] | undefined): string | undefined {
 
 export default function EventChallengePhotoCameraRoute() {
   const { id, challengeId, challengeNumber } = useLocalSearchParams<{
-    id: string;
+    id?: string | string[];
     challengeId?: string | string[];
     challengeNumber?: string | string[];
   }>();
 
+  const eventId = firstString(id) ?? '';
   const rid = firstString(challengeId) ?? '';
   const n = Number(firstString(challengeNumber));
 
   return (
     <EventChallengePhotoCameraScreenPage
-      eventId={id ?? ''}
+      eventId={eventId}
       challengeId={rid}
       challengeNumber={Number.isFinite(n) ? n : undefined}
     />

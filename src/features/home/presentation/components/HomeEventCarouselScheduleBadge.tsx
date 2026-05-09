@@ -1,5 +1,6 @@
 import { images } from '@/src/assets/images';
 import { EventType } from '@/src/core/api';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image, StyleSheet, Text, View } from 'react-native';
@@ -16,6 +17,8 @@ type Props = {
  * the event date via `getHomeCarouselScheduleKind` (client calendar), not banner API types.
  */
 export function HomeEventCarouselScheduleBadge({ type }: Props) {
+  const { t } = useTranslation();
+
   if (type === EventType.EventLive) {
     return (
       <View style={styles.row}>
@@ -25,7 +28,24 @@ export function HomeEventCarouselScheduleBadge({ type }: Props) {
           resizeMode="contain"
           accessibilityIgnoresInvertColors
         />
-        <Text style={[styles.text, { color: colors.accent[500] }]}>Evento en vivo</Text>
+        <Text style={[styles.text, { color: colors.accent[500] }]}>
+          {t('home.scheduleBadgeLive')}
+        </Text>
+      </View>
+    );
+  }
+  if (type === EventType.EventToStartToday) {
+    return (
+      <View style={styles.row}>
+        <Image
+          source={images.common.scheduled}
+          style={styles.icon}
+          resizeMode="contain"
+          accessibilityIgnoresInvertColors
+        />
+        <Text style={[styles.text, { color: colors.states.warning }]}>
+          {t('home.scheduleBadgeStartingSoon')}
+        </Text>
       </View>
     );
   }
@@ -38,7 +58,9 @@ export function HomeEventCarouselScheduleBadge({ type }: Props) {
           resizeMode="contain"
           accessibilityIgnoresInvertColors
         />
-        <Text style={[styles.text, { color: colors.states.warning }]}>Evento programado</Text>
+        <Text style={[styles.text, { color: colors.states.warning }]}>
+          {t('home.scheduleBadgeScheduled')}
+        </Text>
       </View>
     );
   }

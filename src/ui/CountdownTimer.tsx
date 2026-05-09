@@ -1,3 +1,4 @@
+import { useTranslation } from '@/src/i18n';
 import { colors } from './colors';
 import { fontFamilies } from './typography';
 import { useEffect, useMemo, useState } from 'react';
@@ -21,9 +22,10 @@ type CountdownTimerProps = {
 export function CountdownTimer({
   endsAt,
   cellBackgroundColor = colors.countdown.cellBackground,
-  cellBorderColor = colors.countdown.cellBorder,
-  textColor = colors.neutral.primary,
+  cellBorderColor = colors.brand[500],
+  textColor = colors.neutral.lightest,
 }: CountdownTimerProps) {
+  const { t } = useTranslation();
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -41,17 +43,17 @@ export function CountdownTimer({
   }, [endsAt, now]);
 
   const cells = [
-    { value: days > 99 ? String(days) : pad2(days), label: 'días' },
-    { value: pad2(hours), label: 'horas' },
-    { value: pad2(minutes), label: 'minutos' },
-    { value: pad2(seconds), label: 'segundos' },
+    { value: days > 99 ? String(days) : pad2(days), label: t('common.countdownDays'), key: 'd' },
+    { value: pad2(hours), label: t('common.countdownHours'), key: 'h' },
+    { value: pad2(minutes), label: t('common.countdownMinutes'), key: 'm' },
+    { value: pad2(seconds), label: t('common.countdownSeconds'), key: 's' },
   ];
 
   return (
     <View style={styles.row}>
       {cells.map((c) => (
         <View
-          key={c.label}
+          key={c.key}
           style={[
             styles.cell,
             {

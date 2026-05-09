@@ -4,7 +4,7 @@
  */
 export const colors = {
   background: {
-    primary: 'rgba(34, 34, 34, 1)',
+    primary: '#222222',
     primaryOpacity5: 'rgba(34, 34, 34, 0.5)',
     secondary: '#2A2A2A',
     tertiary: 'rgba(51, 51, 51, 1)',
@@ -16,9 +16,9 @@ export const colors = {
   neutral: {
     primary: 'rgba(255, 255, 255, 1)',
     lightest: '#FCFCFC',
-    secondary: 'rgba(179, 179, 179, 1)',
+    secondary: '#B3B3B3',
     tertiary: 'rgba(138, 138, 138, 1)',
-    disabled: 'rgba(92, 92, 92, 1)',
+    disabled: '#5C5C5C',
     /** Primary text on lime / accent CTAs (e.g. home banner “Ingresar”). */
     onLime: 'rgba(0, 0, 0, 1)',
   },
@@ -66,21 +66,25 @@ export const colors = {
     white55: 'rgba(255, 255, 255, 0.55)',
     white65: 'rgba(255, 255, 255, 0.65)',
   },
+  transparent: {
+    white: 'rgba(255, 255, 255, 0)',
+  },
   /** Countdown blocks (event detail / promos): deep purple cells, lavender border on charcoal. */
   countdown: {
-    cellBackground: 'rgba(72, 40, 128, 1)',
-    cellBorder: 'rgba(123, 82, 171, 1)',
+    cellBackground: 'rgba(95, 43, 216, 0.5)',
   },
-  /** Event detail screen & home feed accents (quiz label, ranking medals, carousel dots, etc.). */
+  /** Guess-the-answer quiz creation flow (matches design spec). */
+  quizCreate: {
+    /** Suggested-question cards (slightly darker than added). */
+    suggestionCard: '#141414',
+    /** Committed question rows before options exist. */
+    addedCard: '#2C2C2E',
+    /** + control before draft has text. */
+    plusDisabled: '#48484A',
+  },
+  /** Not defined in figma colors. */
   events: {
-    challengeQuizLabel: 'rgba(196, 181, 253, 1)',
-    challengesDot: 'rgba(244, 114, 182, 1)',
-    rankingGold: 'rgba(212, 175, 55, 1)',
-    rankingSilver: 'rgba(142, 142, 142, 1)',
-    rankingBronze: 'rgba(169, 113, 66, 1)',
-    carouselDotInactive: 'rgba(63, 63, 70, 1)',
-    guestsOnCard: 'rgba(196, 181, 253, 1)',
-    locationPin: 'rgba(167, 139, 250, 1)',
+    rankingBronze: '#B67921',
   },
 } as const;
 

@@ -1,27 +1,39 @@
 import { images } from '@/src/assets/images';
 import { useCoordinator } from '../navigation/useCoordinator';
 import { colors } from './colors';
-import { Image, Pressable, StyleSheet, ViewStyle } from 'react-native';
+import type { ImageStyle } from 'react-native';
+import { Image, Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 
 type BackButtonProps = {
-  style?: ViewStyle | ViewStyle[];
+  style?: StyleProp<ViewStyle>;
   hitSlop?: number;
   accessibilityLabel?: string;
+  /** When set, called instead of the default coordinator `goBack`. */
+  onPress?: () => void;
+  iconStyle?: StyleProp<ImageStyle>;
 };
 
-export function BackButton({ style, hitSlop = 12, accessibilityLabel }: BackButtonProps) {
+export function BackButton({
+  style,
+  hitSlop = 12,
+  accessibilityLabel,
+  onPress: onPressProp,
+  iconStyle,
+}: BackButtonProps) {
   const { goBack } = useCoordinator();
+  const onPress = onPressProp ?? goBack;
+
   return (
     <Pressable
       style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed, style]}
-      onPress={goBack}
+      onPress={onPress}
       hitSlop={hitSlop}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
     >
       <Image
         source={images.common.back}
-        style={styles.backIcon}
+        style={[styles.backIcon, iconStyle]}
         resizeMode="contain"
       />
     </Pressable>

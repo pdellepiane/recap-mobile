@@ -5,7 +5,6 @@ import { BackButton, colors } from '@/src/ui';
 import { Dimensions, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const SCREEN_BG = colors.background.primary;
 const WIN_H = Dimensions.get('window').height;
 
 type Props = {
@@ -53,7 +52,7 @@ export function EventChallengePhotoScreenPage({ eventId, challengeId, challengeN
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: SCREEN_BG,
+    backgroundColor: colors.background.primary,
   },
   safe: {
     paddingHorizontal: 8,

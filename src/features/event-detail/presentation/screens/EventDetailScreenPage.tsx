@@ -1,20 +1,27 @@
-import {
-  EventDetailTab,
-  useEventDetailScreen,
-} from '../hooks/useEventDetailScreen';
+import { EventDetailCreateChallengeSheet } from '../components/EventDetailCreateChallengeSheet';
 import { EventDetailScrollBody } from '../components/EventDetailScrollBody';
-import type { EventDetailReactionPressPayload } from '@/src/features/event-detail/data/eventReactions';
-import { DEFAULT_LIVE_REACTION_IMAGES } from '@/src/features/event-detail/data/eventDetailExtras';
+import { EventDetailShareSheet } from '../components/EventDetailShareSheet';
+import { EventDetailTab, useEventDetailScreen } from '../hooks/useEventDetailScreen';
+import { images } from '@/src/assets/images';
 import { eventRepository } from '@/src/core/di/container';
+import {
+  eventGuestsGoing,
+  eventParticipantNamesLine,
+  guestsPendingCountFromEvent,
+} from '@/src/features/event-detail/data/eventDetailDerived';
+import { EVENT_DETAIL_LIVE_REACTION_IMAGES } from '@/src/features/event-detail/data/eventDetailLiveReactions';
+import type { EventDetailReactionPressPayload } from '@/src/features/event-detail/data/eventReactions';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import {
+  Button,
   FloatingCameraFab,
   FloatingReactions,
   ScreenLoading,
   ScreenNotFoundFallback,
   colors,
 } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -34,42 +41,54 @@ export const EventDetailScreenPage = ({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { goBack } = useCoordinator();
-  const {
-    event,
-    isLoading,
-    isDetailRefreshing,
-    onDetailPullRefresh,
-    activeTab,
-    setActiveTab,
-    completedByChallengeId,
-    handleDetailBack,
-    onFabCameraPress,
-    onChallengePress,
-    extras,
-    countdownEndsAt,
-    heroSource,
-    title,
-    description,
-    mapsQuery,
-    venueLine1,
-    venueLine2,
-    challenges,
-    rankingRows,
-    albumPhotos,
-    handleProfileAvatarPress,
-    liveRowCenterImage,
-    handleOpenMap,
-    detailVisibleTabs,
-    hostsLine,
-    showDetailCountdown,
-    isEventHost,
-    showFloatingReactions,
-  } = useEventDetailScreen({
+  const { data, handlers } = useEventDetailScreen({
     eventId,
     initialTab,
     completedChallengeId,
     completedPoints,
   });
+
+  const {
+    event,
+    isLoading,
+    isDetailRefreshing,
+    activeTab,
+    completedByChallengeId,
+    countdownEndsAt,
+    challenges,
+    rankingRows,
+    albumPhotos,
+    detailVisibleTabs,
+    isBeforeStartCountdownVisible,
+    isOrganizer,
+    canHostEditChallenges,
+    isGuestLiveActionsVisible,
+    isShareSheetOpen,
+    isCreateChallengeSheetOpen,
+    showChallengesPendingDot,
+    hostsLine,
+    organizerGuestList,
+    showOrganizerActions,
+  } = data;
+
+  const {
+    setActiveTab,
+    onPullRefresh,
+    onBackPress,
+    onFabCameraPress,
+    onChallengePress,
+    onProfileAvatarPress,
+    onOpenMap,
+    onParticipantsModalOpen,
+    onSharePress,
+    onShareSheetClose,
+    onShareConfirm,
+    onCreateChallengeSheetOpen,
+    onCreateChallengeSheetClose,
+    onCreateQuizChallengeSelect,
+    onCreatePhotoChallengeSelect,
+    onAlbumPhotoLike,
+  } = handlers;
 
   if (isLoading) {
     return <ScreenLoading />;
@@ -79,29 +98,34 @@ export const EventDetailScreenPage = ({
     return <ScreenNotFoundFallback title={t('eventDetail.notFound')} onBackPress={goBack} />;
   }
 
-  const scrollBody = (onReactionPress: ((p: EventDetailReactionPressPayload) => void) | undefined) => (
+  const scrollBody = (
+    onReactionPress: ((p: EventDetailReactionPressPayload) => void) | undefined,
+  ) => (
     <>
       <EventDetailScrollBody
         insetsTop={insets.top}
         scrollBottomPadding={insets.bottom + 88}
+        eventId={event.id}
         refreshing={isDetailRefreshing}
-        onRefresh={() => void onDetailPullRefresh()}
-        heroSource={heroSource}
-        title={title}
-        onBackPress={handleDetailBack}
+        onRefresh={() => void onPullRefresh()}
+        coverImageUrl={event.coverImageUrl}
+        title={event.title}
+        onBackPress={onBackPress}
         onReactionPress={onReactionPress}
-        onProfileAvatarPress={handleProfileAvatarPress}
-        liveRowCenterImage={liveRowCenterImage}
-        liveReactionImages={extras?.reactionImages ?? DEFAULT_LIVE_REACTION_IMAGES}
+        onProfileAvatarPress={onProfileAvatarPress}
+        liveReactionImages={EVENT_DETAIL_LIVE_REACTION_IMAGES}
         activeTab={activeTab}
         onTabPress={setActiveTab}
-        description={description}
+        description={event.description}
         countdownEndsAt={countdownEndsAt}
-        mapsQuery={mapsQuery}
-        venueLine1={venueLine1}
-        venueLine2={venueLine2}
-        extras={extras}
-        onOpenMap={handleOpenMap}
+        eventDateIso={event.date}
+        addressCity={event.city}
+        addressVenue={event.venue}
+        mapQuery={event.location}
+        onOpenMap={onOpenMap}
+        guestsAttendingCount={eventGuestsGoing(event).length}
+        guestsPendingCount={guestsPendingCountFromEvent(event)}
+        goingGuests={eventGuestsGoing(event)}
         challenges={challenges}
         onChallengePress={onChallengePress}
         completedByChallengeId={completedByChallengeId}
@@ -109,16 +133,46 @@ export const EventDetailScreenPage = ({
         albumPhotos={albumPhotos}
         visibleTabs={detailVisibleTabs}
         hostsLine={hostsLine}
-        showDetailCountdown={showDetailCountdown}
-        isEventHost={isEventHost}
+        isBeforeStartCountdownVisible={isBeforeStartCountdownVisible}
+        isOrganizer={isOrganizer}
+        participantNamesLine={eventParticipantNamesLine(event)}
+        confirmedGuestsCount={organizerGuestList.listConfirmed}
+        totalInvitedGuestsCount={organizerGuestList.listTotalInvited}
+        onOpenParticipantsModal={onParticipantsModalOpen}
+        onShareEventPress={onSharePress}
+        showOrganizerActions={showOrganizerActions}
+        onAlbumPhotoLike={onAlbumPhotoLike}
+        showChallengesPendingDot={showChallengesPendingDot}
       />
-      <FloatingCameraFab onPress={onFabCameraPress} />
+      {canHostEditChallenges && (
+        <Button
+          title={t('eventDetail.createChallenge')}
+          onPress={onCreateChallengeSheetOpen}
+          accessibilityLabel={t('eventDetail.createChallenge')}
+          rightIconSource={images.eventDetail.icons.createChallenge}
+          rightIconStyle={styles.createChallengeFabIcon}
+          style={styles.createChallengeFab}
+        />
+      )}
+      {isGuestLiveActionsVisible ? <FloatingCameraFab onPress={onFabCameraPress} /> : null}
+      <EventDetailCreateChallengeSheet
+        visible={isCreateChallengeSheetOpen}
+        onClose={onCreateChallengeSheetClose}
+        onSelectQuiz={onCreateQuizChallengeSelect}
+        onSelectPhoto={onCreatePhotoChallengeSelect}
+      />
+      <EventDetailShareSheet
+        visible={isShareSheetOpen}
+        shareUrl={event.shareUrl}
+        onClose={onShareSheetClose}
+        onShare={() => void onShareConfirm()}
+      />
     </>
   );
 
   return (
     <View style={styles.safe}>
-      {showFloatingReactions ? (
+      {isGuestLiveActionsVisible ? (
         <FloatingReactions maxConcurrent={10}>
           {(spawnAt) =>
             scrollBody(({ reaction, source, center }) => {
@@ -139,5 +193,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background.primary,
     position: 'relative',
+  },
+  createChallengeFab: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    bottom: 24,
+  },
+  createChallengeFabText: {
+    color: colors.background.primary,
+    fontSize: 16,
+    lineHeight: 22,
+    fontFamily: fontFamilies.signikaSemiBold,
+  },
+  createChallengeFabIcon: {
+    width: 22,
+    height: 22,
   },
 });

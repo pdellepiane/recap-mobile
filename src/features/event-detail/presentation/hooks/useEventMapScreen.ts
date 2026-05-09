@@ -1,4 +1,4 @@
-import { getMapsSearchQueryForEvent, googleMapsSearchUrl } from '../../data/eventDetailExtras';
+import { googleMapsSearchUrl } from '../../data/eventDetailMaps';
 import { useEventDetail } from './useEventDetail';
 import { useMemo } from 'react';
 
@@ -24,8 +24,9 @@ export function useEventMapScreen({ eventId, initialQuery }: Params) {
     if (!event) {
       return null;
     }
-    return getMapsSearchQueryForEvent(eventId, event);
-  }, [initialQuery, event, eventId]);
+    const q = (event.location ?? '').trim();
+    return q || null;
+  }, [initialQuery, event]);
 
   const uri = query ? googleMapsSearchUrl(query) : null;
 

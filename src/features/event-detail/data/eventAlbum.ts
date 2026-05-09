@@ -9,4 +9,6 @@ export type AlbumPhoto = {
   authorShort: string;
   authorAvatarUrl?: string;
   likes: number;
+  /** From GET `liked_by_me` when present; updated after POST …/likes. */
+  likedByMe?: boolean;
 };

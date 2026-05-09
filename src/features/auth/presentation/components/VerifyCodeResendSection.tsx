@@ -1,7 +1,7 @@
 import { useTranslation } from '@/src/i18n';
-import { colors } from '@/src/ui';
+import { Button, colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 type VerifyCodeResendSectionProps = {
   resendCooldown: number;
@@ -17,18 +17,21 @@ export function VerifyCodeResendSection({
   const { t } = useTranslation();
   const mm = String(Math.floor(resendCooldown / 60)).padStart(2, '0');
   const ss = String(resendCooldown % 60).padStart(2, '0');
-  const cooldownLabel =
-    resendCooldown > 0 ? t('auth.resendCooldown', { mm, ss }) : '';
+  const cooldownLabel = resendCooldown > 0 ? t('auth.resendCooldown', { mm, ss }) : '';
 
   return (
     <>
       <View style={styles.resendContainer}>
         <Text style={styles.resendText}>{t('auth.resendQuestion')}</Text>
-        <Pressable onPress={onResend} disabled={resendDisabled} hitSlop={8}>
-          <Text style={[styles.resendLink, resendDisabled && styles.resendLinkDisabled]}>
-            {t('auth.resendAction')}
-          </Text>
-        </Pressable>
+        <Button
+          title={t('auth.resendAction')}
+          onPress={onResend}
+          disabled={resendDisabled}
+          variant="ghost"
+          hitSlop={8}
+          accessibilityLabel={t('auth.resendAction')}
+          textStyle={[styles.resendLink, resendDisabled && styles.resendLinkDisabled]}
+        />
       </View>
 
       <Text style={styles.cooldownText}>{cooldownLabel}</Text>

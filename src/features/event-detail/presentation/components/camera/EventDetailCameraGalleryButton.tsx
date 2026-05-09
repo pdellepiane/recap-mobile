@@ -1,6 +1,6 @@
 import { images } from '@/src/assets/images';
 import { colors } from '@/src/ui';
-import { Image as RNImage, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, Image as RNImage, StyleSheet, View } from 'react-native';
 
 const CONTROL_SIZE = 56;
 
@@ -19,7 +19,11 @@ export function EventDetailCameraGalleryButton({ openPhotoGalleryLabel, onOpenGa
         accessibilityRole="button"
         accessibilityLabel={openPhotoGalleryLabel}
       >
-        <RNImage source={images.common.camera.gallery} style={styles.galleryIcon} resizeMode="contain" />
+        <RNImage
+          source={images.common.camera.gallery}
+          style={styles.galleryIcon}
+          resizeMode="contain"
+        />
       </Pressable>
     </View>
   );
@@ -27,8 +31,8 @@ export function EventDetailCameraGalleryButton({ openPhotoGalleryLabel, onOpenGa
 
 const styles = StyleSheet.create({
   galleryRow: {
-    paddingTop: 14,
-    paddingLeft: 6,
+    paddingTop: 20,
+    paddingLeft: 20,
   },
   controlBtn: {
     width: CONTROL_SIZE,
@@ -39,11 +43,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   galleryBtn: {
-    backgroundColor: colors.overlay.black45,
+    backgroundColor: colors.background.elevated,
   },
   galleryIcon: {
-    width: 26,
-    height: 22,
+    width: 24,
+    height: 24,
   },
   pressed: {
     opacity: 0.82,

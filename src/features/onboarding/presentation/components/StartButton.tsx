@@ -1,8 +1,9 @@
 import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
+import { Button } from '@/src/ui';
 import { colors } from '@/src/ui/colors';
 import { fontFamilies } from '@/src/ui/typography';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 type StartButtonProps = {
   onPress: () => void | Promise<void>;
@@ -14,17 +15,15 @@ export function StartButton({ onPress, bottomInset }: StartButtonProps) {
 
   return (
     <View style={[styles.buttonContainer, { paddingBottom: bottomInset + 20 }]}>
-      <Pressable
-        style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-        onPress={onPress}
-      >
-        <Text style={styles.buttonText}>{t('onboarding.start')}</Text>
-        <Image
-          source={images.common.start}
-          style={styles.buttonIcon}
-          resizeMode="contain"
-        />
-      </Pressable>
+      <Button
+        title={t('onboarding.start')}
+        onPress={() => void onPress()}
+        accessibilityLabel={t('onboarding.start')}
+        rightIconSource={images.common.start}
+        rightIconStyle={styles.buttonIcon}
+        textStyle={styles.buttonText}
+        style={styles.button}
+      />
     </View>
   );
 }
@@ -45,9 +44,6 @@ const styles = StyleSheet.create({
     gap: 8,
     minWidth: 160,
     height: 64,
-  },
-  buttonPressed: {
-    opacity: 0.9,
   },
   buttonText: {
     color: colors.neutral.primary,

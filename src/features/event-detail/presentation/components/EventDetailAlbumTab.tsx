@@ -10,6 +10,7 @@ const COL_GAP = 8;
 
 type Props = {
   photos: AlbumPhoto[];
+  onAlbumPhotoLike?: (photoId: string) => void;
 };
 
 /** Splits photos into two columns by approximate height (masonry-style). */
@@ -34,7 +35,7 @@ function splitIntoColumns(items: AlbumPhoto[]): [AlbumPhoto[], AlbumPhoto[]] {
 /**
  * Album tab: title + two-column grid with author and likes on each photo.
  */
-export function EventDetailAlbumTab({ photos }: Props) {
+export function EventDetailAlbumTab({ photos, onAlbumPhotoLike }: Props) {
   const { t } = useTranslation();
   const { width: winW } = useWindowDimensions();
   const contentW = winW - SCROLL_PADDING_X * 2;
@@ -51,12 +52,30 @@ export function EventDetailAlbumTab({ photos }: Props) {
         <View style={styles.masonryRow}>
           <View style={{ width: colW }}>
             {left.map((p) => (
-              <EventDetailAlbumTile key={p.id} photo={p} width={colW} />
+              <EventDetailAlbumTile
+                key={p.id}
+                photo={p}
+                width={colW}
+                onLikePress={
+                  onAlbumPhotoLike && !p.id.startsWith('local-')
+                    ? () => onAlbumPhotoLike(p.id)
+                    : undefined
+                }
+              />
             ))}
           </View>
           <View style={{ width: colW, marginLeft: COL_GAP }}>
             {right.map((p) => (
-              <EventDetailAlbumTile key={p.id} photo={p} width={colW} />
+              <EventDetailAlbumTile
+                key={p.id}
+                photo={p}
+                width={colW}
+                onLikePress={
+                  onAlbumPhotoLike && !p.id.startsWith('local-')
+                    ? () => onAlbumPhotoLike(p.id)
+                    : undefined
+                }
+              />
             ))}
           </View>
         </View>

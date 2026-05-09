@@ -1,0 +1,68 @@
+import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
+import { Button, colors } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
+import { Image, StyleSheet, Text, View } from 'react-native';
+
+type Props = {
+  onPress: () => void;
+};
+
+export function EventDetailCreateChallengeQuizOption({ onPress }: Props) {
+  const { t } = useTranslation();
+
+  return (
+    <Button
+      onPress={onPress}
+      style={[styles.optionCard, styles.optionCardQuiz]}
+      accessibilityLabel={t('eventDetail.challengeTypeQuizTitle')}
+    >
+      <Image
+        source={images.eventDetail.challenges.createQuizChallengeIcon}
+        style={styles.optionIcon}
+        resizeMode="contain"
+      />
+      <View style={styles.optionTextCol}>
+        <Text style={styles.optionTitle}>{t('eventDetail.challengeTypeQuizTitle')}</Text>
+        <Text style={styles.optionBody}>{t('eventDetail.challengeTypeQuizBody')}</Text>
+      </View>
+    </Button>
+  );
+}
+
+const styles = StyleSheet.create({
+  optionCard: {
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  optionCardQuiz: {
+    backgroundColor: colors.brand[200],
+    marginBottom: 15,
+  },
+  optionIcon: {
+    width: 56,
+    height: 56,
+  },
+  optionTextCol: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  optionTitle: {
+    color: colors.background.primary,
+    fontSize: 20,
+    fontWeight: '400',
+    lineHeight: 28,
+    fontFamily: fontFamilies.signikaRegular,
+  },
+  optionBody: {
+    color: colors.background.primary,
+    fontSize: 14,
+    fontWeight: '300',
+    lineHeight: 20,
+    fontFamily: fontFamilies.signikaLight,
+  },
+});

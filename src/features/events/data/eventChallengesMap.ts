@@ -1,4 +1,5 @@
 import type { EventChallengeApiItem } from '@/src/core/api/types';
+import { i18n } from '@/src/i18n';
 import {
   EventChallengeKind,
   type EventChallenge,
@@ -8,7 +9,8 @@ export function mapChallengeApiTypeToKind(type: string | null | undefined): Even
   const t = String(type ?? '')
     .trim()
     .toLowerCase();
-  if (t.includes('picture')) {
+  /** API: `picture` (legacy `photo`). */
+  if (t.includes('picture') || t === 'photo') {
     return EventChallengeKind.Photo;
   }
   return EventChallengeKind.Quiz;
@@ -40,7 +42,7 @@ export function mapEventChallengeApiItemToPresentation(
   const position = typeof item.position === 'number' && item.position > 0 ? item.position : 0;
   const titleRaw = item.title?.trim();
   const questionRaw = item.question?.trim();
-  const title = titleRaw || questionRaw || 'Challenge';
+  const title = titleRaw || questionRaw || i18n.t('quiz.fallbackQuestionTitle');
   return {
     id: String(item.id),
     number: position > 0 ? position : 0,
@@ -64,4 +66,28 @@ export function normalizeChallengesFromApi(items: EventChallengeApiItem[]): Even
       }
       return mapped;
     });
+}
+
+/** Collapse whitespace for deduping suggestion text vs existing challenges. */
+export function normalizeChallengePromptText(raw: string): string {
+  return raw.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+/** Keys for prompts already used on the event (title + question when distinct). */
+export function usedChallengePromptKeySet(challenges: readonly EventChallenge[]): Set<string> {
+  const keys = new Set<string>();
+  for (const c of challenges) {
+    const t = normalizeChallengePromptText(c.title ?? '');
+    if (t.length > 0) {
+      keys.add(t);
+    }
+    const qRaw = c.question?.trim() ?? '';
+    if (qRaw.length > 0) {
+      const q = normalizeChallengePromptText(qRaw);
+      if (q.length > 0) {
+        keys.add(q);
+      }
+    }
+  }
+  return keys;
 }

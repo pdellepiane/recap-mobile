@@ -8,16 +8,16 @@ import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   rows: RankingRow[];
-  isEventHost?: boolean;
+  isOrganizer?: boolean;
 };
 
 /**
  * Ranking tab: list with top-3 medals and highlighted current-user row.
  */
-export function EventDetailRankingTab({ rows, isEventHost = false }: Props) {
+export function EventDetailRankingTab({ rows, isOrganizer = false }: Props) {
   const { t } = useTranslation();
-  const showHostEmpty = isEventHost && rows.length === 0;
-  const sectionTitle = isEventHost
+  const showHostEmpty = isOrganizer && rows.length === 0;
+  const sectionTitle = isOrganizer
     ? t('eventDetail.rankingTitleHost')
     : t('eventDetail.rankingTitleGuest');
 
@@ -25,7 +25,7 @@ export function EventDetailRankingTab({ rows, isEventHost = false }: Props) {
     <View>
       <Text style={styles.sectionTitle}>{sectionTitle}</Text>
       {showHostEmpty && <EventDetailRankingHostEmpty />}
-      {isEventHost && <Text style={styles.intro}>{t('eventDetail.rankingIntro')}</Text>}
+      {isOrganizer && <Text style={styles.intro}>{t('eventDetail.rankingIntro')}</Text>}
       {rows.map((row) => (
         <EventDetailRankingListRow key={row.id} row={row} />
       ))}

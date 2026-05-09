@@ -1,4 +1,3 @@
-import { NO_EVENT_CAROUSEL_FALLBACK } from '../components/homeLiveBannerCarousel/noEventFallbackBanner';
 import { firstNameFromDisplayName } from '../utils/eventDisplay';
 import { useHomeFeed } from './useHomeFeed';
 import { EventType } from '@/src/core/api/types';
@@ -6,7 +5,7 @@ import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import * as Linking from 'expo-linking';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 const SIN_ENVOLTURAS_MARKETING_URL = 'https://sinenvolturas.com/evento/crear/tipo';
 
@@ -22,6 +21,7 @@ export function useHomeScreen() {
     myEvents,
     plans,
     pastEvents,
+    hostedEventIds,
     hasEvents,
     isLoading,
     isRefreshing,
@@ -35,12 +35,6 @@ export function useHomeScreen() {
   const displayName = session ? firstNameFromDisplayName(session.user.name) : t('home.guest');
   const greeting = t('home.greeting', { name: displayName });
 
-  /** Same ordering as {@link HomeBannerCarousel} (fallback when GET /banners is empty). */
-  const carouselBanners = useMemo(
-    () => (banners.length > 0 ? banners : [NO_EVENT_CAROUSEL_FALLBACK]),
-    [banners],
-  );
-
   const openEvent = useCallback(
     (id: string) => {
       goToEventDetail(id);
@@ -50,7 +44,7 @@ export function useHomeScreen() {
 
   const handleSlidePress = useCallback(
     (index: number) => {
-      const item = carouselBanners[index] ?? carouselBanners[0];
+      const item = banners[index];
       if (!item) {
         return;
       }
@@ -60,7 +54,7 @@ export function useHomeScreen() {
       }
       openEvent(String(item.id));
     },
-    [carouselBanners, openEvent],
+    [banners, openEvent],
   );
 
   return {
@@ -69,6 +63,7 @@ export function useHomeScreen() {
     myEvents,
     plans,
     pastEvents,
+    hostedEventIds,
     hasEvents,
     isLoading,
     isRefreshing,

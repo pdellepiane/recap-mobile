@@ -1,5 +1,6 @@
 import { type FlashMode } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
+import { type RefObject } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 
@@ -46,7 +47,13 @@ export function usePhotoCaptureFlow({
   }, []);
 
   const toggleFacing = useCallback(() => {
-    setFacing((value) => (value === 'back' ? 'front' : 'back'));
+    setFacing((value) => {
+      const nextFacing = value === 'back' ? 'front' : 'back';
+      if (nextFacing === 'front') {
+        setFlash('off');
+      }
+      return nextFacing;
+    });
   }, []);
 
   const handleCaptureResult = useCallback(
@@ -62,6 +69,29 @@ export function usePhotoCaptureFlow({
       }
     },
     [],
+  );
+
+  const capturePhoto = useCallback(
+    async (
+      cameraRef: RefObject<
+        {
+          takePictureAsync: (options?: { quality?: number }) => Promise<CapturedPhotoAsset>;
+        } | null
+      >,
+    ) => {
+      if (!cameraRef.current || !beginCapture()) {
+        return;
+      }
+      try {
+        const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
+        handleCaptureResult(photo);
+      } catch {
+        // no-op
+      } finally {
+        endCapture();
+      }
+    },
+    [beginCapture, endCapture, handleCaptureResult],
   );
 
   const openGallery = useCallback(async () => {
@@ -113,6 +143,7 @@ export function usePhotoCaptureFlow({
       toggleFlash,
       toggleFacing,
       handleCaptureResult,
+      capturePhoto,
       openGallery,
       discardPreview,
       showCamera,
@@ -128,6 +159,7 @@ export function usePhotoCaptureFlow({
       flash,
       flashForCamera,
       handleCaptureResult,
+      capturePhoto,
       openGallery,
       selectedPhoto,
       showCamera,

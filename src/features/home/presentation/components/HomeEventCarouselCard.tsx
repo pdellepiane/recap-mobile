@@ -80,14 +80,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.background.elevated,
     overflow: 'hidden',
-    paddingTop: 8,
-    paddingHorizontal: 8,
+    paddingTop: 12,
+    paddingHorizontal: 12,
   },
   cardPressed: {
     opacity: 0.94,
   },
   body: {
     paddingHorizontal: 16,
+    paddingLeft: 0,
     paddingTop: 12,
     paddingBottom: 16,
     gap: 8,

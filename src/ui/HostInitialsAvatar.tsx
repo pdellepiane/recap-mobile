@@ -65,9 +65,9 @@ export function HostInitialsAvatar({
   fullName,
   colorIndex,
   size = AVATAR_SIZE,
-  borderColor = colors.background.primary,
-  borderWidth: ringWidth = 2,
   appearance = 'solid',
+  borderColor,
+  borderWidth = 0,
   style,
 }: HostInitialsAvatarProps) {
   const initials = initialsFromFullName(fullName);
@@ -75,6 +75,7 @@ export function HostInitialsAvatar({
   const bg = palette[colorIndex % palette.length];
   const fontSize = Math.max(9, Math.round(size * 0.34));
   const initialsColor = appearance === 'pastel' ? colors.neutral.onLime : colors.neutral.primary;
+  const ring = borderWidth > 0 && borderColor != null;
 
   return (
     <View
@@ -84,9 +85,8 @@ export function HostInitialsAvatar({
           width: size,
           height: size,
           borderRadius: size / 2,
-          borderWidth: ringWidth,
-          borderColor,
           backgroundColor: bg,
+          ...(ring ? { borderWidth, borderColor } : null),
         },
         style,
       ]}

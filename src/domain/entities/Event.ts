@@ -1,27 +1,36 @@
+export type EventHost = {
+  id: string;
+  name: string;
+  email?: string;
+};
+
+/** Matches event detail `guests.going` / `guests.not_going` (and home `will_attend`). */
+export type EventGuestRsvp = 'going' | 'not_going';
+
+export type EventGuest = {
+  id: string;
+  name: string;
+  rsvp: EventGuestRsvp;
+};
+
 export type Event = {
   id: string;
   title: string;
   date: string;
+  /**
+   * Merged venue + city for maps / share (`location`, `city` from API).
+   * TODO(backend): Dedicated maps search string (or lat/lng) when this is not ideal for Google Maps.
+   */
   location: string;
+  /** API `city` — overview address card, línea 1. */
+  city?: string;
+  /** API `location` (nombre del lugar / dirección) — overview address card, línea 2. */
+  venue?: string;
   description: string;
-  /** Cover image for home cards and hero (optional). */
   coverImageUrl?: string;
-  /** From GET /api/home/* `slug` when the event comes from home lists. */
-  slug?: string;
-  /** `guests.length` from the home event payload. */
-  guestCount?: number;
-  /** Guests with `has_responded !== 0`. */
-  guestsRespondedCount?: number;
-  /** Guests with `will_attend !== 0`. */
-  guestsAttendingCount?: number;
-  /** Home list / detail — lifecycle label (e.g. En curso, Por comenzar). */
-  stage?: string;
-  /** GET /api/events/:id — host line copy. */
-  hostsLine?: string;
-  /** First guest names from home list for carousel facepile (up to 3). */
-  previewGuestNames?: string[];
-  /** GET /api/events/:id — guest summary line from API. */
-  guestsLine?: string;
-  /** GET /api/events/:id — subtype / extra label. */
-  typeDetail?: string;
+  hosts?: EventHost[];
+  guests?: EventGuest[];
+  /** From GET /api/events/:id `show_guest_list` when present. */
+  showGuestList?: boolean;
+  shareUrl: string;
 };

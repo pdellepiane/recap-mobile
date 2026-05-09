@@ -45,12 +45,12 @@ export function EventChallengePhotoIntroCard({
             <EventChallengePhotoCameraHero />
           </View>
           <View style={styles.cardBodyMiddle}>
-            <Text style={styles.challengeLabel}>{numberLabel}</Text>
+            <Text style={styles.kicker}>{numberLabel}</Text>
             {instructionParagraphs.map((line, i) => (
               <Text
                 key={`${String(i)}-${line}`}
                 style={[
-                  styles.instruction,
+                  styles.challengeTitle,
                   i < instructionParagraphs.length - 1
                     ? styles.instructionParaSpacing
                     : styles.instructionParaLast,
@@ -117,8 +117,8 @@ const styles = StyleSheet.create({
   cardBodyMiddle: {
     flex: 1,
   },
-  challengeLabel: {
-    color: colors.states.active,
+  kicker: {
+    color: colors.accent[700],
     fontSize: 20,
     fontWeight: '400',
     lineHeight: 28,
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 14,
   },
-  instruction: {
+  challengeTitle: {
     color: colors.neutral.primary,
     fontSize: 28,
     fontWeight: '500',

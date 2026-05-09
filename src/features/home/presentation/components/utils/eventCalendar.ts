@@ -1,98 +1,115 @@
 /**
- * True when the event’s **local calendar day** is today or in the future (ignoring clock time).
- * Used for home feed partitioning; detail tabs use {@link isEventCalendarDayStrictlyAfterToday} for hosted future days.
+ * Event timing from API `datetime` (ISO). **Four reusable UI buckets** (local timezone):
+ *
+ * 1. {@link isBeforeEventCalendarDay} — calendar days before the event day (no clock).
+ * 2. {@link isSameEventCalendarDayBeforeStartInstant} — **on** the event’s calendar day, but **before** the start time.
+ * 3. {@link isDuringEventStartPlus24hWindow} — from **start instant** through **start + 24h** (álbum, ventana “en vivo”).
+ * 4. {@link isAfterEventStartPlus24hWindow} — strictly after **start + 24h** (e.g. “pasado”, fin ventana).
+ *
+ * Also: {@link isBeforeEventStartInstant} ⇔ (1) ∨ (2) ⇔ `now < start`.
  */
-export function isEventCalendarDayTodayOrFuture(isoDate: string, now: Date = new Date()): boolean {
-  const ms = Date.parse(isoDate);
-  if (Number.isNaN(ms)) {
+
+/** Ventana desde el instante de inicio hasta 24h después. */
+export const EVENT_ALBUM_UPLOAD_WINDOW_AFTER_START_MS = 24 * 60 * 60 * 1000;
+
+function parseEventStartMs(isoDate: string): number | null {
+  const ms = Date.parse(isoDate.trim());
+  return Number.isNaN(ms) ? null : ms;
+}
+
+function startOfLocalCalendarDayMs(utcMs: number): number {
+  const d = new Date(utcMs);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
+function eventLocalDayStartMs(isoDate: string): number | null {
+  const ms = parseEventStartMs(isoDate);
+  return ms === null ? null : startOfLocalCalendarDayMs(ms);
+}
+
+function todayLocalDayStartMs(now: Date): number {
+  return startOfLocalCalendarDayMs(now.getTime());
+}
+
+// ---------------------------------------------------------------------------
+// (1) Before event calendar day only
+// ---------------------------------------------------------------------------
+
+/**
+ * True when `now` is before the event calendar day (no clock).
+ */
+export function isBeforeEventCalendarDay(isoDate: string, now: Date = new Date()): boolean {
+  const eventDay = eventLocalDayStartMs(isoDate);
+  if (eventDay === null) {
     return false;
   }
-  const eventDay = new Date(ms);
-  const today = new Date(now);
-  eventDay.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  return eventDay.getTime() >= today.getTime();
+  return todayLocalDayStartMs(now) < eventDay;
 }
 
 /**
- * True when the event’s **local calendar day** is strictly **after** today’s (ignoring clock time).
- */
-export function isEventCalendarDayStrictlyAfterToday(isoDate: string, now: Date = new Date()): boolean {
-  const ms = Date.parse(isoDate);
-  if (Number.isNaN(ms)) {
-    return false;
-  }
-  const eventDay = new Date(ms);
-  const today = new Date(now);
-  eventDay.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  return eventDay.getTime() > today.getTime();
-}
-
-/**
- * True when the event’s **local calendar day** is the same as today’s (ignoring clock time).
+ * True when `now` falls on the event’s **local calendar day** (medianoche a medianoche); no mira la hora.
  */
 export function isEventCalendarDayToday(isoDate: string, now: Date = new Date()): boolean {
-  const ms = Date.parse(isoDate);
-  if (Number.isNaN(ms)) {
+  const eventDay = eventLocalDayStartMs(isoDate);
+  if (eventDay === null) {
     return false;
   }
-  const eventDay = new Date(ms);
-  const today = new Date(now);
-  eventDay.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  return eventDay.getTime() === today.getTime();
+  return eventDay === todayLocalDayStartMs(now);
 }
 
+// ---------------------------------------------------------------------------
+// (2) Same calendar day as event, but before start instant (time-of-day)
+// ---------------------------------------------------------------------------
+
 /**
- * True when the event’s **local calendar day** is strictly before today’s local calendar day.
- * Used so same-day events stay in “Mis eventos” until the day rolls over, not until the clock time passes.
+ * True when `now` is strictly before the event start instant (full `datetime`: día + hora + min + seg + ms).
  */
-export function isEventLocalCalendarDayBeforeToday(isoDate: string, now: Date = new Date()): boolean {
-  const ms = Date.parse(isoDate);
-  if (Number.isNaN(ms)) {
+export function isBeforeEventStartInstant(isoDate: string, now: Date = new Date()): boolean {
+  const startMs = parseEventStartMs(isoDate);
+  if (startMs === null) {
     return false;
   }
-  const eventDay = new Date(ms);
-  const today = new Date(now);
-  eventDay.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  return eventDay.getTime() < today.getTime();
+  return now.getTime() < startMs;
 }
 
 /**
- * “Día del evento en adelante”: the event’s local calendar day is today or already passed (not still in the future).
- * Used for guest ranking/challenges visibility and host ranking visibility.
+ * Caso **(2)**: mismo día de calendario local que el evento, y `now` **antes** de la hora:minuto:segundo
+ * de inicio del `datetime` (equivale a {@link isEventCalendarDayToday} ∧ {@link isBeforeEventStartInstant}).
  */
-export function isEventCalendarDayTodayOrPast(isoDate: string, now: Date = new Date()): boolean {
-  return !isEventCalendarDayStrictlyAfterToday(isoDate, now);
-}
-
-/**
- * Host: puede crear/editar desafíos hasta 1 minuto antes del inicio del evento (`datetime` ISO).
- */
-export function canHostEditChallengesUntilOneMinuteBefore(
+export function isSameEventCalendarDayBeforeStartInstant(
   isoDate: string,
   now: Date = new Date(),
 ): boolean {
-  const startMs = Date.parse(isoDate);
-  if (Number.isNaN(startMs)) {
-    return false;
-  }
-  return now.getTime() <= startMs - 60_000;
+  return isEventCalendarDayToday(isoDate, now) && isBeforeEventStartInstant(isoDate, now);
 }
 
-const FLOATING_REACTION_WINDOW_MS = 48 * 60 * 60 * 1000;
-
+// ---------------------------------------------------------------------------
+// (3) During [start, start + 24h]
+// ---------------------------------------------------------------------------
 /**
- * Ventana de reacciones del evento: desde la hora programada (`datetime` ISO) durante 48h
- * (día del evento + día siguiente en términos de ventana continua).
+ * True when `now` is during the event start plus 24h window (e.g. “en vivo”).
  */
-export function isWithinEventReactionsWindow(isoDate: string, now: Date = new Date()): boolean {
-  const startMs = Date.parse(isoDate);
-  if (Number.isNaN(startMs)) {
+export function isDuringEventStartPlus24hWindow(isoDate: string, now: Date = new Date()): boolean {
+  const startMs = parseEventStartMs(isoDate);
+  if (startMs === null) {
     return false;
   }
   const t = now.getTime();
-  return t >= startMs && t < startMs + FLOATING_REACTION_WINDOW_MS;
+  return t >= startMs && t <= startMs + EVENT_ALBUM_UPLOAD_WINDOW_AFTER_START_MS;
+}
+
+// ---------------------------------------------------------------------------
+// (4) After start + 24h (strict)
+// ---------------------------------------------------------------------------
+
+/**
+ * True when `now` is strictly after the 24h window (e.g. “Mis eventos pasados” cutoff).
+ */
+export function isAfterEventStartPlus24hWindow(isoDate: string, now: Date = new Date()): boolean {
+  const startMs = parseEventStartMs(isoDate);
+  if (startMs === null) {
+    return false;
+  }
+  return now.getTime() > startMs + EVENT_ALBUM_UPLOAD_WINDOW_AFTER_START_MS;
 }

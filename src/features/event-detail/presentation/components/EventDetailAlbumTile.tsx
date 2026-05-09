@@ -1,9 +1,9 @@
 import type { AlbumPhoto } from '../../data/eventAlbum';
+import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { appendRemoteImageEpoch, colors, useRemoteImageCacheEpoch } from '@/src/ui';
-import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 const COL_GAP = 8;
 const TILE_RADIUS = 12;
@@ -11,13 +11,16 @@ const TILE_RADIUS = 12;
 type Props = {
   photo: AlbumPhoto;
   width: number;
+  onLikePress?: () => void;
 };
 
-export function EventDetailAlbumTile({ photo, width }: Props) {
+export function EventDetailAlbumTile({ photo, width, onLikePress }: Props) {
   const { t } = useTranslation();
   const mediaCacheEpoch = useRemoteImageCacheEpoch();
   const tileH = width / photo.aspectRatio;
   const photoUri = appendRemoteImageEpoch(photo.uri, mediaCacheEpoch);
+  const liked = photo.likedByMe === true;
+  const heartColor = liked ? colors.states.error : colors.neutral.primary;
   const authorAvatarUri = photo.authorAvatarUrl
     ? appendRemoteImageEpoch(photo.authorAvatarUrl, mediaCacheEpoch)
     : null;
@@ -31,9 +34,9 @@ export function EventDetailAlbumTile({ photo, width }: Props) {
         transition={150}
         accessibilityLabel={t('eventDetail.photoA11y', { author: photo.authorShort })}
       />
-      <View style={styles.tileOverlay} pointerEvents="none">
-        <View style={styles.tileMetaRow}>
-          <View style={styles.author}>
+      <View style={styles.tileOverlay} pointerEvents="box-none">
+        <View style={styles.tileMetaRow} pointerEvents="box-none">
+          <View style={styles.author} pointerEvents="none">
             {authorAvatarUri ? (
               <Image
                 source={{ uri: authorAvatarUri }}
@@ -52,10 +55,33 @@ export function EventDetailAlbumTile({ photo, width }: Props) {
               {photo.authorShort}
             </Text>
           </View>
-          <View style={styles.likes}>
-            <Ionicons name="heart-outline" size={16} color={colors.neutral.primary} />
-            <Text style={styles.likesCount}>{String(photo.likes)}</Text>
-          </View>
+          {onLikePress ? (
+            <Pressable
+              style={styles.likes}
+              onPress={onLikePress}
+              accessibilityRole="button"
+              accessibilityLabel={t('eventDetail.albumLikeA11y')}
+              hitSlop={8}
+            >
+              <Image
+                source={images.common.heart}
+                style={styles.heartIcon}
+                contentFit="contain"
+                tintColor={heartColor}
+              />
+              <Text style={styles.likesCount}>{String(photo.likes)}</Text>
+            </Pressable>
+          ) : (
+            <View style={styles.likes} pointerEvents="none">
+              <Image
+                source={images.common.heart}
+                style={styles.heartIcon}
+                contentFit="contain"
+                tintColor={heartColor}
+              />
+              <Text style={styles.likesCount}>{String(photo.likes)}</Text>
+            </View>
+          )}
         </View>
       </View>
     </View>
@@ -118,6 +144,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+  },
+  heartIcon: {
+    width: 16,
+    height: 16,
   },
   likesCount: {
     color: colors.neutral.primary,

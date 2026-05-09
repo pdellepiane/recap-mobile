@@ -1,4 +1,5 @@
 import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
 import { HomeBannerCtaPill } from '../HomeBannerCtaPill';
 import { LiveBannerStructuredStatusRow } from '../LiveBannerStructuredStatusRow';
 import { colors } from '@/src/ui';
@@ -10,6 +11,7 @@ type RightProps = {
 };
 
 export function LiveBannerRightColumn({ eventName }: RightProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.right}>
       <LiveBannerStructuredStatusRow />
@@ -17,7 +19,7 @@ export function LiveBannerRightColumn({ eventName }: RightProps) {
         {eventName}
       </Text>
       <HomeBannerCtaPill
-        label="INGRESAR"
+        label={t('home.bannerEnterCta')}
         trailingIcon={images.common.goToRight}
         style={styles.ctaSpacing}
       />

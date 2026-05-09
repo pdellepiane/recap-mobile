@@ -1,6 +1,6 @@
-import { runSessionExpiredFlow } from '@/src/core/auth/sessionExpiredBridge';
 import { ApiRequestError, messageFromUnknownErrorBody } from './ApiRequestError';
 import type { HttpClient, HttpGetOptions, HttpPostOptions } from './HttpClient';
+import { runSessionExpiredFlow } from '@/src/core/auth/sessionExpiredBridge';
 
 export type FetchHttpClientOptions = {
   getAccessToken?: () => string | null | Promise<string | null>;
@@ -9,8 +9,6 @@ export type FetchHttpClientOptions = {
 function trimTrailingSlash(url: string): string {
   return url.replace(/\/$/, '');
 }
-
-const RESPONSE_LOG_MAX_CHARS = 2000;
 
 function logHttp(
   direction: '→' | '←',
@@ -31,13 +29,6 @@ function logHttp(
   }
   if (payload.status !== undefined) {
     parts.push(`status=${String(payload.status)}`);
-  }
-  if (payload.responseBody !== undefined) {
-    const body =
-      payload.responseBody.length > RESPONSE_LOG_MAX_CHARS
-        ? `${payload.responseBody.slice(0, RESPONSE_LOG_MAX_CHARS)}…`
-        : payload.responseBody;
-    parts.push(`response=${body}`);
   }
   console.log(parts.join(' | '));
 }
@@ -131,6 +122,27 @@ export class FetchHttpClient implements HttpClient {
       headers: await this.headersFor(options, true),
       body: JSON.stringify(body),
     });
-    return this.parseResponse<T>(res, { method: 'POST', url, requestBody: body, auth: options.auth });
+    return this.parseResponse<T>(res, {
+      method: 'POST',
+      url,
+      requestBody: body,
+      auth: options.auth,
+    });
+  }
+
+  async patch<T>(path: string, body: object, options: HttpPostOptions = {}): Promise<T> {
+    const url = this.resolveUrl(path);
+    logHttp('→', 'PATCH', url, { requestBody: body });
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers: await this.headersFor(options, true),
+      body: JSON.stringify(body),
+    });
+    return this.parseResponse<T>(res, {
+      method: 'PATCH',
+      url,
+      requestBody: body,
+      auth: options.auth,
+    });
   }
 }

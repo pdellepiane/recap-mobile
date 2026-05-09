@@ -20,6 +20,7 @@ export function HomeScreenPage() {
     myEvents,
     plans,
     pastEvents,
+    hostedEventIds,
     hasEvents,
     isLoading,
     isRefreshing,
@@ -68,6 +69,7 @@ export function HomeScreenPage() {
             myEvents={myEvents}
             plans={plans}
             pastEvents={pastEvents}
+            hostedEventIds={hostedEventIds}
             onOpenEvent={openEvent}
           />
         </ScrollView>

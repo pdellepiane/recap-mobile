@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   labelQuiz: {
-    color: colors.events.challengeQuizLabel,
+    color: colors.brand[300],
   },
   labelPhoto: {
     color: CHALLENGE_ACCENT_LIME,

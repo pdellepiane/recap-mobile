@@ -1,7 +1,6 @@
-import { images } from '@/src/assets/images';
-import { colors } from '@/src/ui';
+import { CloseButton, colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
-import { Image as RNImage, Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   showCamera: boolean;
@@ -24,20 +23,14 @@ export function EventDetailCameraHeader({
 }: Props) {
   return (
     <View style={styles.header} pointerEvents="box-none">
-      <Pressable
+      <CloseButton
         onPress={showCamera ? onClose : onDiscardPreview}
         hitSlop={10}
-        style={({ pressed }) => [
-          styles.closeBtn,
-          !showCamera && styles.closeBtnFilled,
-          pressed && styles.pressed,
-        ]}
-        accessibilityRole="button"
+        style={[styles.closeBtn, !showCamera && styles.closeBtnFilled]}
+        iconStyle={styles.closeIcon}
         accessibilityLabel={showCamera ? closeLabel : discardLabel}
-      >
-        <RNImage source={images.common.camera.close} style={styles.closeIcon} resizeMode="contain" />
-      </Pressable>
-      <Text style={styles.headerTitle} numberOfLines={1}>
+      />
+      <Text style={styles.headerTitle} numberOfLines={2}>
         {eventTitle?.trim() || fallbackTitle}
       </Text>
       <View style={styles.headerSpacer} />
@@ -58,13 +51,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   closeBtn: {
-    width: 48,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: colors.transparent.white,
   },
   closeBtnFilled: {
-    borderRadius: 24,
     backgroundColor: colors.background.primary,
   },
   closeIcon: {
@@ -75,16 +64,13 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.neutral.primary,
     textAlign: 'center',
-    fontSize: 17,
-    lineHeight: 22,
-    fontFamily: fontFamilies.medium,
-    marginHorizontal: 12,
+    fontWeight: '400',
+    fontSize: 20,
+    lineHeight: 28,
+    fontFamily: fontFamilies.signikaRegular,
   },
   headerSpacer: {
     width: 44,
     height: 44,
-  },
-  pressed: {
-    opacity: 0.82,
   },
 });

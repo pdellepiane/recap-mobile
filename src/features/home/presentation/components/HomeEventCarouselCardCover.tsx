@@ -1,6 +1,7 @@
-import { colors, useRemoteImageCacheEpoch, appendRemoteImageEpoch } from '@/src/ui';
+import { appendRemoteImageEpoch, colors, useRemoteImageCacheEpoch } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image as ExpoImage } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, View } from 'react-native';
 
 const IMG_H = 160;
@@ -37,21 +38,27 @@ export function HomeEventCarouselCardCover({
       ) : (
         <View style={[styles.image, styles.imagePlaceholder]} />
       )}
-      <View style={styles.bottomGradientStrong} pointerEvents="none" />
-      <View style={styles.bottomGradientMid} pointerEvents="none" />
-      <View style={styles.bottomGradientLight} pointerEvents="none" />
+      <LinearGradient
+        colors={[colors.background.primary, colors.neutral.primary]}
+        start={{ x: 0.5, y: 1 }}
+        end={{ x: 0.5, y: 0 }}
+        style={styles.bottomGradientStrong}
+        pointerEvents="none"
+      />
       <View style={styles.dateBadge}>
         <Text style={styles.dateBadgeDay}>{day}</Text>
         <Text style={styles.dateBadgeMonth}>{month}</Text>
       </View>
-      <View style={styles.coverFooter}>
-        <View style={styles.coverChip}>
-          <Text style={styles.coverChipInitials}>{coverInitials || '·'}</Text>
+      {coverLabel && (
+        <View style={styles.coverFooter}>
+          <View style={styles.coverChip}>
+            <Text style={styles.coverChipInitials}>{coverInitials || '·'}</Text>
+          </View>
+          <Text style={styles.coverChipLabel} numberOfLines={1}>
+            Por {coverLabel}
+          </Text>
         </View>
-        <Text style={styles.coverChipLabel} numberOfLines={1}>
-          {coverLabel}
-        </Text>
-      </View>
+      )}
     </View>
   );
 }
@@ -76,24 +83,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: 72,
-    backgroundColor: 'rgba(34,34,34,0.68)',
-  },
-  bottomGradientMid: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 54,
-    height: 32,
-    backgroundColor: 'rgba(34,34,34,0.32)',
-  },
-  bottomGradientLight: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 80,
-    height: 20,
-    backgroundColor: 'rgba(34,34,34,0.12)',
+    height: '50%',
+    mixBlendMode: 'multiply',
   },
   dateBadge: {
     position: 'absolute',

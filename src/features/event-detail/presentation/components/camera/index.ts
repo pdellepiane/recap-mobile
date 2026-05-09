@@ -1,3 +1,4 @@
+export * from './EventDetailCameraCaptureSection';
 export * from './EventDetailCameraControlsRow';
 export * from './EventDetailCameraGalleryButton';
 export * from './EventDetailCameraHeader';

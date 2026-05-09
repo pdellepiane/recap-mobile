@@ -1,7 +1,6 @@
 import { HomeBannerCarouselDots } from './homeLiveBannerCarousel/HomeBannerCarouselDots';
 import { HomeBannerCarouselSlide } from './homeLiveBannerCarousel/HomeBannerCarouselSlide';
 import { PAGE_W, SCREEN_W } from './homeLiveBannerCarousel/layout';
-import { NO_EVENT_CAROUSEL_FALLBACK } from './homeLiveBannerCarousel/noEventFallbackBanner';
 import type { HomeBannerItem } from '@/src/core/api/types';
 import { useCallback, useRef, useState } from 'react';
 import {
@@ -20,7 +19,11 @@ type Props = {
 export function HomeBannerCarousel({ banners, onSlidePress }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
-  const slides = banners.length > 0 ? banners : [NO_EVENT_CAROUSEL_FALLBACK];
+  const slides = banners;
+
+  if (slides.length === 0) {
+    return null;
+  }
 
   const goToSlide = useCallback(
     (index: number) => {
@@ -65,11 +68,13 @@ export function HomeBannerCarousel({ banners, onSlidePress }: Props) {
         ))}
       </ScrollView>
 
-      <HomeBannerCarouselDots
-        count={slides.length}
-        activeIndex={activeIndex}
-        onDotPress={goToSlide}
-      />
+      {slides.length > 1 && (
+        <HomeBannerCarouselDots
+          count={slides.length}
+          activeIndex={activeIndex}
+          onDotPress={goToSlide}
+        />
+      )}
     </View>
   );
 }

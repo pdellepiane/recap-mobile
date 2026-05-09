@@ -3,6 +3,9 @@ import {
   recordEventChallengeCompletion,
   recordGlobalChallengeCompletion,
 } from '../../data/eventChallengesCompletionStore';
+import { emitEventChallengesListRefresh } from '../../data/eventChallengesListRefresh';
+import { emitEventDetailTabSwitch } from '../../data/eventDetailTabSwitch';
+import { EventDetailTab } from './eventDetailTabs';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useMemo, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,15 +21,13 @@ type Params = {
  */
 export function useEventChallengeQuizScreen({ eventId, challengeId }: Params) {
   const insets = useSafeAreaInsets();
-  const { goBack, goToEventDetailTabWithCompletedChallenge, goToEventChallengesCompleted } =
-    useCoordinator();
+  const { goBack } = useCoordinator();
   const quiz = useMemo(() => getEventChallengeQuiz(challengeId), [challengeId]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
 
   const canFinish = quiz !== null && selectedIndex !== null;
-  const isCorrect =
-    quiz !== null && selectedIndex !== null && selectedIndex === quiz.correctIndex;
+  const isCorrect = quiz !== null && selectedIndex !== null && selectedIndex === quiz.correctIndex;
   const selectedLabel =
     quiz !== null && selectedIndex !== null ? (quiz.options[selectedIndex] ?? '') : '';
   const correctLabel = quiz?.options[quiz.correctIndex] ?? '';
@@ -46,8 +47,7 @@ export function useEventChallengeQuizScreen({ eventId, challengeId }: Params) {
   const closeResult = () => {
     if (eventId) {
       markCompletion();
-      goToEventChallengesCompleted(eventId, challengeId, pointsEarned);
-      return;
+      emitEventChallengesListRefresh(eventId);
     }
     goBack();
   };
@@ -55,8 +55,8 @@ export function useEventChallengeQuizScreen({ eventId, challengeId }: Params) {
   const openRanking = () => {
     if (eventId) {
       markCompletion();
-      goToEventDetailTabWithCompletedChallenge(eventId, 'ranking', challengeId, pointsEarned);
-      return;
+      emitEventChallengesListRefresh(eventId);
+      emitEventDetailTabSwitch(eventId, EventDetailTab.Ranking);
     }
     goBack();
   };

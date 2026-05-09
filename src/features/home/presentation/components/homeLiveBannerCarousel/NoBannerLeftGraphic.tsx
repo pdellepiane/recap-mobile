@@ -1,8 +1,14 @@
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { StyleSheet, Text, View } from 'react-native';
 
-const LINES = ['CELEBRA', 'REGALA', 'Y RECIBE', 'DINERO'] as const;
+const LINE_KEYS = [
+  'home.noBannerStackCelebrate',
+  'home.noBannerStackGift',
+  'home.noBannerStackAndReceive',
+  'home.noBannerStackMoney',
+] as const;
 
 /** Counter-clockwise tilt for the stacked headline (matches banner-state-1 art). */
 const TEXT_ROTATE_DEG = '-17deg';
@@ -17,6 +23,8 @@ type Props = {
  * (replaces `banner-state-1/item-1.png`).
  */
 export function NoBannerLeftGraphic({ width, height }: Props) {
+  const { t } = useTranslation();
+  const lines = LINE_KEYS.map((key) => t(key));
   const diameter = Math.max(width, height) * 1.28;
   const radius = diameter / 2;
 
@@ -36,8 +44,8 @@ export function NoBannerLeftGraphic({ width, height }: Props) {
       />
       <View style={[styles.textLayer, { width, height }]} pointerEvents="none">
         <View style={styles.rotated}>
-          {LINES.map((line) => (
-            <Text key={line} style={styles.line}>
+          {lines.map((line, index) => (
+            <Text key={LINE_KEYS[index]} style={styles.line}>
               {line}
             </Text>
           ))}

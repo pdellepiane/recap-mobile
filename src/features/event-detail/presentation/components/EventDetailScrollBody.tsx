@@ -1,7 +1,7 @@
 import { EventDetailTab } from '../hooks/useEventDetailScreen';
+import { images } from '@/src/assets/images';
 import { AlbumPhoto } from '@/src/features/event-detail/data/eventAlbum';
 import { EventChallenge } from '@/src/features/event-detail/data/eventChallenges';
-import { EventDetailExtras } from '@/src/features/event-detail/data/eventDetailExtras';
 import { RankingRow } from '@/src/features/event-detail/data/eventRanking';
 import type { EventDetailReactionPressPayload } from '@/src/features/event-detail/data/eventReactions';
 import { EventDetailAlbumTab } from '@/src/features/event-detail/presentation/components/EventDetailAlbumTab';
@@ -11,7 +11,7 @@ import { EventDetailOverviewTab } from '@/src/features/event-detail/presentation
 import { EventDetailRankingTab } from '@/src/features/event-detail/presentation/components/EventDetailRankingTab';
 import { EventDetailTabs } from '@/src/features/event-detail/presentation/components/EventDetailTabs';
 import { useTranslation } from '@/src/i18n';
-import { colors } from '@/src/ui';
+import { Button, colors } from '@/src/ui';
 import type { ImageSourcePropType } from 'react-native';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -19,13 +19,12 @@ export type Props = {
   insetsTop: number;
   /** Bottom spacer inside the scroll (safe area + extra for FAB). */
   scrollBottomPadding: number;
-  heroSource: { uri: string } | number | undefined;
+  eventId: string;
+  coverImageUrl?: string;
   title: string;
   onBackPress: () => void;
   onReactionPress?: (payload: EventDetailReactionPressPayload) => void;
   onProfileAvatarPress: () => void;
-  /** Center image in the reaction row (cover, or story author when statuses exist). */
-  liveRowCenterImage: ImageSourcePropType;
   liveReactionImages: readonly [
     ImageSourcePropType,
     ImageSourcePropType,
@@ -36,11 +35,14 @@ export type Props = {
   onTabPress: (tab: EventDetailTab) => void;
   description: string;
   countdownEndsAt: Date;
-  mapsQuery: string | null;
-  venueLine1: string;
-  venueLine2: string;
-  extras: EventDetailExtras | null;
+  eventDateIso: string;
+  addressCity?: string;
+  addressVenue?: string;
+  mapQuery: string;
   onOpenMap: () => void;
+  guestsAttendingCount?: number;
+  guestsPendingCount?: number;
+  goingGuests?: { id: string; name: string }[];
   challenges: EventChallenge[];
   onChallengePress: (challenge: EventChallenge) => void | Promise<void>;
   completedByChallengeId: Record<string, number>;
@@ -48,13 +50,22 @@ export type Props = {
   albumPhotos: AlbumPhoto[];
   /** When set, only these tabs are shown (e.g. Detalle + Álbum for hosted events on a future calendar day). */
   visibleTabs?: readonly EventDetailTab[];
-  /** Host names line (API `hosts` or optional {@link EventDetailExtras.hostsLine}). */
+  /** Host names line from API / derived organizer copy. */
   hostsLine: string;
-  showDetailCountdown: boolean;
-  /** Anfitrión (evento en “Mis eventos”): copy y vacío distintos en Retos. */
-  isEventHost?: boolean;
+  isBeforeStartCountdownVisible: boolean;
+  /** Organizer (event in “My events”): distinct copy and empty states in Challenges. */
+  isOrganizer?: boolean;
+  participantNamesLine?: string;
+  confirmedGuestsCount?: number;
+  totalInvitedGuestsCount?: number;
+  onOpenParticipantsModal?: () => void;
+  onShareEventPress?: () => void;
+  /** Anfitrión en estado programado (día futuro): mostrar botón compartir. */
+  showOrganizerActions?: boolean;
   refreshing?: boolean;
   onRefresh?: () => void;
+  onAlbumPhotoLike?: (photoId: string) => void;
+  showChallengesPendingDot?: boolean;
 };
 
 /**
@@ -63,22 +74,25 @@ export type Props = {
 export function EventDetailScrollBody({
   insetsTop,
   scrollBottomPadding,
-  heroSource,
+  eventId,
+  coverImageUrl,
   title,
   onBackPress,
   onReactionPress,
   onProfileAvatarPress,
-  liveRowCenterImage,
   liveReactionImages,
   activeTab,
   onTabPress,
   description,
   countdownEndsAt,
-  mapsQuery,
-  venueLine1,
-  venueLine2,
-  extras,
+  eventDateIso,
+  addressCity,
+  addressVenue,
+  mapQuery,
   onOpenMap,
+  guestsAttendingCount,
+  guestsPendingCount,
+  goingGuests,
   challenges,
   onChallengePress,
   completedByChallengeId,
@@ -86,10 +100,18 @@ export function EventDetailScrollBody({
   albumPhotos,
   visibleTabs,
   hostsLine,
-  showDetailCountdown,
-  isEventHost = false,
+  isBeforeStartCountdownVisible,
+  isOrganizer = false,
+  participantNamesLine,
+  confirmedGuestsCount,
+  totalInvitedGuestsCount,
+  onOpenParticipantsModal,
+  onShareEventPress,
+  showOrganizerActions = false,
   refreshing = false,
   onRefresh,
+  onAlbumPhotoLike,
+  showChallengesPendingDot = false,
 }: Props) {
   const { t } = useTranslation();
 
@@ -98,6 +120,9 @@ export function EventDetailScrollBody({
       style={styles.scroll}
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
+      bounces
+      alwaysBounceVertical
+      overScrollMode="always"
       refreshControl={
         onRefresh ? (
           <RefreshControl
@@ -111,40 +136,66 @@ export function EventDetailScrollBody({
     >
       <EventDetailHero
         insetsTop={insetsTop}
-        heroSource={heroSource}
+        eventId={eventId}
+        coverImageUrl={coverImageUrl}
+        eventDateIso={eventDateIso}
         title={title}
         onBackPress={onBackPress}
         onReactionPress={onReactionPress}
         onProfileAvatarPress={onProfileAvatarPress}
-        liveRowCenterImage={liveRowCenterImage}
         liveReactionImages={liveReactionImages}
+        participantNamesLine={participantNamesLine}
+        confirmedGuestsCount={confirmedGuestsCount}
+        totalInvitedGuestsCount={totalInvitedGuestsCount}
+        onOpenGuestsModal={onOpenParticipantsModal}
+        showOrganizerGuestsPill={showOrganizerActions}
       />
 
-      <EventDetailTabs activeTab={activeTab} onTabPress={onTabPress} visibleTabs={visibleTabs} />
+      {showOrganizerActions && (
+        <Button
+          title={t('eventDetail.shareEvent')}
+          onPress={onShareEventPress ?? (() => {})}
+          variant="brand"
+          size="sm"
+          accessibilityLabel={t('eventDetail.shareEvent')}
+          rightIconSource={images.common.share}
+          style={styles.shareBtn}
+        />
+      )}
+
+      <EventDetailTabs
+        activeTab={activeTab}
+        onTabPress={onTabPress}
+        visibleTabs={visibleTabs}
+        showChallengesPendingDot={showChallengesPendingDot}
+      />
 
       {activeTab === EventDetailTab.Overview ? (
         <EventDetailOverviewTab
           description={description}
           countdownEndsAt={countdownEndsAt}
-          mapsQuery={mapsQuery}
-          venueLine1={venueLine1}
-          venueLine2={venueLine2}
-          extras={extras}
+          eventDateIso={eventDateIso}
+          addressCity={addressCity}
+          addressVenue={addressVenue}
+          mapQuery={mapQuery}
           hostsLine={hostsLine}
-          showDetailCountdown={showDetailCountdown}
+          isBeforeStartCountdownVisible={isBeforeStartCountdownVisible}
           onOpenMap={onOpenMap}
+          guestsAttendingCount={guestsAttendingCount}
+          guestsPendingCount={guestsPendingCount}
+          goingGuests={goingGuests}
         />
       ) : activeTab === EventDetailTab.Challenges ? (
         <EventDetailChallengesTab
           challenges={challenges}
           onChallengePress={onChallengePress}
           completedByChallengeId={completedByChallengeId}
-          isEventHost={isEventHost}
+          isOrganizer={isOrganizer}
         />
       ) : activeTab === EventDetailTab.Ranking ? (
-        <EventDetailRankingTab rows={rankingRows} isEventHost={isEventHost} />
+        <EventDetailRankingTab rows={rankingRows} isOrganizer={isOrganizer} />
       ) : activeTab === EventDetailTab.Album ? (
-        <EventDetailAlbumTab photos={albumPhotos} />
+        <EventDetailAlbumTab photos={albumPhotos} onAlbumPhotoLike={onAlbumPhotoLike} />
       ) : (
         <View style={styles.tabPlaceholder}>
           <Text style={styles.tabPlaceholderText}>{t('eventDetail.tabPlaceholder')}</Text>
@@ -163,6 +214,14 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
+    flexGrow: 1,
+  },
+  hostActionsWrap: {
+    marginTop: -8,
+    marginBottom: 18,
+  },
+  shareBtn: {
+    marginBottom: 24,
   },
   tabPlaceholder: {
     minHeight: 120,

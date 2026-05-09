@@ -3,11 +3,11 @@ import {
   type EventDetailReactionPressPayload,
 } from '../../data/eventReactions';
 import { useTranslation } from '@/src/i18n';
-import { colors, useRemoteImageCacheEpoch, withRemoteImageCacheEpoch } from '@/src/ui';
+import { Button, colors, useRemoteImageCacheEpoch, withRemoteImageCacheEpoch } from '@/src/ui';
 import { Image as ExpoImage } from 'expo-image';
 import { useRef } from 'react';
 import type { ImageSourcePropType } from 'react-native';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 const AVATAR = 100;
 const EMOJI = 64;
@@ -70,61 +70,54 @@ export function EventDetailLiveAvatarRow({
     { source: r3, index: 3 },
   ] as const;
 
+  const avatarBtn = (
+    <Button onPress={onProfileAvatarPress} accessibilityLabel={t('eventDetail.viewStories')}>
+      <ExpoImage
+        source={cachedProfileImage}
+        style={styles.avatar}
+        contentFit="cover"
+        cachePolicy="memory-disk"
+      />
+    </Button>
+  );
+
+  /** Fuera de ventana inicio+24h no se monta `FloatingReactions` → sin `onReactionPress`; no mostrar emojis. */
+  if (!onReactionPress) {
+    return <View style={styles.row}>{avatarBtn}</View>;
+  }
+
   return (
     <View style={styles.row}>
       {cells.slice(0, 2).map(({ source, index }) => (
-        <Pressable
+        <Button
           key={index}
-          accessibilityRole="button"
           accessibilityLabel={t('common.reactionA11y', {
             label: t(REACTION_A11Y_KEYS[index] ?? 'eventDetail.reactionParty'),
           })}
           onPress={() => handlePress(index, source)}
-          disabled={!onReactionPress}
+          style={styles.reactionHit}
+          contentRef={(el) => {
+            itemRefs.current[index] = el;
+          }}
         >
-          <View
-            ref={(el) => {
-              itemRefs.current[index] = el;
-            }}
-            collapsable={false}
-            style={styles.reactionHit}
-          >
-            <Image source={source} style={styles.reactionImg} resizeMode="contain" />
-          </View>
-        </Pressable>
+          <Image source={source} style={styles.reactionImg} resizeMode="contain" />
+        </Button>
       ))}
-      <Pressable
-        onPress={onProfileAvatarPress}
-        accessibilityRole="button"
-        accessibilityLabel={t('eventDetail.viewStories')}
-      >
-        <ExpoImage
-          source={cachedProfileImage}
-          style={styles.avatar}
-          contentFit="cover"
-          cachePolicy="memory-disk"
-        />
-      </Pressable>
+      {avatarBtn}
       {cells.slice(2, 4).map(({ source, index }) => (
-        <Pressable
+        <Button
           key={index}
-          accessibilityRole="button"
           accessibilityLabel={t('common.reactionA11y', {
             label: t(REACTION_A11Y_KEYS[index] ?? 'eventDetail.reactionParty'),
           })}
           onPress={() => handlePress(index, source)}
-          disabled={!onReactionPress}
+          style={styles.reactionHit}
+          contentRef={(el) => {
+            itemRefs.current[index] = el;
+          }}
         >
-          <View
-            ref={(el) => {
-              itemRefs.current[index] = el;
-            }}
-            collapsable={false}
-            style={styles.reactionHit}
-          >
-            <Image source={source} style={styles.reactionImg} resizeMode="contain" />
-          </View>
-        </Pressable>
+          <Image source={source} style={styles.reactionImg} resizeMode="contain" />
+        </Button>
       ))}
     </View>
   );

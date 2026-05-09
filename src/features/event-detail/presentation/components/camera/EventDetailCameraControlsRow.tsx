@@ -1,13 +1,14 @@
 import { images } from '@/src/assets/images';
 import { colors } from '@/src/ui';
-import { Image as RNImage, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, Image as RNImage, StyleSheet, View } from 'react-native';
 
-const SHUTTER_SIZE = 82;
-const SHUTTER_INNER = 70;
+const SHUTTER_SIZE = 74;
+const SHUTTER_INNER = 64;
 const CONTROL_SIZE = 56;
 
 type Props = {
   flash: 'off' | 'on' | 'auto';
+  flashAvailable: boolean;
   cameraReady: boolean;
   capturing: boolean;
   flashOnLabel: string;
@@ -21,6 +22,7 @@ type Props = {
 
 export function EventDetailCameraControlsRow({
   flash,
+  flashAvailable,
   cameraReady,
   capturing,
   flashOnLabel,
@@ -35,14 +37,24 @@ export function EventDetailCameraControlsRow({
     <View style={styles.cameraBottomRow} pointerEvents="box-none">
       <Pressable
         onPress={onToggleFlash}
+        disabled={!flashAvailable}
         hitSlop={10}
-        style={({ pressed }) => [styles.controlBtn, pressed && styles.pressed]}
+        style={({ pressed }) => [
+          styles.controlBtn,
+          flash === 'on' && styles.controlBtnActive,
+          !flashAvailable && styles.controlBtnDisabled,
+          pressed && styles.pressed,
+        ]}
         accessibilityRole="button"
         accessibilityLabel={flash === 'on' ? flashOnLabel : flashOffLabel}
       >
         <RNImage
           source={images.common.camera.flash}
-          style={[styles.controlIcon, flash === 'off' && styles.controlIconMuted]}
+          style={[
+            styles.controlIcon,
+            flash === 'off' && styles.controlIconMuted,
+            !flashAvailable && styles.controlIconUnavailable,
+          ]}
           resizeMode="contain"
         />
       </Pressable>
@@ -67,7 +79,11 @@ export function EventDetailCameraControlsRow({
         accessibilityRole="button"
         accessibilityLabel={switchCameraLabel}
       >
-        <RNImage source={images.common.camera.switch} style={styles.controlIcon} resizeMode="contain" />
+        <RNImage
+          source={images.common.camera.switch}
+          style={styles.controlIcon}
+          resizeMode="contain"
+        />
       </Pressable>
     </View>
   );
@@ -99,11 +115,21 @@ const styles = StyleSheet.create({
   controlIconMuted: {
     opacity: 0.52,
   },
+  controlIconUnavailable: {
+    opacity: 0.35,
+  },
+  controlBtnActive: {
+    backgroundColor: colors.background.primaryOpacity5,
+  },
+  controlBtnDisabled: {
+    opacity: 0.7,
+  },
   shutterOuter: {
     width: SHUTTER_SIZE,
     height: SHUTTER_SIZE,
     borderRadius: SHUTTER_SIZE / 2,
-    backgroundColor: colors.accent[500],
+    borderColor: colors.states.active,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -116,9 +142,7 @@ const styles = StyleSheet.create({
     width: SHUTTER_INNER,
     height: SHUTTER_INNER,
     borderRadius: SHUTTER_INNER / 2,
-    borderWidth: 2,
-    borderColor: colors.background.secondary,
-    backgroundColor: colors.accent[600],
+    backgroundColor: colors.states.active,
   },
   shutterDisabled: {
     opacity: 0.55,

@@ -1,10 +1,13 @@
 import { takeChallengePhotoCompletionPreview } from '../../data/challengePhotoCompletionPreview';
 import { getEventChallenges } from '../../data/eventChallenges';
 import { recordEventChallengeCompletion } from '../../data/eventChallengesCompletionStore';
+import { emitEventChallengesListRefresh } from '../../data/eventChallengesListRefresh';
+import { emitEventDetailTabSwitch } from '../../data/eventDetailTabSwitch';
+import { EventDetailTab } from './eventDetailTabs';
+import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useMemo, useState } from 'react';
 import { Dimensions } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Params = {
   eventId: string;
@@ -22,9 +25,8 @@ export function useEventChallengePhotoCompletedScreen({
   challengeNumber,
   points,
 }: Params) {
-  const insets = useSafeAreaInsets();
-  const { goToEventChallengesCompleted, goToEventDetailTabWithCompletedChallenge } =
-    useCoordinator();
+  const { t } = useTranslation();
+  const { goBack } = useCoordinator();
   const { width: winW } = Dimensions.get('window');
   const [thumbUri] = useState(() => takeChallengePhotoCompletionPreview());
 
@@ -35,29 +37,31 @@ export function useEventChallengePhotoCompletedScreen({
     const raw = challenge?.title ?? '';
     return {
       displayNumber: n,
-      summaryLine: raw.replace(/\n+/g, ' ').trim() || 'Challenge de foto completado.',
+      summaryLine: raw.replace(/\n+/g, ' ').trim() || t('challenges.photoCompletedSummaryFallback'),
     };
-  }, [eventId, challengeId, challengeNumber]);
+  }, [eventId, challengeId, challengeNumber, t]);
 
-  const closeToEvent = () => {
+  const onClose = () => {
     recordEventChallengeCompletion(eventId, challengeId, points);
-    goToEventChallengesCompleted(eventId, challengeId, points);
+    emitEventChallengesListRefresh(eventId);
+    goBack();
+    goBack();
   };
 
   const goToRanking = () => {
     recordEventChallengeCompletion(eventId, challengeId, points);
-    goToEventDetailTabWithCompletedChallenge(eventId, 'ranking', challengeId, points);
+    emitEventChallengesListRefresh(eventId);
+    emitEventDetailTabSwitch(eventId, EventDetailTab.Ranking);
+    goBack();
+    goBack();
   };
-
-  const circleTop = Math.max(12, insets.top + 8);
 
   return {
     winW,
     thumbUri,
     summaryLine,
     displayNumber,
-    closeToEvent,
+    onClose,
     goToRanking,
-    circleTop,
   };
 }

@@ -1,9 +1,8 @@
 import { useEventMapScreen } from '../hooks/useEventMapScreen';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { Spinner, colors } from '@/src/ui';
-import { Ionicons } from '@expo/vector-icons';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BackButton, Button, Spinner, colors } from '@/src/ui';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
@@ -30,9 +29,14 @@ export function EventMapScreenPage({ eventId, initialQuery }: EventMapScreenPage
     return (
       <SafeAreaView style={[styles.safe, styles.centered]} edges={['top', 'bottom']}>
         <Text style={styles.errorText}>{t('map.noLocation')}</Text>
-        <Pressable onPress={goBack} style={styles.fallbackBtn} accessibilityRole="button">
-          <Text style={styles.fallbackBtnText}>{t('common.back')}</Text>
-        </Pressable>
+        <Button
+          title={t('common.back')}
+          onPress={goBack}
+          variant="active"
+          accessibilityLabel={t('common.back')}
+          style={styles.fallbackBtn}
+          textStyle={styles.fallbackBtnText}
+        />
       </SafeAreaView>
     );
   }
@@ -41,14 +45,11 @@ export function EventMapScreenPage({ eventId, initialQuery }: EventMapScreenPage
     <View style={styles.safe}>
       <SafeAreaView edges={['top']} style={styles.headerSafe}>
         <View style={styles.headerRow}>
-          <Pressable
-            onPress={goBack}
-            style={({ pressed }) => [styles.backCircle, pressed && styles.pressed]}
-            accessibilityRole="button"
+          <BackButton
+            style={styles.backCircle}
+            iconStyle={styles.backIcon}
             accessibilityLabel={t('common.back')}
-          >
-            <Ionicons name="chevron-back" size={26} color={colors.neutral.primary} />
-          </Pressable>
+          />
           <Text style={styles.headerTitle} numberOfLines={1}>
             {t('map.title')}
           </Text>
@@ -98,10 +99,12 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 0,
     backgroundColor: colors.overlay.white08,
   },
-  pressed: {
-    opacity: 0.85,
+  backIcon: {
+    width: 20,
+    height: 20,
   },
   headerTitle: {
     flex: 1,
@@ -130,6 +133,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   fallbackBtn: {
+    height: undefined,
+    minHeight: 48,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 12,

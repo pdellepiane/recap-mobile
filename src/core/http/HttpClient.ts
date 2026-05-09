@@ -12,4 +12,5 @@ export type HttpPostOptions = {
 export type HttpClient = {
   get<T>(path: string, options?: HttpGetOptions): Promise<T>;
   post<T>(path: string, body: object, options?: HttpPostOptions): Promise<T>;
+  patch<T>(path: string, body: object, options?: HttpPostOptions): Promise<T>;
 };

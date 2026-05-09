@@ -1,7 +1,8 @@
 import { EventType } from '@/src/core/api';
 import {
-  isEventCalendarDayStrictlyAfterToday,
-  isEventCalendarDayToday,
+  isBeforeEventStartInstant,
+  isDuringEventStartPlus24hWindow,
+  isSameEventCalendarDayBeforeStartInstant,
 } from '@/src/features/home/presentation/components/utils/eventCalendar';
 
 const MONTHS_ES = [
@@ -35,17 +36,6 @@ export function eventDateBadgeParts(isoDate: string): { day: string; month: stri
   return { day: String(d), month };
 }
 
-/** Short label for home cards (“N invitados” / “Sin invitados”). */
-export function formatEventGuestCountLabel(guestCount: number): string {
-  if (guestCount <= 0) {
-    return 'Sin invitados';
-  }
-  if (guestCount === 1) {
-    return '1 invitado';
-  }
-  return `${String(guestCount)} invitados`;
-}
-
 /** Home carousel guest line: “+N invitados” for plural (pixel layout). */
 export function formatCarouselGuestCountLabel(guestCount: number): string {
   if (guestCount <= 0) {
@@ -58,14 +48,18 @@ export function formatCarouselGuestCountLabel(guestCount: number): string {
 }
 
 /**
- * Home carousel status by **local calendar day**: today → live, strictly future → scheduled, past → none.
+ * Home carousel status: **during** [start, start+24h] → live; caso **(2)** mismo día y antes del
+ * instante de inicio → {@link EventType.EventToStartToday}; otro futuro (aún `now < start`) →
+ * {@link EventType.EventToStart}; después → finished.
  */
 export function getEventType(isoDate: string, now: Date = new Date()): EventType {
-  if (isEventCalendarDayToday(isoDate, now)) {
+  if (isDuringEventStartPlus24hWindow(isoDate, now)) {
     return EventType.EventLive;
   }
-  if (isEventCalendarDayStrictlyAfterToday(isoDate, now)) {
-    return EventType.EventToStart;
+  if (isBeforeEventStartInstant(isoDate, now)) {
+    return isSameEventCalendarDayBeforeStartInstant(isoDate, now)
+      ? EventType.EventToStartToday
+      : EventType.EventToStart;
   }
   return EventType.EventFinished;
 }

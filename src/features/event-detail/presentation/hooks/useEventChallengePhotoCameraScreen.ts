@@ -1,12 +1,11 @@
 import { setChallengePhotoCompletionPreview } from '../../data/challengePhotoCompletionPreview';
 import { getEventChallenges } from '../../data/eventChallenges';
 import { usePhotoCaptureFlow } from './usePhotoCaptureFlow';
+import { useUploadEventPhoto } from './useUploadEventPhoto';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
-
-const UPLOAD_SIMULATION_MS = 2000;
 
 type Params = {
   eventId: string;
@@ -15,7 +14,7 @@ type Params = {
 };
 
 /**
- * Encapsulates challenge-photo camera flow: labels, capture/gallery handlers and upload simulation.
+ * Encapsulates challenge-photo camera flow: labels, capture/gallery handlers and album upload.
  */
 export function useEventChallengePhotoCameraScreen({
   eventId,
@@ -24,7 +23,9 @@ export function useEventChallengePhotoCameraScreen({
 }: Params) {
   const { goBack, goToEventChallengePhotoCompleted } = useCoordinator();
   const { t } = useTranslation();
-  const [isUploading, setIsUploading] = useState(false);
+  const { isUploading, uploadPhoto } = useUploadEventPhoto({
+    eventId,
+  });
   const {
     cameraReady,
     onCameraReady,
@@ -51,12 +52,12 @@ export function useEventChallengePhotoCameraScreen({
   const { challengeTitle, numberLabel, resolvedNumber, photoPoints } = useMemo(() => {
     const challenges = getEventChallenges(eventId);
     const challenge = challenges.find((r) => r.id === challengeId);
-    const n = challenge?.number ?? challengeNumber ?? 2;
+    const n = challenge?.number ?? challengeNumber ?? 1;
     return {
       challengeTitle: challenge?.title ?? t('challenges.photoIntroDefault'),
       numberLabel: t('challenges.challengeNumberLabel', { n }),
       resolvedNumber: n,
-      photoPoints: challenge?.points ?? 10,
+      photoPoints: challenge?.points ?? 0,
     };
   }, [eventId, challengeId, challengeNumber, t]);
 
@@ -69,22 +70,26 @@ export function useEventChallengePhotoCameraScreen({
     [challengeTitle],
   );
 
-  const runUploadSimulation = useCallback(async () => {
+  const submitChallengePhoto = useCallback(async () => {
     if (!selectedPhotoUri) {
       return;
     }
     const uri = selectedPhotoUri;
-    setIsUploading(true);
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, UPLOAD_SIMULATION_MS);
+    const ok = await uploadPhoto({
+      type: 'photo',
+      path: uri,
+      eventChallengeAnswerPhotoId: 0,
     });
-    setIsUploading(false);
+    if (!ok) {
+      return;
+    }
     discardPreview();
     setChallengePhotoCompletionPreview(uri);
     goToEventChallengePhotoCompleted(eventId, challengeId, resolvedNumber, photoPoints);
   }, [
     discardPreview,
     selectedPhotoUri,
+    uploadPhoto,
     goToEventChallengePhotoCompleted,
     eventId,
     challengeId,
@@ -121,7 +126,7 @@ export function useEventChallengePhotoCameraScreen({
     toggleFlash,
     openGallery,
     discardPreview,
-    runUploadSimulation,
+    submitChallengePhoto,
     showCamera,
     showPreviewSharp,
     showUploadingOverlay,

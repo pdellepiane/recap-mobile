@@ -2,6 +2,7 @@ import type { OnboardingSlide } from '../data';
 import { DecorativeImages } from './DecorativeImages';
 import { OverlayImages } from './OverlayImages';
 import { SlideMainImage } from './SlideMainImage';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui/colors';
 import { fontFamilies } from '@/src/ui/typography';
 import { StyleSheet, Text, View } from 'react-native';
@@ -12,6 +13,8 @@ type SlideItemProps = {
 };
 
 export function SlideItem({ slide, width }: SlideItemProps) {
+  const { t } = useTranslation();
+  const title = t(slide.titleKey);
   const isFirstSlide = slide.id === '1';
   const isSecondSlide = slide.id === '2';
   const isThirdSlide = slide.id === '3';
@@ -26,7 +29,7 @@ export function SlideItem({ slide, width }: SlideItemProps) {
             isThirdSlide && styles.thirdSlideTitle,
           ]}
         >
-          {slide.title}
+          {title}
         </Text>
       )}
       <View
@@ -63,7 +66,7 @@ export function SlideItem({ slide, width }: SlideItemProps) {
         </View>
       </View>
       {slide.titlePosition === 'below' && (
-        <Text style={[styles.title, isFirstSlide && styles.firstSlideTitle]}>{slide.title}</Text>
+        <Text style={[styles.title, isFirstSlide && styles.firstSlideTitle]}>{title}</Text>
       )}
     </View>
   );

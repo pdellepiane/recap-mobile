@@ -11,6 +11,14 @@ export const useEventDetail = (eventId: string) => {
   const [event, setEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  /**
+   * Refetches remote detail and merges into state.
+   *
+   * @param opts.silent - When `true`, skips updating the hook's loading flag and does not push the local-only
+   *   snapshot into state before the network returns. Use for **background** refresh (e.g. pull-to-refresh,
+   *   re-entering the overview tab) so the screen does not flash a loading shell or stale local-only data.
+   *   When `false` or omitted, behaves like an initial load: may show loading and applies local cache first.
+   */
   const reload = useCallback(
     async (opts?: { silent?: boolean }) => {
       const silent = opts?.silent === true;
@@ -48,9 +56,14 @@ export const useEventDetail = (eventId: string) => {
     void reload();
   }, [reload]);
 
+  const setEventShowGuestList = useCallback((showGuestList: boolean) => {
+    setEvent((prev) => (prev ? { ...prev, showGuestList } : prev));
+  }, []);
+
   return {
     event,
     isLoading,
     reload,
+    setEventShowGuestList,
   };
 };

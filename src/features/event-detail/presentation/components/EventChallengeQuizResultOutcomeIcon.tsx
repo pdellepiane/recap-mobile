@@ -1,19 +1,24 @@
+import { images } from '@/src/assets/images';
 import { colors } from '@/src/ui';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 type Props = {
   isCorrect: boolean;
-  marginTop: number;
 };
 
-export function EventChallengeQuizResultOutcomeIcon({ isCorrect, marginTop }: Props) {
+export function EventChallengeQuizResultOutcomeIcon({ isCorrect }: Props) {
   return (
-    <View style={[styles.resultIconWrap, { marginTop }]} pointerEvents="none">
+    <View style={styles.resultIconWrap} pointerEvents="none">
       <View style={styles.resultIconCircle}>
         {isCorrect ? (
           <View style={styles.resultCheckLayout}>
-            <FontAwesome5 name="check" size={52} color={colors.states.active} solid />
+            <Image
+              source={images.common.checkGreen}
+              style={styles.resultCheckIcon}
+              resizeMode="contain"
+              accessibilityElementsHidden
+            />
           </View>
         ) : (
           <View style={styles.resultWrongIconLayout}>
@@ -26,7 +31,7 @@ export function EventChallengeQuizResultOutcomeIcon({ isCorrect, marginTop }: Pr
 }
 
 const styles = StyleSheet.create({
-  resultIconWrap: { width: 91, height: 91, marginBottom: 10 },
+  resultIconWrap: { width: 91, height: 91, marginBottom: 20 },
   resultIconCircle: {
     width: 91,
     height: 91,
@@ -43,6 +48,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  resultCheckIcon: { width: 52, height: 52 },
   resultWrongIconLayout: {
     width: 56,
     height: 56,

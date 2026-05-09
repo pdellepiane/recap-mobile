@@ -10,7 +10,7 @@ export type EventDetailReactionPressPayload = {
 
 /**
  * Maps tap slot index → POST `reaction` (order: left×2, right×2).
- * Must match {@link DEFAULT_LIVE_REACTION_IMAGES} / `extras.reactionImages` semantics.
+ * Must match `EVENT_DETAIL_LIVE_REACTION_IMAGES` (eventDetailLiveReactions.ts), left×2 then right×2.
  */
 export const EVENT_DETAIL_REACTION_BY_SLOT_INDEX: readonly EventReactionKind[] = [
   'party',

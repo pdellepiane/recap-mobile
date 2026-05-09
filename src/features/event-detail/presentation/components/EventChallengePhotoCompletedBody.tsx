@@ -1,39 +1,44 @@
 import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
-import { colors } from '@/src/ui';
-import { FontAwesome5, Ionicons } from '@expo/vector-icons';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Button, colors } from '@/src/ui';
+import { fontFamilies } from '@/src/ui/typography';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
-  circleTop: number;
   displayNumber: number;
   summaryLine: string;
   thumbUri: string | null;
-  points: number;
+  pointsEarned: number;
   onOpenRanking: () => void;
 };
 
 export function EventChallengePhotoCompletedBody({
-  circleTop,
   displayNumber,
   summaryLine,
   thumbUri,
-  points,
+  pointsEarned,
   onOpenRanking,
 }: Props) {
   const { t } = useTranslation();
+  const rankingLabel = t('common.viewRanking');
+
   return (
-    <View style={[styles.content, { paddingTop: circleTop + 44 }]}>
-      <View style={styles.iconWrap} pointerEvents="none">
-        <View style={styles.iconCircle}>
-          <FontAwesome5 name="check" size={48} color={colors.states.active} solid />
+    <View style={styles.resultContent}>
+      <View style={styles.resultIconWrap} pointerEvents="none">
+        <View style={styles.resultIconCircle}>
+          <Image
+            source={images.common.checkGreen}
+            style={styles.iconCheck}
+            resizeMode="contain"
+            accessibilityElementsHidden
+          />
         </View>
       </View>
 
       <Text style={styles.challengeKicker}>
         {t('challenges.challengeNumberLabel', { n: displayNumber })}
       </Text>
-      <Text style={styles.title}>{t('challenges.completedTitle')}</Text>
+      <Text style={styles.resultTitle}>{t('challenges.completedTitle')}</Text>
 
       <View style={styles.summaryCard}>
         <View style={StyleSheet.absoluteFill} pointerEvents="none">
@@ -61,50 +66,60 @@ export function EventChallengePhotoCompletedBody({
       </View>
 
       <View style={styles.pointsPill} pointerEvents="none">
-        <Text style={styles.pointsText}>{t('challenges.pointsEarned', { points })}</Text>
+        <Text style={styles.pointsText}>
+          {t('challenges.pointsEarned', { points: pointsEarned })}
+        </Text>
       </View>
 
-      <Pressable
+      <Button
+        title={rankingLabel}
         onPress={onOpenRanking}
-        style={({ pressed }) => [styles.rankingBtn, pressed && styles.pressed]}
-        accessibilityRole="button"
-        accessibilityLabel={t('common.viewRanking')}
-      >
-        <Text style={styles.rankingBtnText}>{t('common.viewRanking')}</Text>
-        <Ionicons name="arrow-forward" size={22} color={colors.background.primary} />
-      </Pressable>
+        accessibilityLabel={rankingLabel}
+        style={styles.rankingBtn}
+        rightIconSource={images.common.goToRight}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  resultContent: {
     flex: 1,
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 28,
+    paddingTop: 30,
   },
-  iconWrap: {
-    marginBottom: 12,
+  resultIconWrap: {
+    width: 91,
+    height: 91,
+    marginBottom: 20,
   },
-  iconCircle: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+  resultIconCircle: {
+    width: 91,
+    height: 91,
+    borderRadius: 45.5,
     backgroundColor: colors.neutral.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  iconCheck: {
+    width: 52,
+    height: 52,
+  },
   challengeKicker: {
-    fontSize: 17,
-    fontWeight: '500',
-    color: colors.background.elevated,
+    fontSize: 20,
+    fontWeight: '400',
+    lineHeight: 28,
+    color: colors.background.primary,
+    fontFamily: fontFamilies.signikaRegular,
     marginBottom: 6,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
+  resultTitle: {
+    fontSize: 28,
+    fontWeight: '500',
+    lineHeight: 36,
     color: colors.background.primary,
+    fontFamily: fontFamilies.medium,
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -151,35 +166,23 @@ const styles = StyleSheet.create({
   },
   pointsPill: {
     width: '100%',
-    minHeight: 52,
-    borderRadius: 999,
-    backgroundColor: colors.states.active,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: colors.accent[600],
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 25,
   },
   pointsText: {
-    color: colors.background.primary,
-    fontSize: 17,
-    fontWeight: '700',
+    color: colors.neutral.disabled,
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 24,
+    fontFamily: fontFamilies.semiBold,
   },
   rankingBtn: {
     width: '100%',
-    minHeight: 58,
-    borderRadius: 999,
     backgroundColor: colors.neutral.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 10,
-    paddingHorizontal: 20,
-  },
-  rankingBtnText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.background.primary,
   },
   pressed: {
     opacity: 0.88,

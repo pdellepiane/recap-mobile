@@ -53,9 +53,7 @@ export function EventChallengeCardBody({
         <View style={styles.topRow}>
           <Image
             source={
-              isQuiz
-                ? images.eventDetail.challenges.listQuizLabel
-                : images.eventDetail.challenges.photoLabelIcon
+              isQuiz ? images.common.questionIcon : images.eventDetail.challenges.photoLabelIcon
             }
             style={styles.iconInner}
             resizeMode="contain"
@@ -136,7 +134,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.signikaSemiBold,
   },
   retoPrefixQuiz: {
-    color: colors.events.challengeQuizLabel,
+    color: colors.brand[300],
   },
   retoPrefixPhoto: {
     color: CHALLENGE_ACCENT_LIME,

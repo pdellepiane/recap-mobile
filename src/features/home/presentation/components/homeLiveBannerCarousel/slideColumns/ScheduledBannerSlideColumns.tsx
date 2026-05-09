@@ -2,6 +2,7 @@ import { BannerSlideCoverCircle } from '../BannerSlideCoverCircle';
 import { BannerSlideStatusRow } from '../BannerSlideStatusRow';
 import { HomeBannerCtaPill } from '../HomeBannerCtaPill';
 import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
 import { BANNER_STRUCTURED_FRAME_H, CARD_W } from '../layout';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
@@ -26,18 +27,19 @@ type RightProps = {
 };
 
 export function ScheduledBannerRightColumn({ eventName }: RightProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.right}>
       <BannerSlideStatusRow
         icon={images.common.scheduled}
-        label="Evento por iniciar"
+        label={t('home.scheduleBadgeStartingSoon')}
         variant="scheduled"
       />
       <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
         {eventName}
       </Text>
       <HomeBannerCtaPill
-        label="INGRESAR"
+        label={t('home.bannerEnterCta')}
         trailingIcon={images.common.goToRight}
         style={styles.ctaSpacing}
       />

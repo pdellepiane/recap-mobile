@@ -72,7 +72,7 @@ export function EventChallengeListCard({
 
       {!isCompleted ? (
         <Image
-          source={images.eventDetail.challenges.chevronRight}
+          source={images.common.caretRight}
           style={styles.rowChevron}
           resizeMode="contain"
           accessibilityElementsHidden

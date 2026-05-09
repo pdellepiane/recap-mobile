@@ -1,12 +1,11 @@
 import { EventChallengeQuizFinishButton } from '../components/EventChallengeQuizFinishButton';
 import { EventChallengeQuizQuestionView } from '../components/EventChallengeQuizQuestionView';
-import { EventChallengeQuizResultView } from '../components/EventChallengeQuizResultView';
+import { EventChallengeQuizCompletedScreenPage } from './EventChallengeQuizCompletedScreenPage';
 import { useEventChallengeQuizScreen } from '../hooks/useEventChallengeQuizScreen';
 import { useTranslation } from '@/src/i18n';
-import { colors } from '@/src/ui';
+import { BackButton, colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
-import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = {
@@ -18,7 +17,6 @@ type Props = {
 export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNumber }: Props) {
   const { t } = useTranslation();
   const {
-    goBack,
     quiz,
     selectedIndex,
     showResult,
@@ -40,15 +38,12 @@ export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNu
       <View style={styles.root}>
         <SafeAreaView edges={['top']} style={styles.headerSafe}>
           <View style={styles.headerRow}>
-            <Pressable
-              onPress={goBack}
-              style={({ pressed }) => [styles.backCircle, pressed && styles.pressed]}
-              accessibilityRole="button"
+            <BackButton
+              style={styles.backCircle}
+              iconStyle={styles.backIcon}
               accessibilityLabel={t('common.back')}
               hitSlop={12}
-            >
-              <Ionicons name="chevron-back" size={26} color={colors.neutral.primary} />
-            </Pressable>
+            />
             <View style={styles.headerSide} />
           </View>
         </SafeAreaView>
@@ -68,7 +63,7 @@ export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNu
 
   if (showResult && selectedIndex !== null) {
     return (
-      <EventChallengeQuizResultView
+      <EventChallengeQuizCompletedScreenPage
         quizNumber={quiz.number}
         question={quiz.question}
         isCorrect={isCorrect}
@@ -86,26 +81,23 @@ export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNu
     <View style={styles.root}>
       <SafeAreaView edges={['top']} style={styles.headerSafe}>
         <View style={styles.headerRow}>
-          <Pressable
-            onPress={goBack}
-            style={({ pressed }) => [styles.backCircle, pressed && styles.pressed]}
-            accessibilityRole="button"
+          <BackButton
+            style={styles.backCircle}
+            iconStyle={styles.backIcon}
             accessibilityLabel={t('common.back')}
             hitSlop={12}
-          >
-            <Ionicons name="chevron-back" size={26} color={colors.neutral.primary} />
-          </Pressable>
+          />
           <View style={styles.headerSide} />
         </View>
       </SafeAreaView>
 
-      <View style={{ paddingTop: contentTopInset, flex: 1 }}>
+      <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <EventChallengeQuizQuestionView
           quiz={quiz}
           selectedIndex={selectedIndex}
           onToggleOption={toggleOption}
         />
-      </View>
+      </ScrollView>
 
       <SafeAreaView edges={['bottom']} style={styles.footerSafe}>
         <EventChallengeQuizFinishButton canFinish={canFinish} onPress={finalize} />
@@ -117,8 +109,8 @@ export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNu
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    /** Matches quiz question card area (`EventChallengeQuizQuestionView`). */
-    backgroundColor: '#121212',
+    backgroundColor: colors.background.primary,
+    paddingHorizontal: 20,
   },
   headerSafe: {
     position: 'absolute',
@@ -145,22 +137,14 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 0,
+    backgroundColor: 'transparent',
   },
-  closeCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.overlay.black35,
-    marginLeft: 10,
-    marginTop: 6,
-  },
-  pressed: {
-    opacity: 0.85,
+  backIcon: {
+    width: 20,
+    height: 20,
   },
   footerSafe: {
-    paddingHorizontal: 18,
     paddingTop: 12,
     paddingBottom: 12,
     backgroundColor: 'transparent',

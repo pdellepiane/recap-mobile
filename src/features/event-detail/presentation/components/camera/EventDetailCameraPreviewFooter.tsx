@@ -1,60 +1,51 @@
-import { colors } from '@/src/ui';
-import { fontFamilies } from '@/src/ui/typography';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { images } from '@/src/assets/images';
+import { Button } from '@/src/ui/Button';
+import { StyleSheet, View } from 'react-native';
 
 type Props = {
   addPhotoLabel: string;
   addPhotoText: string;
+  uploadingText?: string;
+  loading?: boolean;
   onAddPhoto: () => void;
 };
 
-export function EventDetailCameraPreviewFooter({ addPhotoLabel, addPhotoText, onAddPhoto }: Props) {
+export function EventDetailCameraPreviewFooter({
+  addPhotoLabel,
+  addPhotoText,
+  uploadingText,
+  loading = false,
+  onAddPhoto,
+}: Props) {
   return (
     <View style={styles.previewFooter}>
-      <Pressable
+      <Button
+        title={addPhotoText}
         onPress={onAddPhoto}
-        style={({ pressed }) => [styles.addPhotoBtn, pressed && styles.pressed]}
-        accessibilityRole="button"
+        loading={loading}
+        loadingText={uploadingText}
         accessibilityLabel={addPhotoLabel}
-      >
-        <Text style={styles.addPhotoText}>{addPhotoText}</Text>
-        <Text style={styles.addPhotoArrow}>{'\u2192'}</Text>
-      </Pressable>
+        style={styles.addPhotoBtn}
+        size="sm"
+        rightIconSource={images.common.goToRight}
+        rightIconStyle={styles.addPhotoArrowIcon}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   previewFooter: {
-    paddingHorizontal: 12,
-    paddingTop: 18,
+    paddingHorizontal: 20,
+    paddingTop: 20,
     paddingBottom: 20,
     alignItems: 'flex-end',
   },
   addPhotoBtn: {
     minWidth: 182,
-    borderRadius: 22,
-    backgroundColor: colors.accent[500],
-    paddingVertical: 15,
-    paddingHorizontal: 22,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
   },
-  addPhotoText: {
-    color: colors.neutral.onLime,
-    fontSize: 17,
-    lineHeight: 22,
-    fontFamily: fontFamilies.bold,
-  },
-  addPhotoArrow: {
-    color: colors.neutral.onLime,
-    fontSize: 24,
-    lineHeight: 24,
-    marginTop: -1,
-  },
-  pressed: {
-    opacity: 0.82,
+  addPhotoArrowIcon: {
+    width: 15,
+    height: 15,
   },
 });

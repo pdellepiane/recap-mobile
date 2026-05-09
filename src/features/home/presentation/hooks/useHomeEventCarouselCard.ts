@@ -8,7 +8,7 @@ import {
 import { EventType } from '@/src/core/api';
 import type { Event } from '@/src/domain/entities';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
-import { initialsFromFullName, parseHostsFromLine } from '@/src/ui';
+import { initialsFromFullName } from '@/src/ui';
 import { useMemo } from 'react';
 
 export type HomeEventCarouselCardView = {
@@ -32,16 +32,19 @@ export function useHomeEventCarouselCard(
 
   return useMemo(() => {
     const { day, month } = eventDateBadgeParts(event.date);
-    const guestLabel = formatCarouselGuestCountLabel(event.guestCount ?? 0);
+    const guestLabel = formatCarouselGuestCountLabel(event.guests?.length ?? 0);
     const type = getEventType(event.date);
 
-    const hostNames = parseHostsFromLine(event.hostsLine?.trim() ?? '');
+    const hostNames = (event.hosts ?? [])
+      .map((host) => host.name.trim())
+      .filter((name) => name.length > 0);
     const firstHost = hostNames[0] ?? '';
 
-    const faceNames =
-      event.previewGuestNames && event.previewGuestNames.length > 0
-        ? event.previewGuestNames.slice(0, 3)
-        : hostNames.slice(0, 3);
+    /** Solo invitados en la fila de caras (nunca anfitriones): coincide con {@link formatCarouselGuestCountLabel}. */
+    const faceNames = (event.guests ?? [])
+      .map((guest) => guest.name.trim())
+      .filter((name) => name.length > 0)
+      .slice(0, 3);
 
     const coverInitials =
       variant === HomeEventVariant.Hosted
@@ -49,10 +52,10 @@ export function useHomeEventCarouselCard(
         : initialsFromFullName(firstHost);
     const coverLabel =
       variant === HomeEventVariant.Hosted
-        ? 'Por ti'
+        ? 'ti'
         : firstHost
           ? firstNameFromDisplayName(firstHost)
-          : 'Anfitrión';
+          : '';
 
     return {
       day,
@@ -63,12 +66,5 @@ export function useHomeEventCarouselCard(
       coverInitials,
       coverLabel,
     };
-  }, [
-    event.date,
-    event.guestCount,
-    event.hostsLine,
-    event.previewGuestNames,
-    variant,
-    session?.user.name,
-  ]);
+  }, [event.date, event.hosts, event.guests, variant, session?.user.name]);
 }

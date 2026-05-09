@@ -1,13 +1,15 @@
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function NotificationsRoute() {
+  const { t } = useTranslation();
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.center}>
-        <Text style={styles.title}>Notificaciones</Text>
-        <Text style={styles.muted}>Aquí verás tus notificaciones</Text>
+        <Text style={styles.title}>{t('tabs.notifications')}</Text>
+        <Text style={styles.muted}>{t('home.notificationsEmpty')}</Text>
       </View>
     </SafeAreaView>
   );

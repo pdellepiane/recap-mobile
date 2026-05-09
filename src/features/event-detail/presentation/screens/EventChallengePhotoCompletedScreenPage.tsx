@@ -1,13 +1,10 @@
-import { useTranslation } from '@/src/i18n';
-import { colors } from '@/src/ui';
-import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, View } from 'react-native';
-import ConfettiCannon from 'react-native-confetti-cannon';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { EventChallengePhotoCompletedBody } from '../components/EventChallengePhotoCompletedBody';
 import { useEventChallengePhotoCompletedScreen } from '../hooks/useEventChallengePhotoCompletedScreen';
-
-const LIME_BG = colors.accent[700];
+import { useTranslation } from '@/src/i18n';
+import { CloseButton, colors } from '@/src/ui';
+import { StyleSheet, View } from 'react-native';
+import ConfettiCannon from 'react-native-confetti-cannon';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const CONFETTI_COLORS = [
   colors.states.error,
@@ -32,7 +29,7 @@ export function EventChallengePhotoCompletedScreenPage({
   points,
 }: Props) {
   const { t } = useTranslation();
-  const { winW, thumbUri, summaryLine, displayNumber, closeToEvent, goToRanking, circleTop } =
+  const { winW, thumbUri, summaryLine, displayNumber, onClose, goToRanking } =
     useEventChallengePhotoCompletedScreen({
       eventId,
       challengeId,
@@ -70,23 +67,20 @@ export function EventChallengePhotoCompletedScreenPage({
       </View>
 
       <SafeAreaView edges={['top']} style={styles.headerSafe}>
-        <Pressable
-          onPress={closeToEvent}
-          style={({ pressed }) => [styles.closeCircle, pressed && styles.pressed]}
-          accessibilityRole="button"
+        <CloseButton
+          onPress={onClose}
+          style={styles.closeCircle}
+          iconStyle={styles.closeIcon}
           accessibilityLabel={t('common.close')}
           hitSlop={12}
-        >
-          <Ionicons name="close" size={22} color={colors.neutral.primary} />
-        </Pressable>
+        />
       </SafeAreaView>
 
       <EventChallengePhotoCompletedBody
-        circleTop={circleTop}
         displayNumber={displayNumber}
         summaryLine={summaryLine}
         thumbUri={thumbUri}
-        points={points}
+        pointsEarned={points}
         onOpenRanking={goToRanking}
       />
     </View>
@@ -96,27 +90,17 @@ export function EventChallengePhotoCompletedScreenPage({
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: LIME_BG,
+    backgroundColor: colors.accent[700],
   },
   headerSafe: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    zIndex: 10,
-    backgroundColor: 'transparent',
+    backgroundColor: colors.transparent.white,
   },
   closeCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.background.primary,
-    marginLeft: 14,
+    marginLeft: 20,
     marginTop: 6,
   },
-  pressed: {
-    opacity: 0.88,
+  closeIcon: {
+    width: 20,
+    height: 20,
   },
 });

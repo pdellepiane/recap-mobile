@@ -1,3 +1,5 @@
+import { EventDetailTab } from '../features/event-detail/presentation/hooks/eventDetailTabs';
+
 export const routePaths = {
   onboarding: '/onboarding',
   login: '/login',
@@ -6,7 +8,7 @@ export const routePaths = {
   profile: '/home/profile',
   /** In-app WebView modal; `url` must be a full `https` URL (encoded). */
   homeWeb: (url: string) => `/in-app-web?url=${encodeURIComponent(url)}`,
-  eventDetail: (eventId: string, tab?: 'detalle' | 'challenges' | 'ranking' | 'album') =>
+  eventDetail: (eventId: string, tab?: EventDetailTab) =>
     tab ? `/event/${eventId}?tab=${encodeURIComponent(tab)}` : `/event/${eventId}`,
   eventDetailCamera: (eventId: string, title?: string) =>
     title?.trim()
@@ -16,15 +18,29 @@ export const routePaths = {
     `/event/${eventId}?tab=challenges&completedChallengeId=${encodeURIComponent(completedChallengeId)}&points=${encodeURIComponent(String(points))}`,
   eventDetailTabWithCompletedChallenge: (
     eventId: string,
-    tab: 'detalle' | 'challenges' | 'ranking' | 'album',
+    tab: EventDetailTab,
     completedChallengeId: string,
     points: number,
   ) =>
     `/event/${eventId}?tab=${encodeURIComponent(tab)}&completedChallengeId=${encodeURIComponent(completedChallengeId)}&points=${encodeURIComponent(String(points))}`,
   eventMap: (eventId: string) => `/event/${eventId}/map`,
+  eventDetailParticipants: (eventId: string) => `/event/${eventId}/participants`,
   eventStories: (eventId: string) => `/event/${eventId}/stories`,
   eventChallengeQuiz: (eventId: string, challengeId: string, challengeNumber: number) =>
     `/event/${eventId}/challenge-quiz?challengeId=${encodeURIComponent(challengeId)}&challengeNumber=${encodeURIComponent(String(challengeNumber))}`,
+  eventChallengeQuizCompleted: (
+    eventId: string,
+    challengeId: string,
+    challengeNumber: number,
+    points: number,
+  ) =>
+    `/event/${eventId}/challenge-quiz-completed?challengeId=${encodeURIComponent(challengeId)}&challengeNumber=${encodeURIComponent(String(challengeNumber))}&points=${encodeURIComponent(String(points))}`,
+  eventChallengeQuizCreate: (eventId: string) => `/event/${eventId}/challenge-quiz-create`,
+  eventChallengeQuizCreateQuestion: (eventId: string, questionId: string) =>
+    `/event/${eventId}/challenge-quiz-create/question?questionId=${encodeURIComponent(questionId)}`,
+  eventChallengePhotoCreate: (eventId: string) => `/event/${eventId}/challenge-photo-create`,
+  eventChallengePhotoCreateChallenge: (eventId: string, challengeId: string) =>
+    `/event/${eventId}/challenge-photo-create/challenge?challengeId=${encodeURIComponent(challengeId)}`,
   eventChallengePhoto: (eventId: string, challengeId: string, challengeNumber: number) =>
     `/event/${eventId}/challenge-photo?challengeId=${encodeURIComponent(challengeId)}&challengeNumber=${encodeURIComponent(String(challengeNumber))}`,
   eventChallengePhotoCamera: (eventId: string, challengeId: string, challengeNumber: number) =>

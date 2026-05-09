@@ -4,14 +4,14 @@ import { EventDetailChallengesHostEmpty } from './EventDetailChallengesHostEmpty
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 type Props = {
   challenges: EventChallenge[];
   onChallengePress?: (challenge: EventChallenge) => void;
   /** challengeId → points; persists across navigations (see `eventChallengesCompletionStore`). */
   completedByChallengeId: Record<string, number>;
-  isEventHost?: boolean;
+  isOrganizer?: boolean;
 };
 
 /**
@@ -21,18 +21,18 @@ export function EventDetailChallengesTab({
   challenges,
   onChallengePress,
   completedByChallengeId,
-  isEventHost = false,
+  isOrganizer = false,
 }: Props) {
   const { t } = useTranslation();
-  const sectionTitle = isEventHost
+  const sectionTitle = isOrganizer
     ? t('eventDetail.challengesSectionHost')
     : t('eventDetail.challengesSectionGuest');
-  const showGuestIntro = !isEventHost;
-  const showHostIntro = isEventHost && challenges.length > 0;
-  const showHostEmpty = isEventHost && challenges.length === 0;
+  const showGuestIntro = !isOrganizer;
+  const showHostIntro = isOrganizer && challenges.length > 0;
+  const showHostEmpty = isOrganizer && challenges.length === 0;
 
   return (
-    <View>
+    <>
       <Text style={styles.sectionTitle}>{sectionTitle}</Text>
       {showGuestIntro && <Text style={styles.intro}>{t('eventDetail.challengesGuestIntro')}</Text>}
       {showHostIntro && <Text style={styles.intro}>{t('eventDetail.challengesHostIntro')}</Text>}
@@ -45,7 +45,7 @@ export function EventDetailChallengesTab({
           onChallengePress={onChallengePress}
         />
       ))}
-    </View>
+    </>
   );
 }
 

@@ -1,5 +1,5 @@
 import { useTranslation } from '@/src/i18n';
-import { appendRemoteImageEpoch, colors, useRemoteImageCacheEpoch } from '@/src/ui';
+import { appendRemoteImageEpoch, CloseButton, colors, useRemoteImageCacheEpoch } from '@/src/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -91,14 +91,12 @@ export function EventStoriesChrome({
         </View>
 
         <View style={styles.headerRow}>
-          <Pressable
+          <CloseButton
             onPress={onBack}
             hitSlop={12}
-            accessibilityRole="button"
+            iconStyle={styles.closeIcon}
             accessibilityLabel={t('stories.close')}
-          >
-            <Ionicons name="close" size={28} color={colors.neutral.primary} />
-          </Pressable>
+          />
           <ExpoImage
             source={{ uri: cachedAuthorAvatarUrl }}
             style={styles.headerAvatar}
@@ -191,6 +189,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+  },
+  closeIcon: {
+    width: 20,
+    height: 20,
   },
   headerAvatar: {
     width: 36,

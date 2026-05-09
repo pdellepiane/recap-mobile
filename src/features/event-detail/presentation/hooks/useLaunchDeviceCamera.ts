@@ -1,3 +1,4 @@
+import { useTranslation } from '@/src/i18n';
 import * as ImagePicker from 'expo-image-picker';
 import { useCallback } from 'react';
 import { Alert, Platform } from 'react-native';
@@ -7,14 +8,12 @@ import { Alert, Platform } from 'react-native';
  * Requests camera permission the first time; returns local file URI or null.
  */
 export function useLaunchDeviceCamera() {
+  const { t } = useTranslation();
   const takePhoto = useCallback(async (): Promise<string | null> => {
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert(
-          'Permiso de cámara',
-          'Para tomar fotos necesitamos acceso a la cámara. Puedes activarlo en los ajustes del dispositivo.',
-        );
+        Alert.alert(t('camera.permissionTitle'), t('camera.permissionMessage'));
         return null;
       }
 
@@ -30,21 +29,15 @@ export function useLaunchDeviceCamera() {
 
       return result.assets[0]?.uri ?? null;
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo abrir la cámara.';
+      const msg = e instanceof Error ? e.message : t('camera.openFailedGeneric');
       if (Platform.OS === 'web') {
-        Alert.alert(
-          'Cámara no disponible',
-          'En la web la cámara depende del navegador y de permisos.',
-        );
+        Alert.alert(t('camera.unavailableWebTitle'), t('camera.unavailableWebMessage'));
       } else {
-        Alert.alert(
-          'No se pudo abrir la cámara',
-          `${msg}\n\nComprueba permisos en Ajustes y prueba en un dispositivo físico (el simulador iOS no tiene cámara).`,
-        );
+        Alert.alert(t('camera.openFailedTitle'), `${msg}${t('camera.openFailedBodySuffix')}`);
       }
       return null;
     }
-  }, []);
+  }, [t]);
 
   return { takePhoto };
 }
