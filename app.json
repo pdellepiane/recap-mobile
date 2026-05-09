@@ -61,6 +61,7 @@
       "reactCompiler": true
     },
     "extra": {
+      "mixpanelToken": "",
       "router": {},
       "eas": {
         "projectId": "8b3f9070-49ca-488c-9f86-c41c5159a193"

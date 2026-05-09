@@ -1,4 +1,5 @@
 import '@/src/i18n';
+import { AnalyticsRouteObserver } from '@/src/core/analytics/AnalyticsRouteObserver';
 import { AuthSync } from '@/src/features/auth/presentation/AuthSync';
 import { AuthProvider } from '@/src/features/auth/presentation/context/AuthContext';
 import { RemoteImageCacheProvider } from '@/src/ui';
@@ -65,6 +66,7 @@ export default function RootLayout() {
       <RemoteImageCacheProvider>
         <AuthProvider>
           <AuthSync />
+          <AnalyticsRouteObserver />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="onboarding" />
