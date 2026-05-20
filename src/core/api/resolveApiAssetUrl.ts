@@ -1,4 +1,8 @@
-const DEFAULT_BASE = 'https://dev.api.recap.sinenvolturas.com';
+const DEFAULT_BASE = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+if (!DEFAULT_BASE) {
+  throw new Error('EXPO_PUBLIC_API_BASE_URL is not set');
+}
 
 function trimTrailingSlash(url: string): string {
   return url.replace(/\/$/, '');
@@ -13,7 +17,7 @@ export function resolveApiAssetUrl(path: string): string {
   if (/^https?:\/\//i.test(p)) {
     return p;
   }
-  const base = trimTrailingSlash(process.env.EXPO_PUBLIC_API_BASE_URL?.trim() || DEFAULT_BASE);
+  const base = trimTrailingSlash(DEFAULT_BASE ?? '');
   const suffix = p.startsWith('/') ? p : `/${p}`;
   return `${base}${suffix}`;
 }
