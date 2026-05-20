@@ -1,5 +1,6 @@
 import { colors } from './colors';
 import { fontFamilies } from './typography';
+import analytics from '@/src/core/analytics';
 import type { ReactNode, Ref } from 'react';
 import type { Insets } from 'react-native';
 import {
@@ -61,7 +62,29 @@ export function Button({
   const hasChildren = children != null;
   const resolvedTitle = hasChildren ? (title ?? '') : (title as string);
   const displayText = loading && loadingText ? loadingText : resolvedTitle;
-  const a11yLabel = accessibilityLabel ?? (!hasChildren ? displayText : undefined);
+  const normalizedA11yLabel = accessibilityLabel?.trim();
+  const normalizedDisplayText = displayText?.trim();
+  const a11yLabel = normalizedA11yLabel ?? (!hasChildren ? normalizedDisplayText : undefined);
+  const trackedLabel = a11yLabel ?? normalizedDisplayText ?? 'unlabeled_button';
+  const labelSource = a11yLabel
+    ? normalizedA11yLabel
+      ? 'accessibility_label'
+      : 'title'
+    : 'fallback';
+
+  const handlePress = () => {
+    void analytics.trackAction('tap_button', {
+      what: trackedLabel,
+      why: 'user_press',
+      component: 'Button',
+      variant,
+      size,
+      disabled: isDisabled,
+      has_accessibility_label: Boolean(a11yLabel),
+      label_source: labelSource,
+    });
+    onPress();
+  };
 
   return (
     <Pressable
@@ -77,7 +100,7 @@ export function Button({
         isDisabled && styles.buttonDisabled,
         style,
       ]}
-      onPress={onPress}
+      onPress={handlePress}
       disabled={isDisabled}
       accessibilityRole="button"
       accessibilityLabel={a11yLabel}

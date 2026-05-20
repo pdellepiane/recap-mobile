@@ -12,6 +12,7 @@ import { useEventDetailChallenges } from './useEventDetailChallenges';
 import { useEventDetailRanking } from './useEventDetailRanking';
 import { useEventDetailTabsAccess } from './useEventDetailTabsAccess';
 import { EventType } from '@/src/core/api';
+import analytics from '@/src/core/analytics';
 import { eventRepository } from '@/src/core/di/container';
 import type { Event } from '@/src/domain/entities';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
@@ -77,7 +78,7 @@ export type EventDetailScreenData = {
 };
 
 export type EventDetailScreenHandlers = {
-  setActiveTab: ReturnType<typeof useEventDetailTabsAccess>['setActiveTab'];
+  setActiveTab: (tab: EventDetailTab) => void;
   setIsPublicGuestListEnabled: Dispatch<SetStateAction<boolean>>;
   onBackPress: () => void;
   onPullRefresh: () => Promise<void>;
@@ -303,11 +304,37 @@ export function useEventDetailScreen({
     if (!eventId) {
       return;
     }
+    void analytics.trackAction('tap_event_detail_camera_fab', {
+      what: 'event_detail_camera_fab',
+      why: 'upload_event_photo',
+      eventId,
+      activeTab,
+    });
     const eventTitle = event?.title ?? '';
     goToEventDetailCamera(eventId, eventTitle);
-  }, [event?.title, eventId, goToEventDetailCamera]);
+  }, [activeTab, event?.title, eventId, goToEventDetailCamera]);
+
+  const onTabPress = useCallback(
+    (tab: EventDetailTab) => {
+      void analytics.trackAction('switch_event_detail_tab', {
+        what: 'event_detail_tab',
+        why: 'user_switch_tab',
+        from_tab: activeTab,
+        to_tab: tab,
+        eventId,
+      });
+      setActiveTab(tab);
+    },
+    [activeTab, eventId, setActiveTab],
+  );
 
   const onPullRefresh = useCallback(async () => {
+    void analytics.trackAction('pull_to_refresh', {
+      what: 'event_detail_pull_refresh',
+      why: 'manual_refresh',
+      tab: activeTab,
+      eventId,
+    });
     setIsDetailRefreshing(true);
     try {
       if (!eventId) {
@@ -363,8 +390,13 @@ export function useEventDetailScreen({
   }, [event, goToEventMap]);
 
   const onSharePress = useCallback(() => {
+    void analytics.trackAction('open_share_sheet', {
+      what: 'event_detail_share_sheet',
+      why: 'share_event',
+      eventId,
+    });
     setIsShareSheetOpen(true);
-  }, []);
+  }, [eventId]);
 
   const onShareSheetClose = useCallback(() => {
     setIsShareSheetOpen(false);
@@ -394,8 +426,13 @@ export function useEventDetailScreen({
   }, [event]);
 
   const onCreateChallengeSheetOpen = useCallback(() => {
+    void analytics.trackAction('open_create_challenge_sheet', {
+      what: 'event_detail_create_challenge_sheet',
+      why: 'create_challenge',
+      eventId,
+    });
     setIsCreateChallengeSheetOpen(true);
-  }, []);
+  }, [eventId]);
 
   const onCreateChallengeSheetClose = useCallback(() => {
     setIsCreateChallengeSheetOpen(false);
@@ -449,7 +486,7 @@ export function useEventDetailScreen({
   };
 
   const handlers: EventDetailScreenHandlers = {
-    setActiveTab,
+    setActiveTab: onTabPress,
     setIsPublicGuestListEnabled,
     onBackPress,
     onPullRefresh,

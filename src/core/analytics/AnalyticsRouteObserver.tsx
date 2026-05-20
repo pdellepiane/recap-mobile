@@ -38,6 +38,14 @@ export function AnalyticsRouteObserver() {
   }, [session?.user.id]);
 
   useEffect(() => {
+    analytics.setActor({
+      userId: session?.user.id,
+      userRole: session?.user.role,
+      authenticated: Boolean(session?.user.id),
+    });
+  }, [session?.user.id, session?.user.role]);
+
+  useEffect(() => {
     if (!session?.user.id) {
       return;
     }

@@ -1,4 +1,5 @@
 import { images } from '@/src/assets/images';
+import analytics from '@/src/core/analytics';
 import { useCoordinator } from '../navigation/useCoordinator';
 import { colors } from './colors';
 import type { ImageStyle } from 'react-native';
@@ -21,7 +22,15 @@ export function BackButton({
   iconStyle,
 }: BackButtonProps) {
   const { goBack } = useCoordinator();
-  const onPress = onPressProp ?? goBack;
+  const resolvedLabel = accessibilityLabel?.trim() || 'Back';
+  const onPress = () => {
+    void analytics.trackAction('tap_back_button', {
+      what: resolvedLabel,
+      why: 'user_press',
+      component: 'BackButton',
+    });
+    (onPressProp ?? goBack)();
+  };
 
   return (
     <Pressable
@@ -29,7 +38,7 @@ export function BackButton({
       onPress={onPress}
       hitSlop={hitSlop}
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={resolvedLabel}
     >
       <Image
         source={images.common.back}

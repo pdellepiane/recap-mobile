@@ -1,11 +1,12 @@
 import type { User } from '@/src/domain/entities/User';
-import Constants from 'expo-constants';
 import { Mixpanel } from 'mixpanel-react-native';
 
-const projectToken =
-  process.env.EXPO_PUBLIC_MIXPANEL_TOKEN ??
-  (Constants.expoConfig?.extra?.mixpanelToken as string | undefined) ??
-  '';
+const projectToken = process.env.EXPO_PUBLIC_MIXPANEL_TOKEN;
+
+if (!projectToken) {
+  throw new Error('Mixpanel project token is not set');
+}
+
 const trackAutomaticEvents = false;
 let initialized = false;
 let enabled = projectToken.trim().length > 0;

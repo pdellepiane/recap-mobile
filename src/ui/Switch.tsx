@@ -1,5 +1,6 @@
 import { colors } from './colors';
 import { fontFamilies } from './typography';
+import analytics from '@/src/core/analytics';
 import {
   Switch as RNSwitch,
   StyleSheet,
@@ -33,6 +34,8 @@ export function Switch({
   trackColor,
   thumbColor,
   ios_backgroundColor,
+  onValueChange,
+  accessibilityLabel,
   ...rest
 }: SwitchProps) {
   const track = {
@@ -40,11 +43,23 @@ export function Switch({
     true: trackColor?.true ?? defaultTrack.true,
   };
 
+  const handleValueChange = (value: boolean) => {
+    void analytics.trackAction('toggle_switch', {
+      what: accessibilityLabel ?? label ?? 'switch',
+      why: 'user_toggle',
+      component: 'Switch',
+      value,
+    });
+    onValueChange?.(value);
+  };
+
   const control = (
     <RNSwitch
       trackColor={track}
       thumbColor={thumbColor ?? colors.neutral.primary}
       ios_backgroundColor={ios_backgroundColor ?? colors.neutral.secondary}
+      onValueChange={handleValueChange}
+      accessibilityLabel={accessibilityLabel}
       {...rest}
     />
   );

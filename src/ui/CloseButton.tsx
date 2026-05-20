@@ -1,5 +1,6 @@
 import { colors } from './colors';
 import { images } from '@/src/assets/images';
+import analytics from '@/src/core/analytics';
 import type { ImageStyle, StyleProp, ViewStyle } from 'react-native';
 import { Image, Pressable, StyleSheet } from 'react-native';
 
@@ -23,9 +24,18 @@ export function CloseButton({
   iconStyle,
   hitSlop,
 }: CloseButtonProps) {
+  const handlePress = () => {
+    void analytics.trackAction('tap_close_button', {
+      what: accessibilityLabel,
+      why: 'user_press',
+      component: 'CloseButton',
+    });
+    onPress();
+  };
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       hitSlop={hitSlop}
       style={({ pressed }) => [styles.wrap, pressed && styles.pressed, style]}
       accessibilityRole="button"
