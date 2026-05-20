@@ -1,7 +1,7 @@
-import { images } from '@/src/assets/images';
-import { useTranslation } from '@/src/i18n';
 import { HomeBannerCtaPill } from '../HomeBannerCtaPill';
 import { LiveBannerStructuredStatusRow } from '../LiveBannerStructuredStatusRow';
+import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { StyleSheet, Text, View } from 'react-native';

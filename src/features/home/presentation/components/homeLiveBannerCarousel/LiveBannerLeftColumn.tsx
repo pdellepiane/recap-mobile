@@ -1,6 +1,6 @@
 import { BannerSlideCoverCircle } from './BannerSlideCoverCircle';
-import { images } from '@/src/assets/images';
 import { CARD_W } from './layout';
+import { images } from '@/src/assets/images';
 import { Image, StyleSheet, View } from 'react-native';
 
 /** Room for emoji overlap beyond the avatar diameter. */
@@ -17,10 +17,18 @@ export function LiveBannerLeftColumn({ coverUri, avatarDiameter }: Props) {
 
   return (
     <>
-      <Image source={images.homeBanner.state3.decor} style={styles.leftImage} resizeMode="contain" />
+      <Image
+        source={images.homeBanner.state3.decor}
+        style={styles.leftImage}
+        resizeMode="contain"
+      />
       <View style={[styles.cluster, { width: clusterSize, height: clusterSize }]}>
         <BannerSlideCoverCircle diameter={avatarDiameter} uri={coverUri} variant="live" />
-        <Image source={images.homeBanner.state3.emojiParty} style={styles.emojiParty} resizeMode="contain" />
+        <Image
+          source={images.homeBanner.state3.emojiParty}
+          style={styles.emojiParty}
+          resizeMode="contain"
+        />
         <Image
           source={images.homeBanner.state3.emojiHearts}
           style={styles.emojiHearts}

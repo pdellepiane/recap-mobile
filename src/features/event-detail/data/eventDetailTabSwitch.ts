@@ -4,10 +4,7 @@ type Listener = (tab: EventDetailTab) => void;
 
 const listenersByEventId = new Map<string, Set<Listener>>();
 
-export function subscribeEventDetailTabSwitch(
-  eventId: string,
-  listener: Listener,
-): () => void {
+export function subscribeEventDetailTabSwitch(eventId: string, listener: Listener): () => void {
   let set = listenersByEventId.get(eventId);
   if (!set) {
     set = new Set();

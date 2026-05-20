@@ -1,7 +1,7 @@
 import type { RankingRow } from '../../data/eventRanking';
 import { EventDetailTab } from './eventDetailTabs';
-import type { Event } from '@/src/domain/entities';
 import { eventRepository } from '@/src/core/di/container';
+import type { Event } from '@/src/domain/entities';
 import { useCallback, useEffect, useState } from 'react';
 
 type Params = {

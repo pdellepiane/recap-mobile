@@ -4,7 +4,10 @@ type Listener = () => void;
 
 const listenersByEventId = new Map<string, Set<Listener>>();
 
-export function subscribeEventChallengesListRefresh(eventId: string, listener: Listener): () => void {
+export function subscribeEventChallengesListRefresh(
+  eventId: string,
+  listener: Listener,
+): () => void {
   let set = listenersByEventId.get(eventId);
   if (!set) {
     set = new Set();

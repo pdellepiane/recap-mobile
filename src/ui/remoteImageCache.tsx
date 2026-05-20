@@ -1,12 +1,5 @@
 import { Image as ExpoImage } from 'expo-image';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import type { ImageSourcePropType, ImageURISource } from 'react-native';
 
 type RemoteImageCacheContextValue = {

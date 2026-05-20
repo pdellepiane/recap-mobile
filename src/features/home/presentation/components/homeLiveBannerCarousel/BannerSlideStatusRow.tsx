@@ -13,7 +13,11 @@ export function BannerSlideStatusRow({ icon, label, variant }: BannerSlideStatus
 
   return (
     <View style={styles.row}>
-      <Image source={icon} style={isLive ? styles.iconLive : styles.iconScheduled} resizeMode="contain" />
+      <Image
+        source={icon}
+        style={isLive ? styles.iconLive : styles.iconScheduled}
+        resizeMode="contain"
+      />
       <Text style={[styles.label, isLive ? styles.labelLive : styles.labelScheduled]}>{label}</Text>
     </View>
   );

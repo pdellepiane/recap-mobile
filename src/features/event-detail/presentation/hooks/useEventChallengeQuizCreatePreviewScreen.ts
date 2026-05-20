@@ -74,9 +74,7 @@ export function useEventChallengeQuizCreatePreviewScreen({ questionId }: Params)
   );
 
   const modalInitialCorrect =
-    editingOption != null &&
-    question != null &&
-    question.correctOptionId === editingOption.id;
+    editingOption != null && question != null && question.correctOptionId === editingOption.id;
 
   return {
     question,

@@ -4,8 +4,6 @@ import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image, Platform, Pressable, StyleSheet, Text } from 'react-native';
 
-const LIME = colors.accent[500];
-
 type Props = {
   onPress: () => void;
 };

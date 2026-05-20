@@ -18,10 +18,7 @@ type Params = {
 /**
  * Shared photo capture state for custom camera screens.
  */
-export function usePhotoCaptureFlow({
-  galleryPermissionTitle,
-  galleryPermissionMessage,
-}: Params) {
+export function usePhotoCaptureFlow({ galleryPermissionTitle, galleryPermissionMessage }: Params) {
   const [cameraReady, setCameraReady] = useState(false);
   const [facing, setFacing] = useState<'front' | 'back'>('back');
   const [flash, setFlash] = useState<FlashMode>('off');
@@ -73,11 +70,9 @@ export function usePhotoCaptureFlow({
 
   const capturePhoto = useCallback(
     async (
-      cameraRef: RefObject<
-        {
-          takePictureAsync: (options?: { quality?: number }) => Promise<CapturedPhotoAsset>;
-        } | null
-      >,
+      cameraRef: RefObject<{
+        takePictureAsync: (options?: { quality?: number }) => Promise<CapturedPhotoAsset>;
+      } | null>,
     ) => {
       if (!cameraRef.current || !beginCapture()) {
         return;

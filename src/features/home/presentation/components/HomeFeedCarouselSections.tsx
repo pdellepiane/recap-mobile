@@ -1,6 +1,6 @@
+import { HomeEventVariant } from '../types';
 import { HomeEmptyState } from './HomeEmptyState';
 import { HomeEventCarouselCard } from './HomeEventCarouselCard';
-import { HomeEventVariant } from '../types';
 import type { Event } from '@/src/domain/entities';
 import { useTranslation } from '@/src/i18n';
 import { SectionTitle } from '@/src/ui';
@@ -72,9 +72,7 @@ export function HomeFeedCarouselSections({
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={
-              rowIndex === rows.length - 1 ? styles.hRowLast : styles.hRow
-            }
+            contentContainerStyle={rowIndex === rows.length - 1 ? styles.hRowLast : styles.hRow}
           >
             {events.map((item, index) => (
               <HomeEventCarouselCard

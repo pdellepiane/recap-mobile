@@ -65,9 +65,9 @@ export function useEventChallengePhotoCreateScreen({ eventId }: Params) {
   const [composerOpen, setComposerOpen] = useState(false);
   const [draft, setDraft] = useState('');
   const [addedChallenges, setAddedChallenges] = useState<PhotoCreateAddedChallenge[]>([]);
-  const [availableSuggestions, setAvailableSuggestions] = useState<PhotoCreateChallengeSuggestion[]>(
-    [],
-  );
+  const [availableSuggestions, setAvailableSuggestions] = useState<
+    PhotoCreateChallengeSuggestion[]
+  >([]);
 
   const addedChallengesRef = useRef(addedChallenges);
   addedChallengesRef.current = addedChallenges;
@@ -140,11 +140,14 @@ export function useEventChallengePhotoCreateScreen({ eventId }: Params) {
     setAddedChallenges((prev) => prev.filter((c) => c.id !== challengeId));
   }, []);
 
-  const restoreConsumedPhotoSuggestion = useCallback((suggestion: PhotoCreateChallengeSuggestion) => {
-    setAvailableSuggestions((prev) =>
-      prev.some((item) => item.id === suggestion.id) ? prev : [suggestion, ...prev],
-    );
-  }, []);
+  const restoreConsumedPhotoSuggestion = useCallback(
+    (suggestion: PhotoCreateChallengeSuggestion) => {
+      setAvailableSuggestions((prev) =>
+        prev.some((item) => item.id === suggestion.id) ? prev : [suggestion, ...prev],
+      );
+    },
+    [],
+  );
 
   const removeChallengeFromDraftAfterPublish = useCallback((challengeId: string) => {
     setAddedChallenges((prev) => prev.filter((c) => c.id !== challengeId));

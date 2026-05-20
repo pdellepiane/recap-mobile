@@ -1,9 +1,9 @@
 import { BannerSlideCoverCircle } from '../BannerSlideCoverCircle';
 import { BannerSlideStatusRow } from '../BannerSlideStatusRow';
 import { HomeBannerCtaPill } from '../HomeBannerCtaPill';
+import { BANNER_STRUCTURED_FRAME_H, CARD_W } from '../layout';
 import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
-import { BANNER_STRUCTURED_FRAME_H, CARD_W } from '../layout';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image, StyleSheet, Text, View } from 'react-native';

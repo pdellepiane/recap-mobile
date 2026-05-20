@@ -1,5 +1,5 @@
-import { StyleSheet, View } from 'react-native';
 import { EventChallengeQuizOptionRow } from './EventChallengeQuizOptionRow';
+import { StyleSheet, View } from 'react-native';
 
 type Props = {
   options: string[];

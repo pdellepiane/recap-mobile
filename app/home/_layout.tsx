@@ -64,7 +64,9 @@ export default function HomeTabsLayout() {
         options={{
           title: t('tabs.profile'),
           tabBarIcon: ({ focused }) => (
-            <TabBarIcon source={focused ? images.tabs.profileActive : images.tabs.profileInactive} />
+            <TabBarIcon
+              source={focused ? images.tabs.profileActive : images.tabs.profileInactive}
+            />
           ),
         }}
       />

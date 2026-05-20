@@ -1,5 +1,5 @@
-import type { EventMediaApiItem } from '@/src/core/api/types';
 import { resolveApiAssetUrl } from '@/src/core/api/resolveApiAssetUrl';
+import type { EventMediaApiItem } from '@/src/core/api/types';
 import type { AlbumPhoto } from '@/src/features/event-detail/data/eventAlbum';
 import i18n from '@/src/i18n/i18n';
 

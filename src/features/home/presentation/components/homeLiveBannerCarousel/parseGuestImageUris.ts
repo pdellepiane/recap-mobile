@@ -1,7 +1,10 @@
 import { resolveApiAssetUrl } from '@/src/core/api/resolveApiAssetUrl';
 
 /** Up to six full image URLs from `guest_images` (relative paths resolved), padded with `cover`. */
-export function parseGuestImageUris(guestImages: readonly string[], coverFallback: string): string[] {
+export function parseGuestImageUris(
+  guestImages: readonly string[],
+  coverFallback: string,
+): string[] {
   const out: string[] = [];
   for (const item of guestImages) {
     if (out.length >= 6) {

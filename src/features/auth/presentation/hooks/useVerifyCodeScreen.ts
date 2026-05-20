@@ -1,7 +1,7 @@
+import { useVerifyCode } from './useVerifyCode';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef } from 'react';
-import { useVerifyCode } from './useVerifyCode';
 
 /**
  * Orchestrates verify-code screen behavior: params, guards, delayed redirect.

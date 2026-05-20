@@ -50,11 +50,7 @@ function keywordKey(blob: string): VerifyCodeErrorKey | null {
   if (!blob.trim()) {
     return null;
   }
-  if (
-    /\bexpir(e|ed|a|ó)\b/.test(blob) ||
-    blob.includes('expired') ||
-    blob.includes('caduc')
-  ) {
+  if (/\bexpir(e|ed|a|ó)\b/.test(blob) || blob.includes('expired') || blob.includes('caduc')) {
     return 'verify.expiredCode';
   }
   if (

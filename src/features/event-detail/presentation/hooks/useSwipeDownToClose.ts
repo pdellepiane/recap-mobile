@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { Dimensions } from 'react-native';
 import { Gesture } from 'react-native-gesture-handler';
-import Animated, {
+import {
   Extrapolation,
   interpolate,
   runOnJS,
@@ -34,7 +34,7 @@ export function useSwipeDownToClose(onClose: () => void, resetKey: number) {
 
   useEffect(() => {
     translateY.value = 0;
-  }, [resetKey]);
+  }, [resetKey, translateY]);
 
   const panGesture = useMemo(
     () =>
@@ -56,7 +56,7 @@ export function useSwipeDownToClose(onClose: () => void, resetKey: number) {
             translateY.value = withSpring(0, SPRING);
           }
         }),
-    [close],
+    [close, translateY],
   );
 
   const dimmerStyle = useAnimatedStyle(() => ({

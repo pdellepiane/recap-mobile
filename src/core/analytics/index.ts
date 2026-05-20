@@ -32,9 +32,9 @@ const actorContext: ActorContext = {};
 const staticContext: Record<string, unknown> = {
   app_version: Constants.expoConfig?.version ?? 'unknown',
   app_runtime_version:
-    (typeof Constants.expoConfig?.runtimeVersion === 'string'
+    typeof Constants.expoConfig?.runtimeVersion === 'string'
       ? Constants.expoConfig.runtimeVersion
-      : 'unknown'),
+      : 'unknown',
   os_name: Platform.OS,
   os_version: String(Platform.Version),
   device_name: Constants.deviceName ?? 'unknown',
@@ -80,10 +80,7 @@ const trackRouteEnter = async (
   );
 };
 
-const trackAction = async (
-  action: string,
-  properties: SharedProps & Record<string, unknown>,
-) => {
+const trackAction = async (action: string, properties: SharedProps & Record<string, unknown>) => {
   await trackEvent(
     ANALYTICS_EVENTS.ACTION_OBSERVED,
     withContext({

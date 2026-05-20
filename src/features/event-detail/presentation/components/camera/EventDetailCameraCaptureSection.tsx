@@ -99,11 +99,7 @@ export function EventDetailCameraCaptureSection({
         )}
 
         {showPreview && selectedPhotoUri ? (
-          <Image
-            source={{ uri: selectedPhotoUri }}
-            style={styles.cameraFrame}
-            contentFit="cover"
-          />
+          <Image source={{ uri: selectedPhotoUri }} style={styles.cameraFrame} contentFit="cover" />
         ) : null}
 
         <EventDetailCameraHeader

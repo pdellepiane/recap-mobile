@@ -1,8 +1,8 @@
-import type { EventChallengeApiItem } from '@/src/core/api/types';
-import { i18n } from '@/src/i18n';
-import { EventChallengeKind } from '@/src/features/event-detail/data/eventChallenges';
-import type { EventChallengeQuiz } from '@/src/features/event-detail/data/eventChallengeQuiz';
 import { mapChallengeApiTypeToKind } from './eventChallengesMap';
+import type { EventChallengeApiItem } from '@/src/core/api/types';
+import type { EventChallengeQuiz } from '@/src/features/event-detail/data/eventChallengeQuiz';
+import { EventChallengeKind } from '@/src/features/event-detail/data/eventChallenges';
+import { i18n } from '@/src/i18n';
 
 const apiQuizOverrides = new Map<string, EventChallengeQuiz>();
 

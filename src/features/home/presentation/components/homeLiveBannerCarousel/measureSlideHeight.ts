@@ -1,5 +1,5 @@
-import { Image } from 'react-native';
 import { CARD_W } from './layout';
+import { Image } from 'react-native';
 
 export function measureSlideHeightFromUri(uri: string): Promise<number> {
   return new Promise((resolve) => {

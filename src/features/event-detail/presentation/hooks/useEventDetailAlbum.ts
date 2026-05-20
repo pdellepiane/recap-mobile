@@ -1,8 +1,8 @@
 import type { AlbumPhoto } from '../../data/eventAlbum';
 import { takePendingEventAlbumPhoto } from '../../data/pendingEventAlbumPhoto';
 import { EventDetailTab } from './eventDetailTabs';
-import type { Event } from '@/src/domain/entities';
 import { eventRepository } from '@/src/core/di/container';
+import type { Event } from '@/src/domain/entities';
 import { showShortUserMessage } from '@/src/ui';
 import { useFocusEffect } from '@react-navigation/native';
 import type { TFunction } from 'i18next';
@@ -122,9 +122,7 @@ export function useEventDetailAlbum({
         }
         setAlbumPhotos((photos) =>
           photos.map((p) =>
-            p.id === photoId
-              ? { ...p, likes: updated.likes_count, likedByMe: updated.liked }
-              : p,
+            p.id === photoId ? { ...p, likes: updated.likes_count, likedByMe: updated.liked } : p,
           ),
         );
       })();

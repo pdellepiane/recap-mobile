@@ -23,7 +23,10 @@ export function EventChallengeQuizFinishButton({ canFinish, onPress }: Props) {
       accessibilityLabel={t('common.finish')}
     >
       <Text
-        style={[styles.finishText, canFinish ? styles.finishTextEnabled : styles.finishTextDisabled]}
+        style={[
+          styles.finishText,
+          canFinish ? styles.finishTextEnabled : styles.finishTextDisabled,
+        ]}
       >
         {t('common.finish')}
       </Text>

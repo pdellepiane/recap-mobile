@@ -1,7 +1,7 @@
 import { EventChallengeQuizFinishButton } from '../components/EventChallengeQuizFinishButton';
 import { EventChallengeQuizQuestionView } from '../components/EventChallengeQuizQuestionView';
-import { EventChallengeQuizCompletedScreenPage } from './EventChallengeQuizCompletedScreenPage';
 import { useEventChallengeQuizScreen } from '../hooks/useEventChallengeQuizScreen';
+import { EventChallengeQuizCompletedScreenPage } from './EventChallengeQuizCompletedScreenPage';
 import { useTranslation } from '@/src/i18n';
 import { BackButton, colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';

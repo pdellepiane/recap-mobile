@@ -31,7 +31,9 @@ export function HomeBannerCarouselDots({
           }}
           style={({ pressed }) => [styles.dotHit, pressed && styles.dotHitPressed]}
         >
-          <View style={[styles.pill, i === activeIndex ? styles.pillActive : styles.pillInactive]} />
+          <View
+            style={[styles.pill, i === activeIndex ? styles.pillActive : styles.pillInactive]}
+          />
         </Pressable>
       ))}
     </View>

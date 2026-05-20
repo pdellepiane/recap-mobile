@@ -5,8 +5,6 @@ import { fontFamilies } from '@/src/ui/typography';
 import { useEffect, useRef, useState } from 'react';
 import { Image, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-const LIME = colors.accent[500];
-
 type Props = {
   visible: boolean;
   initialText: string;

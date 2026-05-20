@@ -11,8 +11,8 @@ import { useEventDetailAlbum } from './useEventDetailAlbum';
 import { useEventDetailChallenges } from './useEventDetailChallenges';
 import { useEventDetailRanking } from './useEventDetailRanking';
 import { useEventDetailTabsAccess } from './useEventDetailTabsAccess';
-import { EventType } from '@/src/core/api';
 import analytics from '@/src/core/analytics';
+import { EventType } from '@/src/core/api';
 import { eventRepository } from '@/src/core/di/container';
 import type { Event } from '@/src/domain/entities';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
@@ -114,7 +114,6 @@ export function useEventDetailScreen({
   // --- Setup
   const {
     goBack,
-    goToHome,
     goToEventMap,
     goToEventStories,
     goToEventDetailCamera,

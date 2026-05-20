@@ -28,7 +28,6 @@ export function EventChallengeQuizCreatePreviewScreenPage({
     openSlot,
     closeModal,
     onTrash,
-    canFinish,
     onFinish,
     saveAnswerEdit,
     modalInitialCorrect,

@@ -15,7 +15,9 @@ export function QuizCreateDraftProvider({
   children: ReactNode;
 }) {
   const value = useEventChallengeQuizCreateScreen({ eventId });
-  return <QuizCreateDraftContext.Provider value={value}>{children}</QuizCreateDraftContext.Provider>;
+  return (
+    <QuizCreateDraftContext.Provider value={value}>{children}</QuizCreateDraftContext.Provider>
+  );
 }
 
 export function useQuizCreateDraft(): QuizCreateDraftContextValue {

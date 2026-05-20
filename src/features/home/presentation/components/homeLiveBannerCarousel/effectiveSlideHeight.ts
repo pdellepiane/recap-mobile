@@ -1,10 +1,6 @@
-import type { HomeBannerItem } from '@/src/core/api/types';
-import {
-  BANNER_STRUCTURED_FRAME_H,
-  CAROUSEL_HEIGHT_TRIM,
-  FALLBACK_FRAME_H,
-} from './layout';
 import { isEventFinished, isLiveEvent, isNoEvent, isScheduledEvent } from './bannerKind';
+import { BANNER_STRUCTURED_FRAME_H, CAROUSEL_HEIGHT_TRIM, FALLBACK_FRAME_H } from './layout';
+import type { HomeBannerItem } from '@/src/core/api/types';
 
 export function effectiveSlideHeight(banner: HomeBannerItem, measuredRaw: number): number {
   if (

@@ -63,7 +63,9 @@ export function EventDetailRouteProvider({
     setIsPublicGuestListEnabled,
   };
 
-  return <EventDetailRouteContext.Provider value={value}>{children}</EventDetailRouteContext.Provider>;
+  return (
+    <EventDetailRouteContext.Provider value={value}>{children}</EventDetailRouteContext.Provider>
+  );
 }
 
 export function useEventDetailRoute(): EventDetailRouteContextValue {

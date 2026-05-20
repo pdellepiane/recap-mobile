@@ -1,8 +1,8 @@
-import { images } from '@/src/assets/images';
-import { useTranslation } from '@/src/i18n';
 import { FinishedBannerGuestCollage } from '../FinishedBannerGuestCollage';
 import { HomeBannerCtaPill } from '../HomeBannerCtaPill';
 import { CARD_W, FINISHED_GUEST_COLLAGE_FRAME } from '../layout';
+import { images } from '@/src/assets/images';
+import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image, StyleSheet, Text, View } from 'react-native';

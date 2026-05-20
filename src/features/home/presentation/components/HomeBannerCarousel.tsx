@@ -21,10 +21,6 @@ export function HomeBannerCarousel({ banners, onSlidePress }: Props) {
   const scrollRef = useRef<ScrollView>(null);
   const slides = banners;
 
-  if (slides.length === 0) {
-    return null;
-  }
-
   const goToSlide = useCallback(
     (index: number) => {
       const clamped = Math.max(0, Math.min(index, Math.max(0, slides.length - 1)));
@@ -43,6 +39,10 @@ export function HomeBannerCarousel({ banners, onSlidePress }: Props) {
     },
     [slides.length],
   );
+
+  if (slides.length === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.wrap} accessibilityRole="none">

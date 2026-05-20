@@ -1,7 +1,7 @@
-import { images } from '@/src/assets/images';
-import analytics from '@/src/core/analytics';
 import { useCoordinator } from '../navigation/useCoordinator';
 import { colors } from './colors';
+import { images } from '@/src/assets/images';
+import analytics from '@/src/core/analytics';
 import type { ImageStyle } from 'react-native';
 import { Image, Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 

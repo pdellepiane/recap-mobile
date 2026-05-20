@@ -1,10 +1,10 @@
+import { subscribeEventDetailTabSwitch } from '../../data/eventDetailTabSwitch';
 import {
   EventDetailTab,
   FULL_DETAIL_TABS,
   GUEST_PRE_EVENT_DAY_TABS,
   HOST_PRE_EVENT_DAY_TABS,
 } from './eventDetailTabs';
-import { subscribeEventDetailTabSwitch } from '../../data/eventDetailTabSwitch';
 import { useGuestEventDayOrPastTabBlocked } from './useGuestEventDayOrPastTabBlocked';
 import type { Event } from '@/src/domain/entities';
 import { isEventHostedFromHomeFeed } from '@/src/features/events/data/homeEventCache';

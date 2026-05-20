@@ -1,6 +1,6 @@
 import { EventDetailOverviewAddressCard } from './EventDetailOverviewAddressCard';
-import { EventDetailOverviewDateCard } from './EventDetailOverviewDateCard';
 import { EventDetailOverviewCreatorsRow } from './EventDetailOverviewCreatorsRow';
+import { EventDetailOverviewDateCard } from './EventDetailOverviewDateCard';
 import { EventDetailOverviewGuestListSection } from './EventDetailOverviewGuestListSection';
 import { EventDetailOverviewGuestsSummaryCard } from './EventDetailOverviewGuestsSummaryCard';
 import { useTranslation } from '@/src/i18n';

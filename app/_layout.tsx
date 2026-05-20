@@ -1,7 +1,7 @@
-import '@/src/i18n';
 import { AnalyticsRouteObserver } from '@/src/core/analytics/AnalyticsRouteObserver';
 import { AuthSync } from '@/src/features/auth/presentation/AuthSync';
 import { AuthProvider } from '@/src/features/auth/presentation/context/AuthContext';
+import '@/src/i18n';
 import { RemoteImageCacheProvider } from '@/src/ui';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -73,7 +73,10 @@ export default function RootLayout() {
             <Stack.Screen name="login" />
             <Stack.Screen name="verify-code" />
             <Stack.Screen name="home" options={{ headerShown: false }} />
-            <Stack.Screen name="in-app-web" options={{ headerShown: false, presentation: 'modal' }} />
+            <Stack.Screen
+              name="in-app-web"
+              options={{ headerShown: false, presentation: 'modal' }}
+            />
             <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
           </Stack>
         </AuthProvider>

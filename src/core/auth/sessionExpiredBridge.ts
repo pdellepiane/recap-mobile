@@ -1,6 +1,9 @@
 import { authUserPaths } from '@/src/core/api/paths';
 import { getAuthAccessToken, setAuthAccessToken } from '@/src/core/http/authSession';
-import { clearPersistedSession, getPersistedAccessToken } from '@/src/features/auth/data/sessionStorage';
+import {
+  clearPersistedSession,
+  getPersistedAccessToken,
+} from '@/src/features/auth/data/sessionStorage';
 
 function trimTrailingSlash(url: string): string {
   return url.replace(/\/$/, '');

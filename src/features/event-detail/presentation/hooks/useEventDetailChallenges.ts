@@ -1,4 +1,3 @@
-import { subscribeEventChallengesListRefresh } from '../../data/eventChallengesListRefresh';
 import {
   EventChallengeKind,
   getEventChallenges,
@@ -8,9 +7,10 @@ import {
   getEventChallengesCompletionSnapshot,
   recordEventChallengeCompletion,
 } from '../../data/eventChallengesCompletionStore';
+import { subscribeEventChallengesListRefresh } from '../../data/eventChallengesListRefresh';
 import { EventDetailTab } from './eventDetailTabs';
-import type { Event } from '@/src/domain/entities';
 import { eventRepository } from '@/src/core/di/container';
+import type { Event } from '@/src/domain/entities';
 import { isEventHostedFromHomeFeed } from '@/src/features/events/data/homeEventCache';
 import { isBeforeEventCalendarDay } from '@/src/features/home/presentation/components/utils/eventCalendar';
 import { useCoordinator } from '@/src/navigation/useCoordinator';

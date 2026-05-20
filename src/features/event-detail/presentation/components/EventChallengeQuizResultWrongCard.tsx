@@ -1,8 +1,8 @@
+import { EventChallengeQuizResultFeedbackRow } from './EventChallengeQuizResultFeedbackRow';
 import { images } from '@/src/assets/images';
 import { colors } from '@/src/ui';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { EventChallengeQuizResultFeedbackRow } from './EventChallengeQuizResultFeedbackRow';
 
 type Props = {
   question: string;
@@ -10,7 +10,11 @@ type Props = {
   correctLabel: string;
 };
 
-export function EventChallengeQuizResultWrongCard({ question, selectedLabel, correctLabel }: Props) {
+export function EventChallengeQuizResultWrongCard({
+  question,
+  selectedLabel,
+  correctLabel,
+}: Props) {
   return (
     <View style={[styles.resultCard, styles.resultCardWithDecor]}>
       <View style={StyleSheet.absoluteFill} pointerEvents="none">

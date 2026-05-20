@@ -70,8 +70,7 @@ export function useHomeFeed(): HomeFeed & {
   const feed = useMemo((): HomeFeed => {
     const hostedEventIds = new Set(hostEvents.map((e) => e.id));
     const { myEvents, plans: activePlans, pastEvents } = partitionHomeFeedEvents(hostEvents, plans);
-    const hasEvents =
-      myEvents.length > 0 || pastEvents.length > 0 || activePlans.length > 0;
+    const hasEvents = myEvents.length > 0 || pastEvents.length > 0 || activePlans.length > 0;
     return {
       banners,
       myEvents,

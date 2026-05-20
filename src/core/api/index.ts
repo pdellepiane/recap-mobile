@@ -38,6 +38,5 @@ export type {
   RequestLoginCodeBody,
   RequestLoginCodeResponse,
   SimpleStatusErrorResponse,
-  ValidationErrorResponse
+  ValidationErrorResponse,
 } from './types';
-

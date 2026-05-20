@@ -29,12 +29,12 @@ import type {
 import type { HttpClient } from '@/src/core/http/HttpClient';
 import type { Event as DomainEvent } from '@/src/domain/entities';
 import type { AlbumPhoto } from '@/src/features/event-detail/data/eventAlbum';
-import { emitEventChallengesListRefresh } from '@/src/features/event-detail/data/eventChallengesListRefresh';
 import {
   cacheEventChallengesFromRemote,
   getEventChallenges,
   type EventChallenge,
 } from '@/src/features/event-detail/data/eventChallenges';
+import { emitEventChallengesListRefresh } from '@/src/features/event-detail/data/eventChallengesListRefresh';
 import type { RankingRow } from '@/src/features/event-detail/data/eventRanking';
 
 function parseHomeEventsBody(res: HomeEventsListResponse): DomainEvent[] {

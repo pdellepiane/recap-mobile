@@ -1,5 +1,8 @@
 import { EventChallengeQuizOptionsList } from './EventChallengeQuizOptionsList';
-import { EventChallengeQuizQuestionCardFrame, QUIZ_CARD } from './EventChallengeQuizQuestionCardFrame';
+import {
+  EventChallengeQuizQuestionCardFrame,
+  QUIZ_CARD,
+} from './EventChallengeQuizQuestionCardFrame';
 import { useTranslation } from '@/src/i18n';
 
 type Props = {

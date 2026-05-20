@@ -1,9 +1,9 @@
 import type { EventChallengeApiItem } from '@/src/core/api/types';
-import { i18n } from '@/src/i18n';
 import {
   EventChallengeKind,
   type EventChallenge,
 } from '@/src/features/event-detail/data/eventChallenges';
+import { i18n } from '@/src/i18n';
 
 export function mapChallengeApiTypeToKind(type: string | null | undefined): EventChallengeKind {
   const t = String(type ?? '')

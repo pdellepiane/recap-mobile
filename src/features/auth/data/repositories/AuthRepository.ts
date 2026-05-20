@@ -43,7 +43,9 @@ export class AuthRepository {
   async fetchCurrentUser(): Promise<User> {
     const res = await this.http.get<CurrentUserMeResponse>(userPaths.me, { auth: 'bearer' });
     if (!res.status || !res.data) {
-      throw new Error(typeof res.error === 'string' && res.error.trim() ? res.error : 'User load failed');
+      throw new Error(
+        typeof res.error === 'string' && res.error.trim() ? res.error : 'User load failed',
+      );
     }
     return userFromApiPayload(res.data);
   }

@@ -1,7 +1,7 @@
+import { useProfileScreen } from '../hooks/useProfileScreen';
 import { useTranslation } from '@/src/i18n';
 import { Button, colors, Form, Spinner } from '@/src/ui';
 import { StyleSheet, Text } from 'react-native';
-import { useProfileScreen } from '../hooks/useProfileScreen';
 
 export const ProfileScreenPage = () => {
   const { t } = useTranslation();

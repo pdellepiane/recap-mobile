@@ -1,6 +1,6 @@
-import { useTranslation } from '@/src/i18n';
 import { colors } from './colors';
 import { fontFamilies } from './typography';
+import { useTranslation } from '@/src/i18n';
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 

@@ -5,8 +5,6 @@ import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-const PHOTO_ICON_TINT = colors.accent[500];
-
 type Props = {
   suggestions: readonly PhotoCreateChallengeSuggestion[];
   onSelectSuggestion: (suggestion: PhotoCreateChallengeSuggestion) => void;

@@ -64,12 +64,21 @@ export const useCoordinator = () => {
         completedChallengeId: string,
         points: number,
       ) => {
-        trackNav('replace', routePaths.eventDetailTabWithCompletedChallenge(eventId, tab, completedChallengeId, points), {
-          eventId,
-          tab,
-          completedChallengeId,
-          points,
-        });
+        trackNav(
+          'replace',
+          routePaths.eventDetailTabWithCompletedChallenge(
+            eventId,
+            tab,
+            completedChallengeId,
+            points,
+          ),
+          {
+            eventId,
+            tab,
+            completedChallengeId,
+            points,
+          },
+        );
         router.replace(
           routePaths.eventDetailTabWithCompletedChallenge(
             eventId,
@@ -144,11 +153,15 @@ export const useCoordinator = () => {
         challengeId: string,
         challengeNumber: number,
       ) => {
-        trackNav('push', routePaths.eventChallengePhotoCamera(eventId, challengeId, challengeNumber), {
-          eventId,
-          challengeId,
-          challengeNumber,
-        });
+        trackNav(
+          'push',
+          routePaths.eventChallengePhotoCamera(eventId, challengeId, challengeNumber),
+          {
+            eventId,
+            challengeId,
+            challengeNumber,
+          },
+        );
         router.push(
           routePaths.eventChallengePhotoCamera(eventId, challengeId, challengeNumber) as Href,
         );
@@ -160,12 +173,16 @@ export const useCoordinator = () => {
         challengeNumber: number,
         points: number,
       ) => {
-        trackNav('replace', routePaths.eventChallengePhotoCompleted(eventId, challengeId, challengeNumber, points), {
-          eventId,
-          challengeId,
-          challengeNumber,
-          points,
-        });
+        trackNav(
+          'replace',
+          routePaths.eventChallengePhotoCompleted(eventId, challengeId, challengeNumber, points),
+          {
+            eventId,
+            challengeId,
+            challengeNumber,
+            points,
+          },
+        );
         router.replace(
           routePaths.eventChallengePhotoCompleted(
             eventId,
@@ -182,12 +199,16 @@ export const useCoordinator = () => {
         challengeNumber: number,
         points: number,
       ) => {
-        trackNav('replace', routePaths.eventChallengeQuizCompleted(eventId, challengeId, challengeNumber, points), {
-          eventId,
-          challengeId,
-          challengeNumber,
-          points,
-        });
+        trackNav(
+          'replace',
+          routePaths.eventChallengeQuizCompleted(eventId, challengeId, challengeNumber, points),
+          {
+            eventId,
+            challengeId,
+            challengeNumber,
+            points,
+          },
+        );
         router.replace(
           routePaths.eventChallengeQuizCompleted(
             eventId,
