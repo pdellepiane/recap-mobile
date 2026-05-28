@@ -72,7 +72,11 @@
     "loading": "Cargando...",
     "resendQuestion": "¿No recibiste el código? ",
     "resendAction": "Enviar nuevamente",
-    "resendCooldown": "Reenviar nuevo código en {{mm}}:{{ss}}s"
+    "resendCooldown": "Reenviar nuevo código en {{mm}}:{{ss}}s",
+    "invalidEmail": "Correo incorrecto.",
+    "tooManyRequests": "Has solicitado demasiados códigos. Espera unos minutos e inténtalo de nuevo.",
+    "serverOrNetwork": "No pudimos enviar el código. Revisa tu conexión e inténtalo de nuevo.",
+    "unknown": "No pudimos enviar el código. Inténtalo de nuevo."
   },
   "profile": {
     "title": "Mi perfil",
@@ -81,7 +85,14 @@
     "phone": "Teléfono",
     "language": "Idioma",
     "logout": "Cerrar sesión",
-    "loggingOut": "Cerrando…"
+    "loggingOut": "Cerrando…",
+    "sectionAccount": "Cuenta",
+    "sectionOther": "Otros",
+    "menuAccount": "Mi cuenta",
+    "menuRate": "Calificanos",
+    "menuLegal": "Legal",
+    "accountTitle": "Mi cuenta",
+    "nameLabel": "Nombre"
   },
   "onboarding": {
     "start": "Empezar",
@@ -110,6 +121,7 @@
     "albumTitle": "Fotos subidas al evento",
     "albumEmpty": "Aún no hay fotos en este álbum.",
     "albumLikeError": "No se pudo registrar el me gusta. Inténtalo de nuevo.",
+    "reactionError": "No se pudo enviar la reacción. Inténtalo de nuevo.",
     "albumLikeA11y": "Me gusta en la foto",
     "photoA11y": "Foto de {{author}}",
     "cameraTitleFallback": "Evento",

@@ -14,11 +14,11 @@ type Props = {
   description: string;
   countdownEndsAt: Date;
   /** Event `datetime` ISO from API. */
-  eventDateIso: string;
+  eventDateIso?: string | null;
   addressCity?: string;
   addressVenue?: string;
   /** Merged address for opening maps. */
-  mapQuery: string;
+  mapQuery?: string | null;
   /** GET /api/events/:id — hosts line from API (see `Event.hostsLine` / derived organizer copy). */
   hostsLine: string;
   /** False once the event start time (`event.date`) has passed. */

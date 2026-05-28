@@ -1,6 +1,7 @@
 import type { FloatingReactionParticle } from './FloatingReactions';
 import { colors } from '@/src/ui/colors';
-import { useEffect } from 'react';
+import { useMountedRef } from '@/src/core/hooks/useMountedRef';
+import { useCallback, useEffect } from 'react';
 import { Image, StyleSheet, Text } from 'react-native';
 import Animated, {
   cancelAnimation,
@@ -27,6 +28,14 @@ type FloatingParticleViewProps = {
 export function FloatingParticleView({ item, onComplete }: FloatingParticleViewProps) {
   const progress = useSharedValue(0);
   const { id, duration, fallDistance, driftX, rotStart, rotEnd } = item;
+  const mountedRef = useMountedRef();
+
+  const completeParticle = useCallback(() => {
+    if (!mountedRef.current) {
+      return;
+    }
+    onComplete(id);
+  }, [id, mountedRef, onComplete]);
 
   useEffect(() => {
     progress.value = 0;
@@ -38,14 +47,14 @@ export function FloatingParticleView({ item, onComplete }: FloatingParticleViewP
       },
       (finished) => {
         if (finished) {
-          runOnJS(onComplete)(id);
+          runOnJS(completeParticle)();
         }
       },
     );
     return () => {
       cancelAnimation(progress);
     };
-  }, [duration, id, onComplete, progress]);
+  }, [completeParticle, duration, progress]);
 
   const animatedStyle = useAnimatedStyle(() => {
     const t = progress.value;

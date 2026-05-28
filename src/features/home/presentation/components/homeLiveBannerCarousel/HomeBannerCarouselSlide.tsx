@@ -1,5 +1,6 @@
+import { useBannerLayout } from './BannerLayoutContext';
 import { isEventFinished, isLiveEvent, isNoEvent, isScheduledEvent } from './bannerKind';
-import { BANNER_STRUCTURED_FRAME_H, CARD_W, PAGE_W } from './layout';
+import { BANNER_STRUCTURED_FRAME_H } from './layout';
 import {
   FinishedBannerSlide,
   LiveBannerSlide,
@@ -15,13 +16,15 @@ export type HomeBannerCarouselSlideProps = {
 };
 
 export function HomeBannerCarouselSlide({ banner, onPress }: HomeBannerCarouselSlideProps) {
+  const { cardWidth, pageWidth } = useBannerLayout();
+
   return (
-    <View style={styles.page}>
+    <View style={[styles.page, { width: pageWidth }]}>
       <Pressable
         onPress={onPress}
         style={({ pressed }) => [
           styles.slidePage,
-          { width: CARD_W, height: BANNER_STRUCTURED_FRAME_H },
+          { width: cardWidth, height: BANNER_STRUCTURED_FRAME_H },
           pressed && styles.slidePressed,
         ]}
         accessibilityRole="button"
@@ -42,7 +45,6 @@ export function HomeBannerCarouselSlide({ banner, onPress }: HomeBannerCarouselS
 
 const styles = StyleSheet.create({
   page: {
-    width: PAGE_W,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -20,17 +20,23 @@ const MONTHS_ES = [
   'DIC',
 ] as const;
 
+const DATE_BADGE_FALLBACK = { day: '--', month: '---' } as const;
+
 /** Parses ISO datetimes or `YYYY-MM-DD` into day + short Spanish month for the date badge. */
-export function eventDateBadgeParts(isoDate: string): { day: string; month: string } {
-  const ms = Date.parse(isoDate);
+export function eventDateBadgeParts(isoDate: string | null | undefined): { day: string; month: string } {
+  const raw = isoDate?.trim() ?? '';
+  if (!raw) {
+    return DATE_BADGE_FALLBACK;
+  }
+  const ms = Date.parse(raw);
   if (!Number.isNaN(ms)) {
     const dt = new Date(ms);
     const month = MONTHS_ES[dt.getMonth()] ?? '---';
     return { day: String(dt.getDate()), month };
   }
-  const [y, m, d] = isoDate.split('-').map((x) => parseInt(x, 10));
+  const [y, m, d] = raw.split('-').map((x) => parseInt(x, 10));
   if (!y || !m || !d) {
-    return { day: '--', month: '---' };
+    return DATE_BADGE_FALLBACK;
   }
   const month = MONTHS_ES[m - 1] ?? '---';
   return { day: String(d), month };
@@ -52,12 +58,16 @@ export function formatCarouselGuestCountLabel(guestCount: number): string {
  * instante de inicio → {@link EventType.EventToStartToday}; otro futuro (aún `now < start`) →
  * {@link EventType.EventToStart}; después → finished.
  */
-export function getEventType(isoDate: string, now: Date = new Date()): EventType {
-  if (isDuringEventStartPlus24hWindow(isoDate, now)) {
+export function getEventType(isoDate: string | null | undefined, now: Date = new Date()): EventType {
+  const raw = isoDate?.trim() ?? '';
+  if (!raw) {
+    return EventType.EventFinished;
+  }
+  if (isDuringEventStartPlus24hWindow(raw, now)) {
     return EventType.EventLive;
   }
-  if (isBeforeEventStartInstant(isoDate, now)) {
-    return isSameEventCalendarDayBeforeStartInstant(isoDate, now)
+  if (isBeforeEventStartInstant(raw, now)) {
+    return isSameEventCalendarDayBeforeStartInstant(raw, now)
       ? EventType.EventToStartToday
       : EventType.EventToStart;
   }

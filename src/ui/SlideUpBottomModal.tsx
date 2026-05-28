@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import {
   Animated,
-  Dimensions,
   Modal,
+  useWindowDimensions,
   Pressable,
   StyleSheet,
   type StyleProp,
@@ -24,10 +24,6 @@ export type SlideUpBottomModalProps = {
   dimColor?: string;
 };
 
-function slideDistancePx(): number {
-  return Math.min(480, Dimensions.get('window').height * 0.55);
-}
-
 /**
  * Full-screen dim + sheet that springs up from below. Uses `animationType="none"` on `Modal`
  * so timing matches on iOS and Android (transparent `slide` is unreliable).
@@ -40,19 +36,23 @@ export function SlideUpBottomModal({
   sheetStyle,
   dimColor = colors.overlay.black70,
 }: SlideUpBottomModalProps) {
-  const translateY = useRef(new Animated.Value(slideDistancePx())).current;
+  const { height: windowHeight } = useWindowDimensions();
+  const slideDistance = Math.min(480, windowHeight * 0.55);
+  const translateY = useRef(new Animated.Value(slideDistance)).current;
   const dimOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const slide = slideDistancePx();
+    const slide = slideDistance;
     if (!visible) {
+      translateY.stopAnimation();
+      dimOpacity.stopAnimation();
       translateY.setValue(slide);
       dimOpacity.setValue(0);
       return;
     }
     translateY.setValue(slide);
     dimOpacity.setValue(0);
-    Animated.parallel([
+    const animation = Animated.parallel([
       Animated.timing(dimOpacity, {
         toValue: 1,
         duration: 200,
@@ -64,8 +64,14 @@ export function SlideUpBottomModal({
         friction: 9,
         tension: 68,
       }),
-    ]).start();
-  }, [visible, translateY, dimOpacity]);
+    ]);
+    animation.start();
+    return () => {
+      animation.stop();
+      translateY.stopAnimation();
+      dimOpacity.stopAnimation();
+    };
+  }, [slideDistance, visible, translateY, dimOpacity]);
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onRequestClose}>

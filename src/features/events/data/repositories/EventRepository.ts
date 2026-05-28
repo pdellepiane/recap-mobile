@@ -26,7 +26,9 @@ import type {
   HomeBannersListResponse,
   HomeEventsListResponse,
 } from '@/src/core/api/types';
+import type { FetchOpts } from '@/src/core/http/FetchOpts';
 import type { HttpClient } from '@/src/core/http/HttpClient';
+import { isAbortError } from '@/src/core/http/isAbortError';
 import type { Event as DomainEvent } from '@/src/domain/entities';
 import type { AlbumPhoto } from '@/src/features/event-detail/data/eventAlbum';
 import {
@@ -55,6 +57,10 @@ function parseHomeBannersBody(res: HomeBannersListResponse): HomeBannerItem[] {
  * Events: home lists and detail use {@link FetchHttpClient} against `EXPO_PUBLIC_API_BASE_URL`.
  * Detail merges the home cache snapshot with GET /api/events/:id.
  */
+function bearer(opts?: FetchOpts): FetchOpts {
+  return { auth: 'bearer', ...opts };
+}
+
 export class EventRepository {
   constructor(private readonly api: HttpClient) {}
 
@@ -68,33 +74,38 @@ export class EventRepository {
   async patchEventSettings(
     eventId: string,
     body: EventSettingsPatchBody,
+    opts?: FetchOpts,
   ): Promise<{ show_guest_list: boolean } | null> {
     try {
       const res = await this.api.patch<EventSettingsPatchResponse>(
         eventPaths.settings(eventId),
         body,
-        { auth: 'bearer' },
+        bearer(opts),
       );
       if (!res.status || !res.data || typeof res.data.show_guest_list !== 'boolean') {
         return null;
       }
       return res.data;
-    } catch {
+    } catch (e) {
+      if (isAbortError(e)) {
+        throw e;
+      }
       return null;
     }
   }
 
   /** GET /api/events/:id. */
-  async fetchRemoteEventDetail(eventId: string): Promise<DomainEvent | null> {
+  async fetchRemoteEventDetail(eventId: string, opts?: FetchOpts): Promise<DomainEvent | null> {
     try {
-      const res = await this.api.get<EventDetailApiResponse>(eventPaths.detail(eventId), {
-        auth: 'bearer',
-      });
+      const res = await this.api.get<EventDetailApiResponse>(eventPaths.detail(eventId), bearer(opts));
       if (!res.status || !res.data) {
         return null;
       }
       return mapEventDetailDataToDomain(res.data);
-    } catch {
+    } catch (e) {
+      if (isAbortError(e)) {
+        throw e;
+      }
       return null;
     }
   }
@@ -114,31 +125,36 @@ export class EventRepository {
   }
 
   /** GET /api/events/:id/ranking. */
-  async fetchEventRankingRemote(eventId: string): Promise<RankingRow[] | null> {
+  async fetchEventRankingRemote(eventId: string, opts?: FetchOpts): Promise<RankingRow[] | null> {
     try {
-      const res = await this.api.get<EventRankingListResponse>(eventPaths.ranking(eventId), {
-        auth: 'bearer',
-      });
+      const res = await this.api.get<EventRankingListResponse>(
+        eventPaths.ranking(eventId),
+        bearer(opts),
+      );
       if (!res.status || !Array.isArray(res.data)) {
         return null;
       }
       return mapRankingApiItemsToRows(res.data);
-    } catch {
+    } catch (e) {
+      if (isAbortError(e)) {
+        throw e;
+      }
       return null;
     }
   }
 
   /** GET /api/events/:id/media — album grid. */
-  async fetchEventMedia(eventId: string): Promise<AlbumPhoto[]> {
+  async fetchEventMedia(eventId: string, opts?: FetchOpts): Promise<AlbumPhoto[]> {
     try {
-      const res = await this.api.get<EventMediaListResponse>(eventPaths.media(eventId), {
-        auth: 'bearer',
-      });
+      const res = await this.api.get<EventMediaListResponse>(eventPaths.media(eventId), bearer(opts));
       if (!res.status || !Array.isArray(res.data)) {
         return [];
       }
       return mapEventMediaApiToAlbumPhotos(res.data);
-    } catch {
+    } catch (e) {
+      if (isAbortError(e)) {
+        throw e;
+      }
       return [];
     }
   }
@@ -179,27 +195,31 @@ export class EventRepository {
   }
 
   /** GET /api/events/:id/challenges/pending — `has_pending` for tab dot during live window. */
-  async fetchEventChallengesPending(eventId: string): Promise<boolean> {
+  async fetchEventChallengesPending(eventId: string, opts?: FetchOpts): Promise<boolean> {
     try {
       const res = await this.api.get<EventChallengesPendingResponse>(
         eventPaths.challengesPending(eventId),
-        { auth: 'bearer' },
+        bearer(opts),
       );
       if (!res.status || !res.data || typeof res.data.has_pending !== 'boolean') {
         return false;
       }
       return res.data.has_pending;
-    } catch {
+    } catch (e) {
+      if (isAbortError(e)) {
+        throw e;
+      }
       return false;
     }
   }
 
   /** GET /api/events/:id/challenges. */
-  async fetchEventChallenges(eventId: string): Promise<EventChallenge[]> {
+  async fetchEventChallenges(eventId: string, opts?: FetchOpts): Promise<EventChallenge[]> {
     try {
-      const res = await this.api.get<EventChallengesListResponse>(eventPaths.challenges(eventId), {
-        auth: 'bearer',
-      });
+      const res = await this.api.get<EventChallengesListResponse>(
+        eventPaths.challenges(eventId),
+        bearer(opts),
+      );
       if (!res.status || !Array.isArray(res.data)) {
         return getEventChallenges(eventId);
       }
@@ -207,7 +227,10 @@ export class EventRepository {
       const mapped = normalizeChallengesFromApi(res.data);
       cacheEventChallengesFromRemote(eventId, mapped);
       return mapped;
-    } catch {
+    } catch (e) {
+      if (isAbortError(e)) {
+        throw e;
+      }
       return getEventChallenges(eventId);
     }
   }
@@ -252,11 +275,13 @@ export class EventRepository {
   }
 
   /** GET /api/event-challenge-suggestions/questions. */
-  async fetchEventChallengeQuestionSuggestions(): Promise<{ id: string; question: string }[]> {
+  async fetchEventChallengeQuestionSuggestions(
+    opts?: FetchOpts,
+  ): Promise<{ id: string; question: string }[]> {
     try {
       const res = await this.api.get<EventChallengeQuestionSuggestionsResponse>(
         eventPaths.challengeQuestionSuggestions,
-        { auth: 'bearer' },
+        bearer(opts),
       );
       if (!res.status || !Array.isArray(res.data)) {
         return [];
@@ -267,17 +292,22 @@ export class EventRepository {
           question: item.question?.trim() ?? '',
         }))
         .filter((item) => item.question.length > 0);
-    } catch {
+    } catch (e) {
+      if (isAbortError(e)) {
+        throw e;
+      }
       return [];
     }
   }
 
   /** GET /api/event-challenge-suggestions/photos. */
-  async fetchEventChallengePhotoSuggestions(): Promise<{ id: string; title: string }[]> {
+  async fetchEventChallengePhotoSuggestions(
+    opts?: FetchOpts,
+  ): Promise<{ id: string; title: string }[]> {
     try {
       const res = await this.api.get<EventChallengePhotoSuggestionsResponse>(
         eventPaths.challengePhotoSuggestions,
-        { auth: 'bearer' },
+        bearer(opts),
       );
       if (!res.status || !Array.isArray(res.data)) {
         return [];
@@ -288,30 +318,29 @@ export class EventRepository {
           title: item.title?.trim() ?? '',
         }))
         .filter((item) => item.title.length > 0);
-    } catch {
+    } catch (e) {
+      if (isAbortError(e)) {
+        throw e;
+      }
       return [];
     }
   }
 
   /** GET /api/home/host-events — “Mis eventos” (hosted). */
-  async getHostEvents(): Promise<DomainEvent[]> {
-    const res = await this.api.get<HomeEventsListResponse>(homePaths.hostEvents, {
-      auth: 'bearer',
-    });
+  async getHostEvents(opts?: FetchOpts): Promise<DomainEvent[]> {
+    const res = await this.api.get<HomeEventsListResponse>(homePaths.hostEvents, bearer(opts));
     return parseHomeEventsBody(res);
   }
 
   /** GET /api/home/guest-events — “Planes” (guest). */
-  async getGuestEvents(): Promise<DomainEvent[]> {
-    const res = await this.api.get<HomeEventsListResponse>(homePaths.guestEvents, {
-      auth: 'bearer',
-    });
+  async getGuestEvents(opts?: FetchOpts): Promise<DomainEvent[]> {
+    const res = await this.api.get<HomeEventsListResponse>(homePaths.guestEvents, bearer(opts));
     return parseHomeEventsBody(res);
   }
 
   /** GET /api/home/banners — top slider (host/guest events, deduped; includes `no_event` fallback). */
-  async getHomeBanners(): Promise<HomeBannerItem[]> {
-    const res = await this.api.get<HomeBannersListResponse>(homePaths.banners, { auth: 'bearer' });
+  async getHomeBanners(opts?: FetchOpts): Promise<HomeBannerItem[]> {
+    const res = await this.api.get<HomeBannersListResponse>(homePaths.banners, bearer(opts));
     return parseHomeBannersBody(res);
   }
 }

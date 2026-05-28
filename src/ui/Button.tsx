@@ -23,7 +23,7 @@ type BaseButtonProps = {
   loadingText?: string;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
-  variant?: 'accent' | 'active' | 'ghost' | 'brand';
+  variant?: 'accent' | 'active' | 'ghost' | 'brand' | 'link';
   size?: 'sm' | 'md';
   accessibilityLabel?: string;
   rightIconSource?: ImageSourcePropType;
@@ -94,6 +94,7 @@ export function Button({
         !hasChildren && size === 'sm' && styles.buttonSmall,
         !hasChildren && variant === 'active' && styles.buttonActive,
         !hasChildren && variant === 'ghost' && styles.buttonGhost,
+        !hasChildren && variant === 'link' && styles.buttonLink,
         !hasChildren && variant === 'brand' && styles.buttonBrand,
         hasChildren && styles.customRoot,
         pressed && styles.buttonPressed,
@@ -124,6 +125,7 @@ export function Button({
               styles.buttonText,
               variant === 'active' && styles.buttonTextActive,
               variant === 'ghost' && styles.buttonTextGhost,
+              variant === 'link' && styles.buttonTextLink,
               variant === 'brand' && styles.buttonTextBrand,
               textStyle,
             ]}
@@ -181,6 +183,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     height: undefined,
     paddingVertical: 12,
+  },
+  buttonLink: {
+    backgroundColor: 'transparent',
+    height: undefined,
+    minHeight: 0,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    borderRadius: 0,
+    alignSelf: 'baseline',
+  },
+  buttonTextLink: {
+    color: colors.neutral.primary,
+    fontSize: 13,
+    lineHeight: 18,
   },
   buttonBrand: {
     backgroundColor: colors.brand[500],

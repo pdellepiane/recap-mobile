@@ -2,7 +2,10 @@ import type { RankingRow } from '../../data/eventRanking';
 import { EventDetailTab } from './eventDetailTabs';
 import { eventRepository } from '@/src/core/di/container';
 import type { Event } from '@/src/domain/entities';
-import { useCallback, useEffect, useState } from 'react';
+import { useAbortController } from '@/src/core/hooks/useAbortController';
+import { useMountedRef } from '@/src/core/hooks/useMountedRef';
+import { isAbortError } from '@/src/core/http/isAbortError';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Params = {
   eventId: string;
@@ -20,6 +23,9 @@ export function useEventDetailRanking({
   activeTab,
   guestEventDayOrPastTabBlocked,
 }: Params) {
+  const mountedRef = useMountedRef();
+  const refetchGenerationRef = useRef(0);
+  const { beginRequest, endRequest, abortAll } = useAbortController();
   const [rankingRows, setRankingRows] = useState<RankingRow[]>([]);
 
   useEffect(() => {
@@ -31,27 +37,54 @@ export function useEventDetailRanking({
       return;
     }
     const id = event.id;
-    let cancelled = false;
+    const controller = beginRequest();
     void (async () => {
-      const remote = await eventRepository.fetchEventRankingRemote(id);
-      if (cancelled) {
+      try {
+        const remote = await eventRepository.fetchEventRankingRemote(id, {
+          signal: controller.signal,
+        });
+        if (!controller.signal.aborted) {
+          setRankingRows(remote ?? []);
+        }
+      } catch (e) {
+        if (!isAbortError(e) && !controller.signal.aborted) {
+          setRankingRows([]);
+        }
+      } finally {
+        endRequest(controller);
+      }
+    })();
+    return () => {
+      abortAll();
+    };
+  }, [abortAll, activeTab, beginRequest, endRequest, event?.id, guestEventDayOrPastTabBlocked]);
+
+  const refetchRanking = useCallback(async () => {
+    const generation = ++refetchGenerationRef.current;
+    const controller = beginRequest();
+    if (guestEventDayOrPastTabBlocked) {
+      if (mountedRef.current && generation === refetchGenerationRef.current) {
+        setRankingRows([]);
+      }
+      endRequest(controller);
+      return;
+    }
+    try {
+      const remote = await eventRepository.fetchEventRankingRemote(eventId, {
+        signal: controller.signal,
+      });
+      if (!mountedRef.current || generation !== refetchGenerationRef.current) {
         return;
       }
       setRankingRows(remote ?? []);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [activeTab, event?.id, guestEventDayOrPastTabBlocked]);
-
-  const refetchRanking = useCallback(async () => {
-    if (guestEventDayOrPastTabBlocked) {
-      setRankingRows([]);
-      return;
+    } catch (e) {
+      if (!isAbortError(e) && mountedRef.current && generation === refetchGenerationRef.current) {
+        setRankingRows([]);
+      }
+    } finally {
+      endRequest(controller);
     }
-    const remote = await eventRepository.fetchEventRankingRemote(eventId);
-    setRankingRows(remote ?? []);
-  }, [eventId, guestEventDayOrPastTabBlocked]);
+  }, [beginRequest, endRequest, eventId, guestEventDayOrPastTabBlocked, mountedRef]);
 
   return { rankingRows, refetchRanking };
 }

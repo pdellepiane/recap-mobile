@@ -3,11 +3,9 @@ import { EventStoriesFallback } from '../components/EventStoriesFallback';
 import { useEventStoriesScreen } from '../hooks/useEventStoriesScreen';
 import { appendRemoteImageEpoch, useRemoteImageCacheEpoch } from '@/src/ui';
 import { Image as ExpoImage } from 'expo-image';
-import { Dimensions, StatusBar, StyleSheet, View } from 'react-native';
+import { StatusBar, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
-
-const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
 type Props = {
   eventId: string;
@@ -17,6 +15,7 @@ type Props = {
  * Full-screen WhatsApp-style stories: photos, segmented progress, like / dislike.
  */
 export function EventStoriesScreenPage({ eventId }: Props) {
+  const { width: screenW, height: screenH } = useWindowDimensions();
   const mediaCacheEpoch = useRemoteImageCacheEpoch();
   const {
     insets,
@@ -48,7 +47,7 @@ export function EventStoriesScreenPage({ eventId }: Props) {
 
   return (
     <GestureDetector gesture={panGesture}>
-      <View style={styles.root} collapsable={false}>
+      <View style={[styles.root, { width: screenW, height: screenH }]} collapsable={false}>
         <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
         <Animated.View style={dimmerStyle} pointerEvents="none" />
         <Animated.View style={mediaShellStyle}>
@@ -86,8 +85,6 @@ export function EventStoriesScreenPage({ eventId }: Props) {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    width: SCREEN_W,
-    height: SCREEN_H,
     backgroundColor: 'transparent',
   },
   mediaFill: {

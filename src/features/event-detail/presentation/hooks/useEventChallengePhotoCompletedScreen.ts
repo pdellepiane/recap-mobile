@@ -7,7 +7,7 @@ import { EventDetailTab } from './eventDetailTabs';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useMemo, useState } from 'react';
-import { Dimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 
 type Params = {
   eventId: string;
@@ -27,7 +27,7 @@ export function useEventChallengePhotoCompletedScreen({
 }: Params) {
   const { t } = useTranslation();
   const { goBack } = useCoordinator();
-  const { width: winW } = Dimensions.get('window');
+  const { width: winW } = useWindowDimensions();
   const [thumbUri] = useState(() => takeChallengePhotoCompletionPreview());
 
   const { summaryLine, displayNumber } = useMemo(() => {

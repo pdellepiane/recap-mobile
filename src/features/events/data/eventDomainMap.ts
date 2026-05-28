@@ -72,7 +72,7 @@ export function mapHomeEventApiItemToDomain(remote: HomeEventItem): Event {
   return {
     id,
     title: remote.name,
-    date: remote.datetime,
+    date: remote.datetime ?? '',
     location,
     ...(city.length > 0 ? { city } : {}),
     ...(venue.length > 0 ? { venue } : {}),
@@ -125,7 +125,7 @@ export function mapEventDetailDataToDomain(data: EventDetailData): Event {
   return {
     id,
     title: data.name,
-    date: data.datetime,
+    date: data.datetime ?? '',
     location,
     ...(city.length > 0 ? { city } : {}),
     ...(venue.length > 0 ? { venue } : {}),

@@ -4,6 +4,7 @@ import {
   loadVerifyCodeRateState,
   recordFailedVerifyAttempt,
 } from '@/src/features/auth/data/verifyCodeRateLimitStorage';
+import { useMountedRef } from '@/src/core/hooks/useMountedRef';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TextInput } from 'react-native';
@@ -13,6 +14,7 @@ const RESEND_COOLDOWN_SECONDS = 5;
 
 export const useVerifyCode = (onSuccess: () => void, email: string, codeSentAt?: number) => {
   const { loginWithCode, requestLoginCode } = useAuth();
+  const mountedRef = useMountedRef();
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendReady, setResendReady] = useState(false);
@@ -27,6 +29,7 @@ export const useVerifyCode = (onSuccess: () => void, email: string, codeSentAt?:
   }, []);
 
   const lastAttemptedCode = useRef<string | null>(null);
+  const verifyGenerationRef = useRef(0);
 
   useEffect(() => {
     if (!email) {
@@ -118,6 +121,7 @@ export const useVerifyCode = (onSuccess: () => void, email: string, codeSentAt?:
       return;
     }
 
+    const generation = ++verifyGenerationRef.current;
     lastAttemptedCode.current = code;
     setIsLoading(true);
     setHasError(false);
@@ -126,11 +130,23 @@ export const useVerifyCode = (onSuccess: () => void, email: string, codeSentAt?:
 
     try {
       await loginWithCode(email, code);
+      if (generation !== verifyGenerationRef.current || !mountedRef.current) {
+        return;
+      }
       await clearVerifyCodeRateState(email);
+      if (generation !== verifyGenerationRef.current || !mountedRef.current) {
+        return;
+      }
       setIsCodeValid(true);
       onSuccess();
     } catch (e) {
+      if (generation !== verifyGenerationRef.current || !mountedRef.current) {
+        return;
+      }
       const rate = await recordFailedVerifyAttempt(email);
+      if (generation !== verifyGenerationRef.current || !mountedRef.current) {
+        return;
+      }
       if (rate.resendLockedUntil != null) {
         const secs = Math.ceil((rate.resendLockedUntil - Date.now()) / 1000);
         setResendCooldown((prev) => Math.max(prev, Math.max(0, secs)));
@@ -139,9 +155,11 @@ export const useVerifyCode = (onSuccess: () => void, email: string, codeSentAt?:
       setIsCodeValid(false);
       setErrorMessage(messageForVerifyCodeFailure(e));
     } finally {
-      setIsLoading(false);
+      if (generation === verifyGenerationRef.current && mountedRef.current) {
+        setIsLoading(false);
+      }
     }
-  }, [code, email, loginWithCode, onSuccess]);
+  }, [code, email, loginWithCode, mountedRef, onSuccess]);
 
   useEffect(() => {
     if (!email || code.length !== CODE_LENGTH || isLoading) {

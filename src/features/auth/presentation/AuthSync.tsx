@@ -1,7 +1,9 @@
 import { useAuth } from './context/AuthContext';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useSegments } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+
+type NavTarget = 'home' | 'onboarding';
 
 /**
  * Keeps auth-related routes in sync with the active session.
@@ -14,6 +16,7 @@ export function AuthSync() {
   const { isReady, session } = useAuth();
   const segments = useSegments();
   const { goToHome, goToOnboarding } = useCoordinator();
+  const lastNavTargetRef = useRef<NavTarget | null>(null);
 
   useEffect(() => {
     if (!isReady) {
@@ -26,22 +29,28 @@ export function AuthSync() {
     }
 
     if (session) {
-      if (root === 'onboarding') {
-        goToHome();
+      const shouldGoHome = root === 'onboarding' || root === 'login' || root === 'verify-code';
+      if (shouldGoHome) {
+        if (lastNavTargetRef.current !== 'home') {
+          lastNavTargetRef.current = 'home';
+          goToHome();
+        }
         return;
       }
-      const onAuthRoute = root === 'login' || root === 'verify-code';
-      if (onAuthRoute) {
-        goToHome();
-      }
+      lastNavTargetRef.current = null;
       return;
     }
 
     const onLoggedOutAllowedRoute =
       root === 'onboarding' || root === 'login' || root === 'verify-code';
     if (!onLoggedOutAllowedRoute) {
-      goToOnboarding();
+      if (lastNavTargetRef.current !== 'onboarding') {
+        lastNavTargetRef.current = 'onboarding';
+        goToOnboarding();
+      }
+      return;
     }
+    lastNavTargetRef.current = null;
   }, [isReady, session, segments, goToHome, goToOnboarding]);
 
   return null;

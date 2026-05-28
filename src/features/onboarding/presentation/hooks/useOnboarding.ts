@@ -1,17 +1,16 @@
 import { SLIDES } from '../data';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useCallback, useState } from 'react';
-import { Dimensions, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { useWindowDimensions, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 
 export const useOnboarding = () => {
+  const { width: screenWidth } = useWindowDimensions();
   const [activeIndex, setActiveIndex] = useState(0);
   const { goToLogin } = useCoordinator();
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = e.nativeEvent.contentOffset.x;
-    const index = Math.round(offsetX / SCREEN_WIDTH);
+    const index = Math.round(offsetX / screenWidth);
     setActiveIndex(index);
   };
 
@@ -24,6 +23,6 @@ export const useOnboarding = () => {
     activeIndex,
     handleScroll,
     handleStart,
-    screenWidth: SCREEN_WIDTH,
+    screenWidth,
   };
 };

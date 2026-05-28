@@ -7,7 +7,10 @@ import { showShortUserMessage } from '@/src/ui';
 import { useFocusEffect } from '@react-navigation/native';
 import type { TFunction } from 'i18next';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useAbortController } from '@/src/core/hooks/useAbortController';
+import { useMountedRef } from '@/src/core/hooks/useMountedRef';
+import { isAbortError } from '@/src/core/http/isAbortError';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Params = {
   eventId: string;
@@ -31,6 +34,10 @@ export function useEventDetailAlbum({
   t,
   setActiveTab,
 }: Params) {
+  const mountedRef = useMountedRef();
+  const refetchGenerationRef = useRef(0);
+  const likeGenerationRef = useRef(0);
+  const { beginRequest, endRequest, abortAll } = useAbortController();
   const [albumPhotos, setAlbumPhotos] = useState<AlbumPhoto[]>([]);
 
   useEffect(() => {
@@ -72,18 +79,27 @@ export function useEventDetailAlbum({
       if (activeTabRef.current !== EventDetailTab.Album || !eventId) {
         return undefined;
       }
-      let cancelled = false;
+      const controller = beginRequest();
       void (async () => {
-        const photos = await eventRepository.fetchEventMedia(eventId);
-        if (cancelled) {
-          return;
+        try {
+          const photos = await eventRepository.fetchEventMedia(eventId, {
+            signal: controller.signal,
+          });
+          if (!controller.signal.aborted) {
+            setAlbumPhotos(photos);
+          }
+        } catch (e) {
+          if (!isAbortError(e) && !controller.signal.aborted) {
+            setAlbumPhotos([]);
+          }
+        } finally {
+          endRequest(controller);
         }
-        setAlbumPhotos(photos);
       })();
       return () => {
-        cancelled = true;
+        abortAll();
       };
-    }, [eventId, activeTabRef]),
+    }, [abortAll, beginRequest, endRequest, eventId, activeTabRef]),
   );
 
   useEffect(() => {
@@ -91,31 +107,57 @@ export function useEventDetailAlbum({
       return;
     }
     const id = event.id;
-    let cancelled = false;
+    const controller = beginRequest();
     void (async () => {
-      const photos = await eventRepository.fetchEventMedia(id);
-      if (cancelled) {
-        return;
+      try {
+        const photos = await eventRepository.fetchEventMedia(id, { signal: controller.signal });
+        if (!controller.signal.aborted) {
+          setAlbumPhotos(photos);
+        }
+      } catch (e) {
+        if (!isAbortError(e) && !controller.signal.aborted) {
+          setAlbumPhotos([]);
+        }
+      } finally {
+        endRequest(controller);
       }
-      setAlbumPhotos(photos);
     })();
     return () => {
-      cancelled = true;
+      abortAll();
     };
-  }, [activeTab, event?.id]);
+  }, [abortAll, activeTab, beginRequest, endRequest, event?.id]);
 
   const refetchAlbum = useCallback(async () => {
-    const nextAlbum = await eventRepository.fetchEventMedia(eventId);
-    setAlbumPhotos(nextAlbum);
-  }, [eventId]);
+    const generation = ++refetchGenerationRef.current;
+    const controller = beginRequest();
+    try {
+      const nextAlbum = await eventRepository.fetchEventMedia(eventId, {
+        signal: controller.signal,
+      });
+      if (!mountedRef.current || generation !== refetchGenerationRef.current) {
+        return;
+      }
+      setAlbumPhotos(nextAlbum);
+    } catch (e) {
+      if (!isAbortError(e) && mountedRef.current && generation === refetchGenerationRef.current) {
+        setAlbumPhotos([]);
+      }
+    } finally {
+      endRequest(controller);
+    }
+  }, [beginRequest, endRequest, eventId, mountedRef]);
 
   const onAlbumPhotoLike = useCallback(
     (photoId: string) => {
       if (!eventId || photoId.startsWith('local-')) {
         return;
       }
+      const likeId = ++likeGenerationRef.current;
       void (async () => {
         const updated = await eventRepository.postEventMediaLike(eventId, photoId);
+        if (!mountedRef.current || likeId !== likeGenerationRef.current) {
+          return;
+        }
         if (!updated) {
           showShortUserMessage(t('eventDetail.albumLikeError'));
           return;
@@ -127,7 +169,7 @@ export function useEventDetailAlbum({
         );
       })();
     },
-    [eventId, t],
+    [eventId, mountedRef, t],
   );
 
   return { albumPhotos, refetchAlbum, onAlbumPhotoLike };

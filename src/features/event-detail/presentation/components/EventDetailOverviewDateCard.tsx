@@ -6,7 +6,7 @@ import { fontFamilies } from '@/src/ui/typography';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
-  eventDateIso: string;
+  eventDateIso?: string | null;
 };
 
 export function EventDetailOverviewDateCard({ eventDateIso }: Props) {

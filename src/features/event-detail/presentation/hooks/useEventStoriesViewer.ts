@@ -28,6 +28,9 @@ export function useEventStoriesViewer(slideCount: number, onFinish: () => void) 
       }
       const p = (Date.now() - start) / STORY_DURATION_MS;
       if (p >= 1) {
+        if (cancelled) {
+          return;
+        }
         const idx = indexRef.current;
         if (idx >= slideCount - 1) {
           onFinish();

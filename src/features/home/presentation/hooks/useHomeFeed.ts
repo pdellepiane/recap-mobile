@@ -3,7 +3,9 @@ import { eventRepository } from '@/src/core/di/container';
 import type { Event } from '@/src/domain/entities';
 import { seedHomeEventCache } from '@/src/features/events/data/homeEventCache';
 import { partitionHomeFeedEvents } from '@/src/features/home/presentation/utils/homeFeedPartition';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAbortController } from '@/src/core/hooks/useAbortController';
+import { isAbortError } from '@/src/core/http/isAbortError';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export type HomeFeed = {
   /** Top-of-home banner slider (from GET /api/home/banners). */
@@ -32,34 +34,68 @@ export function useHomeFeed(): HomeFeed & {
   const [plans, setPlans] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const loadGenerationRef = useRef(0);
+  const { beginRequest, endRequest, abortAll } = useAbortController();
 
-  const load = useCallback(async (purpose: 'initial' | 'refresh' = 'initial') => {
-    if (purpose === 'initial') {
-      setIsLoading(true);
-    } else {
-      setIsRefreshing(true);
-    }
-    try {
-      const [hostR, guestR, bannerR] = await Promise.allSettled([
-        eventRepository.getHostEvents(),
-        eventRepository.getGuestEvents(),
-        eventRepository.getHomeBanners(),
-      ]);
-      setHostEvents(hostR.status === 'fulfilled' ? hostR.value : []);
-      setPlans(guestR.status === 'fulfilled' ? guestR.value : []);
-      setBanners(bannerR.status === 'fulfilled' ? bannerR.value : []);
-    } finally {
+  const load = useCallback(
+    async (purpose: 'initial' | 'refresh' = 'initial') => {
+      const generation = ++loadGenerationRef.current;
+      const controller = beginRequest();
       if (purpose === 'initial') {
-        setIsLoading(false);
+        setIsLoading(true);
       } else {
-        setIsRefreshing(false);
+        setIsRefreshing(true);
       }
-    }
-  }, []);
+      try {
+        const signal = controller.signal;
+        const [hostR, guestR, bannerR] = await Promise.allSettled([
+          eventRepository.getHostEvents({ signal }),
+          eventRepository.getGuestEvents({ signal }),
+          eventRepository.getHomeBanners({ signal }),
+        ]);
+        if (generation !== loadGenerationRef.current) {
+          return;
+        }
+        const aborted = [hostR, guestR, bannerR].some(
+          (r) => r.status === 'rejected' && isAbortError(r.reason),
+        );
+        if (aborted) {
+          return;
+        }
+        setHostEvents(hostR.status === 'fulfilled' ? hostR.value : []);
+        setPlans(guestR.status === 'fulfilled' ? guestR.value : []);
+        setBanners(bannerR.status === 'fulfilled' ? bannerR.value : []);
+      } catch (e) {
+        if (isAbortError(e)) {
+          return;
+        }
+        if (generation === loadGenerationRef.current) {
+          setHostEvents([]);
+          setPlans([]);
+          setBanners([]);
+        }
+      } finally {
+        endRequest(controller);
+        if (generation !== loadGenerationRef.current) {
+          return;
+        }
+        if (purpose === 'initial') {
+          setIsLoading(false);
+        } else {
+          setIsRefreshing(false);
+        }
+      }
+    },
+    [beginRequest, endRequest],
+  );
 
   useEffect(() => {
     void load('initial');
-  }, [load]);
+    return () => {
+      loadGenerationRef.current += 1;
+      abortAll();
+    };
+  }, [abortAll, load]);
 
   useEffect(() => {
     seedHomeEventCache([...hostEvents, ...plans], {

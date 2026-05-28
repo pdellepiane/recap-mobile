@@ -72,7 +72,11 @@
     "loading": "Loading...",
     "resendQuestion": "Didn't receive the code? ",
     "resendAction": "Send again",
-    "resendCooldown": "Resend new code in {{mm}}:{{ss}}s"
+    "resendCooldown": "Resend new code in {{mm}}:{{ss}}s",
+    "invalidEmail": "Please enter a valid email.",
+    "tooManyRequests": "You've requested too many codes. Wait a few minutes and try again.",
+    "serverOrNetwork": "We couldn't send the code. Check your connection and try again.",
+    "unknown": "We couldn't send the code. Try again."
   },
   "profile": {
     "title": "My profile",
@@ -81,7 +85,14 @@
     "phone": "Phone",
     "language": "Language",
     "logout": "Log out",
-    "loggingOut": "Signing out…"
+    "loggingOut": "Signing out…",
+    "sectionAccount": "Account",
+    "sectionOther": "Other",
+    "menuAccount": "My account",
+    "menuRate": "Rate us",
+    "menuLegal": "Legal",
+    "accountTitle": "My account",
+    "nameLabel": "Name"
   },
   "onboarding": {
     "start": "Get started",
@@ -110,6 +121,7 @@
     "albumTitle": "Photos uploaded to the event",
     "albumEmpty": "There are no photos in this album yet.",
     "albumLikeError": "Could not update like. Try again.",
+    "reactionError": "Could not send reaction. Try again.",
     "albumLikeA11y": "Like photo",
     "photoA11y": "Photo by {{author}}",
     "cameraTitleFallback": "Event",

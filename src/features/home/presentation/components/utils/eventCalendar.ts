@@ -12,8 +12,12 @@
 /** Ventana desde el instante de inicio hasta 24h después. */
 export const EVENT_ALBUM_UPLOAD_WINDOW_AFTER_START_MS = 24 * 60 * 60 * 1000;
 
-function parseEventStartMs(isoDate: string): number | null {
-  const ms = Date.parse(isoDate.trim());
+function parseEventStartMs(isoDate: string | null | undefined): number | null {
+  const raw = isoDate?.trim() ?? '';
+  if (!raw) {
+    return null;
+  }
+  const ms = Date.parse(raw);
   return Number.isNaN(ms) ? null : ms;
 }
 

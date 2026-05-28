@@ -1,7 +1,9 @@
+import { useMountedRef } from '@/src/core/hooks/useMountedRef';
 import { useCallback, useEffect, useMemo } from 'react';
-import { Dimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 import { Gesture } from 'react-native-gesture-handler';
 import {
+  cancelAnimation,
   Extrapolation,
   interpolate,
   runOnJS,
@@ -10,8 +12,6 @@ import {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-
-const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
 const DISMISS_DISTANCE = 110;
 const DISMISS_VELOCITY = 480;
@@ -27,13 +27,22 @@ const DRAG_MORPH_RANGE = 260;
  * Returns styles for: dim layer fading out, media frame morphing to a circle, and chrome UI opacity.
  */
 export function useSwipeDownToClose(onClose: () => void, resetKey: number) {
+  const { width: screenW, height: screenH } = useWindowDimensions();
   const translateY = useSharedValue(0);
+  const mountedRef = useMountedRef();
   const close = useCallback(() => {
+    if (!mountedRef.current) {
+      return;
+    }
     onClose();
-  }, [onClose]);
+  }, [mountedRef, onClose]);
 
   useEffect(() => {
+    cancelAnimation(translateY);
     translateY.value = 0;
+    return () => {
+      cancelAnimation(translateY);
+    };
   }, [resetKey, translateY]);
 
   const panGesture = useMemo(
@@ -47,7 +56,7 @@ export function useSwipeDownToClose(onClose: () => void, resetKey: number) {
         .onEnd((e) => {
           const shouldClose = translateY.value > DISMISS_DISTANCE || e.velocityY > DISMISS_VELOCITY;
           if (shouldClose) {
-            translateY.value = withTiming(SCREEN_H, { duration: 240 }, (finished) => {
+            translateY.value = withTiming(screenH, { duration: 240 }, (finished) => {
               if (finished) {
                 runOnJS(close)();
               }
@@ -56,7 +65,7 @@ export function useSwipeDownToClose(onClose: () => void, resetKey: number) {
             translateY.value = withSpring(0, SPRING);
           }
         }),
-    [close, translateY],
+    [close, screenH, translateY],
   );
 
   const dimmerStyle = useAnimatedStyle(() => ({
@@ -72,9 +81,9 @@ export function useSwipeDownToClose(onClose: () => void, resetKey: number) {
 
   const mediaShellStyle = useAnimatedStyle(() => {
     const t = interpolate(translateY.value, [0, DRAG_MORPH_RANGE], [0, 1], Extrapolation.CLAMP);
-    const w = SCREEN_W + (MORPH_END_SIZE - SCREEN_W) * t;
-    const h = SCREEN_H + (MORPH_END_SIZE - SCREEN_H) * t;
-    const left = (SCREEN_W - w) / 2;
+    const w = screenW + (MORPH_END_SIZE - screenW) * t;
+    const h = screenH + (MORPH_END_SIZE - screenH) * t;
+    const left = (screenW - w) / 2;
     const top = translateY.value;
     const borderRadius = t * (Math.min(w, h) / 2);
     return {
@@ -87,7 +96,7 @@ export function useSwipeDownToClose(onClose: () => void, resetKey: number) {
       overflow: 'hidden' as const,
       zIndex: 1,
     };
-  });
+  }, [screenH, screenW]);
 
   const chromeStyle = useAnimatedStyle(() => ({
     opacity: interpolate(translateY.value, [0, 56], [1, 0], Extrapolation.CLAMP),

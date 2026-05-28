@@ -5,6 +5,7 @@ import type {
   LogoutSuccessResponse,
   RequestLoginCodeResponse,
 } from '@/src/core/api/types';
+import type { FetchOpts } from '@/src/core/http/FetchOpts';
 import type { HttpClient } from '@/src/core/http/HttpClient';
 import { setAuthAccessToken } from '@/src/core/http/authSession';
 import type { User } from '@/src/domain/entities';
@@ -40,8 +41,11 @@ export class AuthRepository {
   }
 
   /** GET /api/user/me — requires Bearer token. */
-  async fetchCurrentUser(): Promise<User> {
-    const res = await this.http.get<CurrentUserMeResponse>(userPaths.me, { auth: 'bearer' });
+  async fetchCurrentUser(opts?: FetchOpts): Promise<User> {
+    const res = await this.http.get<CurrentUserMeResponse>(userPaths.me, {
+      auth: 'bearer',
+      ...opts,
+    });
     if (!res.status || !res.data) {
       throw new Error(
         typeof res.error === 'string' && res.error.trim() ? res.error : 'User load failed',

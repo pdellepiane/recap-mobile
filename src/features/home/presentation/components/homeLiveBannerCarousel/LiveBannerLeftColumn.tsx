@@ -1,6 +1,7 @@
+import { useBannerLayout } from './BannerLayoutContext';
 import { BannerSlideCoverCircle } from './BannerSlideCoverCircle';
-import { CARD_W } from './layout';
 import { images } from '@/src/assets/images';
+import { useMemo } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 
 /** Room for emoji overlap beyond the avatar diameter. */
@@ -13,6 +14,40 @@ type Props = {
 
 /** Left column for {@link LiveBannerSlide}: decor, circular cover, emoji overlays. */
 export function LiveBannerLeftColumn({ coverUri, avatarDiameter }: Props) {
+  const { cardWidth } = useBannerLayout();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        leftImage: {
+          width: Math.round(cardWidth * 0.33),
+          height: Math.round(cardWidth * 0.33),
+          marginTop: 'auto',
+        },
+        cluster: {
+          position: 'absolute',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1,
+        },
+        emojiParty: {
+          position: 'absolute',
+          width: 56,
+          height: 52,
+          top: 0,
+          right: -4,
+          zIndex: 2,
+        },
+        emojiHearts: {
+          position: 'absolute',
+          width: 110,
+          height: 110,
+          top: '75%',
+          left: -20,
+          zIndex: 2,
+        },
+      }),
+    [cardWidth],
+  );
   const clusterSize = avatarDiameter + CLUSTER_PAD;
 
   return (
@@ -38,33 +73,3 @@ export function LiveBannerLeftColumn({ coverUri, avatarDiameter }: Props) {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  leftImage: {
-    width: Math.round(CARD_W * 0.33),
-    height: Math.round(CARD_W * 0.33),
-    marginTop: 'auto',
-  },
-  cluster: {
-    position: 'absolute',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  emojiParty: {
-    position: 'absolute',
-    width: 56,
-    height: 52,
-    top: 0,
-    right: -4,
-    zIndex: 2,
-  },
-  emojiHearts: {
-    position: 'absolute',
-    width: 110,
-    height: 110,
-    top: '75%',
-    left: -20,
-    zIndex: 2,
-  },
-});

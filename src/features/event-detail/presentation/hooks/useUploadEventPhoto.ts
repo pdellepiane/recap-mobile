@@ -1,6 +1,7 @@
 import { EventMediaPostBody } from '@/src/core/api/types';
+import { useMountedRef } from '@/src/core/hooks/useMountedRef';
 import { eventRepository } from '@/src/core/di/container';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 type Params = {
   eventId: string;
@@ -17,12 +18,15 @@ type UploadPhotoParams = {
  */
 export function useUploadEventPhoto({ eventId }: Params) {
   const [isUploading, setIsUploading] = useState(false);
+  const uploadingRef = useRef(false);
+  const mountedRef = useMountedRef();
 
   const uploadPhoto = useCallback(
     async ({ type, path, eventChallengeAnswerPhotoId }: UploadPhotoParams): Promise<boolean> => {
-      if (!eventId || !path || isUploading) {
+      if (!eventId || !path || uploadingRef.current) {
         return false;
       }
+      uploadingRef.current = true;
       setIsUploading(true);
       try {
         const payload: EventMediaPostBody = {
@@ -37,11 +41,14 @@ export function useUploadEventPhoto({ eventId }: Params) {
       } catch {
         return false;
       } finally {
-        setIsUploading(false);
+        uploadingRef.current = false;
+        if (mountedRef.current) {
+          setIsUploading(false);
+        }
       }
     },
-    [eventId, isUploading],
+    [eventId, mountedRef],
   );
 
   return { isUploading, uploadPhoto };
-}
+};

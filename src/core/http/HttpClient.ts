@@ -1,16 +1,16 @@
+import type { FetchOpts } from './FetchOpts';
+
 export type HttpAuthMode = 'none' | 'bearer';
 
-export type HttpGetOptions = {
-  auth?: HttpAuthMode;
-};
+/** @deprecated Use {@link FetchOpts} */
+export type HttpGetOptions = FetchOpts;
 
-export type HttpPostOptions = {
-  auth?: HttpAuthMode;
-};
+/** @deprecated Use {@link FetchOpts} */
+export type HttpPostOptions = FetchOpts;
 
 /** App-wide HTTP abstraction used by repositories (e.g. {@link FetchHttpClient}). */
 export type HttpClient = {
-  get<T>(path: string, options?: HttpGetOptions): Promise<T>;
-  post<T>(path: string, body: object, options?: HttpPostOptions): Promise<T>;
-  patch<T>(path: string, body: object, options?: HttpPostOptions): Promise<T>;
+  get<T>(path: string, options?: FetchOpts): Promise<T>;
+  post<T>(path: string, body: object, options?: FetchOpts): Promise<T>;
+  patch<T>(path: string, body: object, options?: FetchOpts): Promise<T>;
 };

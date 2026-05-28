@@ -67,7 +67,7 @@ export function eventParticipantNamesLine(event: Event | null): string {
     return '';
   }
   const fromGoing = eventGuestsGoing(event)
-    .map((g) => g.name.trim())
+    .map((g) => g.name?.trim() ?? '')
     .filter((n) => n.length > 0)
     .join(', ');
   if (fromGoing) {
@@ -96,7 +96,7 @@ export function hostsLineForDetailView(
     }
   }
   const fromHosts = (event?.hosts ?? [])
-    .map((host) => host.name.trim())
+    .map((host) => host.name?.trim() ?? '')
     .filter((name) => name.length > 0)
     .join(', ');
   if (fromHosts) {
@@ -119,7 +119,7 @@ export function buildOrganizerParticipantRows(
   }));
 
   const pendingCount = Math.max(0, listTotalInvited - going.length);
-  const pendingNamePool = notGoing.map((g) => g.name.trim());
+  const pendingNamePool = notGoing.map((g) => g.name?.trim() ?? '');
   const pendingRows = Array.from({ length: pendingCount }, (_, i) => ({
     id: `pending-${i}`,
     name: pendingNamePool[i] || guestPlaceholder,

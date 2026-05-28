@@ -1,5 +1,6 @@
 import { ApiRequestError, messageFromUnknownErrorBody } from './ApiRequestError';
-import type { HttpClient, HttpGetOptions, HttpPostOptions } from './HttpClient';
+import type { FetchOpts } from './FetchOpts';
+import type { HttpClient } from './HttpClient';
 import { runSessionExpiredFlow } from '@/src/core/auth/sessionExpiredBridge';
 
 export type FetchHttpClientOptions = {
@@ -49,7 +50,7 @@ export class FetchHttpClient implements HttpClient {
   }
 
   private async headersFor(
-    init: { auth?: HttpGetOptions['auth'] },
+    init: { auth?: FetchOpts['auth'] },
     jsonBody: boolean,
   ): Promise<Record<string, string>> {
     const headers: Record<string, string> = { Accept: 'application/json' };
@@ -71,7 +72,7 @@ export class FetchHttpClient implements HttpClient {
       method: string;
       url: string;
       requestBody?: unknown;
-      auth?: HttpGetOptions['auth'];
+      auth?: FetchOpts['auth'];
     },
   ): Promise<T> {
     const text = await res.text();
@@ -104,23 +105,25 @@ export class FetchHttpClient implements HttpClient {
     return parsed as T;
   }
 
-  async get<T>(path: string, options: HttpGetOptions = {}): Promise<T> {
+  async get<T>(path: string, options: FetchOpts = {}): Promise<T> {
     const url = this.resolveUrl(path);
     logHttp('→', 'GET', url, {});
     const res = await fetch(url, {
       method: 'GET',
       headers: await this.headersFor(options, false),
+      signal: options.signal,
     });
     return this.parseResponse<T>(res, { method: 'GET', url, auth: options.auth });
   }
 
-  async post<T>(path: string, body: object, options: HttpPostOptions = {}): Promise<T> {
+  async post<T>(path: string, body: object, options: FetchOpts = {}): Promise<T> {
     const url = this.resolveUrl(path);
     logHttp('→', 'POST', url, { requestBody: body });
     const res = await fetch(url, {
       method: 'POST',
       headers: await this.headersFor(options, true),
       body: JSON.stringify(body),
+      signal: options.signal,
     });
     return this.parseResponse<T>(res, {
       method: 'POST',
@@ -130,13 +133,14 @@ export class FetchHttpClient implements HttpClient {
     });
   }
 
-  async patch<T>(path: string, body: object, options: HttpPostOptions = {}): Promise<T> {
+  async patch<T>(path: string, body: object, options: FetchOpts = {}): Promise<T> {
     const url = this.resolveUrl(path);
     logHttp('→', 'PATCH', url, { requestBody: body });
     const res = await fetch(url, {
       method: 'PATCH',
       headers: await this.headersFor(options, true),
       body: JSON.stringify(body),
+      signal: options.signal,
     });
     return this.parseResponse<T>(res, {
       method: 'PATCH',

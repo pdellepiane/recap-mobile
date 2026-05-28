@@ -12,6 +12,8 @@ import { useEventDetailChallenges } from './useEventDetailChallenges';
 import { useEventDetailRanking } from './useEventDetailRanking';
 import { useEventDetailTabsAccess } from './useEventDetailTabsAccess';
 import analytics from '@/src/core/analytics';
+import { useAbortController } from '@/src/core/hooks/useAbortController';
+import { isAbortError } from '@/src/core/http/isAbortError';
 import { EventType } from '@/src/core/api';
 import { eventRepository } from '@/src/core/di/container';
 import type { Event } from '@/src/domain/entities';
@@ -30,6 +32,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type Dispatch,
   type SetStateAction,
@@ -159,7 +162,6 @@ export function useEventDetailScreen({
     completedByChallengeIdForUi,
     onChallengePress,
     refetchChallenges,
-    hasAnyCompletionForCurrentEvent,
   } = useEventDetailChallenges({
     eventId,
     event,
@@ -186,19 +188,47 @@ export function useEventDetailScreen({
     setActiveTab,
   });
 
+  const pendingDotGenerationRef = useRef(0);
+  const { beginRequest: beginPendingRequest, endRequest: endPendingRequest, abortAll: abortPending } =
+    useAbortController();
+
   const refreshChallengesPendingDot = useCallback(async () => {
+    const generation = ++pendingDotGenerationRef.current;
+    const controller = beginPendingRequest();
     const date = event?.date?.trim();
     if (!eventId || !date || Number.isNaN(Date.parse(date))) {
-      setChallengesPendingDot(false);
+      if (generation === pendingDotGenerationRef.current) {
+        setChallengesPendingDot(false);
+      }
+      endPendingRequest(controller);
       return;
     }
     if (!isDuringEventStartPlus24hWindow(date, new Date())) {
-      setChallengesPendingDot(false);
+      if (generation === pendingDotGenerationRef.current) {
+        setChallengesPendingDot(false);
+      }
+      endPendingRequest(controller);
       return;
     }
-    const hasPending = await eventRepository.fetchEventChallengesPending(eventId);
-    setChallengesPendingDot(hasPending);
-  }, [eventId, event?.date]);
+    try {
+      const hasPending = await eventRepository.fetchEventChallengesPending(eventId, {
+        signal: controller.signal,
+      });
+      if (generation !== pendingDotGenerationRef.current) {
+        return;
+      }
+      setChallengesPendingDot(hasPending);
+    } catch (e) {
+      if (isAbortError(e)) {
+        return;
+      }
+      if (generation === pendingDotGenerationRef.current) {
+        setChallengesPendingDot(false);
+      }
+    } finally {
+      endPendingRequest(controller);
+    }
+  }, [beginPendingRequest, endPendingRequest, event?.date, eventId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -217,12 +247,12 @@ export function useEventDetailScreen({
     void refreshChallengesPendingDot();
   }, [event?.id, event?.date, refreshChallengesPendingDot]);
 
-  // --- Effects
   useEffect(() => {
-    if (!completedChallengeId && !hasAnyCompletionForCurrentEvent) {
-      return;
-    }
-  }, [completedChallengeId, hasAnyCompletionForCurrentEvent]);
+    return () => {
+      pendingDotGenerationRef.current += 1;
+      abortPending();
+    };
+  }, [abortPending]);
 
   // --- Derived data
   const countdownEndsAt = useMemo(() => countdownEndsAtForEvent(event), [event]);

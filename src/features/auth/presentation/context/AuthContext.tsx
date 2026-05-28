@@ -1,3 +1,4 @@
+import analytics from '@/src/core/analytics';
 import { registerSessionExpiredHandler } from '@/src/core/auth/sessionExpiredBridge';
 import { authRepository } from '@/src/core/di/container';
 import { getAuthAccessToken, setAuthAccessToken } from '@/src/core/http/authSession';
@@ -7,8 +8,17 @@ import {
   loadPersistedSession,
   persistSessionSnapshot,
 } from '@/src/features/auth/data/sessionStorage';
+import { isAbortError } from '@/src/core/http/isAbortError';
 import * as SplashScreen from 'expo-splash-screen';
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -27,6 +37,8 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isReady, setIsReady] = useState(false);
   const [session, setSession] = useState<AuthSession | null>(null);
+  const refreshGenerationRef = useRef(0);
+  const refreshAbortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,13 +71,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!access) {
       return false;
     }
+    refreshAbortRef.current?.abort();
+    const controller = new AbortController();
+    refreshAbortRef.current = controller;
+    const generation = ++refreshGenerationRef.current;
     try {
-      const user = await authRepository.fetchCurrentUser();
+      const user = await authRepository.fetchCurrentUser({ signal: controller.signal });
+      if (generation !== refreshGenerationRef.current) {
+        return false;
+      }
       await persistSessionSnapshot(access, user);
+      if (generation !== refreshGenerationRef.current) {
+        return false;
+      }
       setSession({ user });
       return true;
-    } catch {
+    } catch (e) {
+      if (isAbortError(e)) {
+        return false;
+      }
       return false;
+    } finally {
+      if (refreshAbortRef.current === controller) {
+        refreshAbortRef.current = null;
+      }
     }
   }, []);
 
@@ -79,6 +108,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     registerSessionExpiredHandler(() => {
+      refreshGenerationRef.current += 1;
+      refreshAbortRef.current?.abort();
+      refreshAbortRef.current = null;
+      analytics.clearAll();
       setSession(null);
     });
     return () => {
@@ -105,11 +138,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const logout = useCallback(async () => {
+    refreshGenerationRef.current += 1;
+    refreshAbortRef.current?.abort();
+    refreshAbortRef.current = null;
     try {
       await authRepository.logout();
     } finally {
       setAuthAccessToken(null);
       await Promise.all([clearPersistedSession()]);
+      analytics.clearAll();
       setSession(null);
     }
   }, []);

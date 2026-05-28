@@ -7,6 +7,7 @@ import {
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { showShortUserMessage } from '@/src/ui';
+import { isAbortError } from '@/src/core/http/isAbortError';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Keyboard } from 'react-native';
@@ -139,27 +140,35 @@ export function useEventChallengeQuizCreateScreen({ eventId }: Params) {
       if (!eventId) {
         return undefined;
       }
-      let cancelled = false;
+      const controller = new AbortController();
       void (async () => {
-        const [remote, existing] = await Promise.all([
-          eventRepository.fetchEventChallengeQuestionSuggestions(),
-          eventRepository.fetchEventChallenges(eventId),
-        ]);
-        if (cancelled) {
-          return;
-        }
-        const used = usedChallengePromptKeySet(existing);
-        for (const row of addedQuestionsRef.current) {
-          const k = normalizeChallengePromptText(row.text);
-          if (k.length > 0) {
-            used.add(k);
+        try {
+          const [remote, existing] = await Promise.all([
+            eventRepository.fetchEventChallengeQuestionSuggestions({
+              signal: controller.signal,
+            }),
+            eventRepository.fetchEventChallenges(eventId, { signal: controller.signal }),
+          ]);
+          if (controller.signal.aborted) {
+            return;
+          }
+          const used = usedChallengePromptKeySet(existing);
+          for (const row of addedQuestionsRef.current) {
+            const k = normalizeChallengePromptText(row.text);
+            if (k.length > 0) {
+              used.add(k);
+            }
+          }
+          const next = remote.filter((s) => !used.has(normalizeChallengePromptText(s.question)));
+          setAvailableSuggestions(next);
+        } catch (e) {
+          if (!isAbortError(e)) {
+            setAvailableSuggestions([]);
           }
         }
-        const next = remote.filter((s) => !used.has(normalizeChallengePromptText(s.question)));
-        setAvailableSuggestions(next);
       })();
       return () => {
-        cancelled = true;
+        controller.abort();
       };
     }, [eventId]),
   );

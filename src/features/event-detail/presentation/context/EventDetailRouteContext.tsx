@@ -1,9 +1,10 @@
 import { useEventDetail } from '../hooks/useEventDetail';
 import { eventRepository } from '@/src/core/di/container';
+import { isAbortError } from '@/src/core/http/isAbortError';
 import { useTranslation } from '@/src/i18n';
 import { showShortUserMessage } from '@/src/ui';
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 type EventDetailRouteContextValue = ReturnType<typeof useEventDetail> & {
   eventId: string;
@@ -24,10 +25,14 @@ export function EventDetailRouteProvider({
   const detail = useEventDetail(eventId);
   const { setEventShowGuestList, ...detailRest } = detail;
   const [isPublicGuestListEnabled, setIsPublicGuestListEnabledState] = useState(true);
+  const patchGenerationRef = useRef(0);
+  const patchAbortRef = useRef<AbortController | null>(null);
+  const confirmedGuestListRef = useRef(true);
 
   useEffect(() => {
     if (detailRest.event?.showGuestList !== undefined) {
       setIsPublicGuestListEnabledState(detailRest.event.showGuestList);
+      confirmedGuestListRef.current = detailRest.event.showGuestList;
     }
   }, [detailRest.event?.id, detailRest.event?.showGuestList]);
 
@@ -38,16 +43,39 @@ export function EventDetailRouteProvider({
         if (!eventId) {
           return resolved;
         }
+        const patchId = ++patchGenerationRef.current;
+        patchAbortRef.current?.abort();
+        const controller = new AbortController();
+        patchAbortRef.current = controller;
         void (async () => {
-          const updated = await eventRepository.patchEventSettings(eventId, {
-            show_guest_list: resolved,
-          });
-          if (!updated) {
-            setIsPublicGuestListEnabledState(prev);
+          try {
+            const updated = await eventRepository.patchEventSettings(
+              eventId,
+              { show_guest_list: resolved },
+              { signal: controller.signal },
+            );
+            if (patchId !== patchGenerationRef.current) {
+              return;
+            }
+            if (!updated) {
+              setIsPublicGuestListEnabledState(confirmedGuestListRef.current);
+              showShortUserMessage(t('eventDetail.guestListSettingsUpdateError'));
+              return;
+            }
+            confirmedGuestListRef.current = updated.show_guest_list;
+            setIsPublicGuestListEnabledState(updated.show_guest_list);
+            setEventShowGuestList(updated.show_guest_list);
+          } catch (e) {
+            if (isAbortError(e) || patchId !== patchGenerationRef.current) {
+              return;
+            }
+            setIsPublicGuestListEnabledState(confirmedGuestListRef.current);
             showShortUserMessage(t('eventDetail.guestListSettingsUpdateError'));
-            return;
+          } finally {
+            if (patchAbortRef.current === controller) {
+              patchAbortRef.current = null;
+            }
           }
-          setEventShowGuestList(updated.show_guest_list);
         })();
         return resolved;
       });

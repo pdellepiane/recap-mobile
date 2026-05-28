@@ -2,10 +2,8 @@ import { EventChallengePhotoIntroCard } from '../components/EventChallengePhotoI
 import { useEventChallengePhotoScreen } from '../hooks/useEventChallengePhotoScreen';
 import { useTranslation } from '@/src/i18n';
 import { BackButton, colors } from '@/src/ui';
-import { Dimensions, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-
-const WIN_H = Dimensions.get('window').height;
 
 type Props = {
   eventId: string;
@@ -18,6 +16,7 @@ type Props = {
  */
 export function EventChallengePhotoScreenPage({ eventId, challengeId, challengeNumber }: Props) {
   const { t } = useTranslation();
+  const { height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const { numberLabel, instructionParagraphs, handleOpenCamera } = useEventChallengePhotoScreen({
     eventId,
@@ -33,7 +32,7 @@ export function EventChallengePhotoScreenPage({ eventId, challengeId, challengeN
         <ScrollView
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: insets.bottom + 24, minHeight: WIN_H },
+            { paddingBottom: insets.bottom + 24, minHeight: windowHeight },
           ]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"

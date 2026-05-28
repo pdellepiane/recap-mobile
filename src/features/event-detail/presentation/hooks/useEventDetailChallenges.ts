@@ -14,7 +14,10 @@ import type { Event } from '@/src/domain/entities';
 import { isEventHostedFromHomeFeed } from '@/src/features/events/data/homeEventCache';
 import { isBeforeEventCalendarDay } from '@/src/features/home/presentation/components/utils/eventCalendar';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAbortController } from '@/src/core/hooks/useAbortController';
+import { useMountedRef } from '@/src/core/hooks/useMountedRef';
+import { isAbortError } from '@/src/core/http/isAbortError';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type Params = {
   eventId: string;
@@ -34,6 +37,9 @@ export function useEventDetailChallenges({
   completedPoints,
 }: Params) {
   const { goToEventChallengeQuiz, goToEventChallengePhoto } = useCoordinator();
+  const mountedRef = useMountedRef();
+  const refetchGenerationRef = useRef(0);
+  const { beginRequest, endRequest, abortAll } = useAbortController();
   const [challenges, setChallenges] = useState<EventChallenge[]>([]);
   const [completedByChallengeId, setCompletedByChallengeId] = useState<Record<string, number>>({});
 
@@ -49,18 +55,35 @@ export function useEventDetailChallenges({
       return;
     }
     setChallenges(getEventChallenges(eventId));
-    let cancelled = false;
+    const controller = beginRequest();
     void (async () => {
-      const rows = await eventRepository.fetchEventChallenges(eventId);
-      if (cancelled) {
-        return;
+      try {
+        const rows = await eventRepository.fetchEventChallenges(eventId, {
+          signal: controller.signal,
+        });
+        if (!controller.signal.aborted) {
+          setChallenges(rows);
+        }
+      } catch (e) {
+        if (!isAbortError(e)) {
+          setChallenges(getEventChallenges(eventId));
+        }
+      } finally {
+        endRequest(controller);
       }
-      setChallenges(rows);
     })();
     return () => {
-      cancelled = true;
+      abortAll();
     };
-  }, [activeTab, event?.id, eventId, guestEventDayOrPastTabBlocked]);
+  }, [
+    abortAll,
+    activeTab,
+    beginRequest,
+    endRequest,
+    event?.id,
+    eventId,
+    guestEventDayOrPastTabBlocked,
+  ]);
 
   useEffect(() => {
     setCompletedByChallengeId(getEventChallengesCompletionSnapshot(eventId));
@@ -97,13 +120,31 @@ export function useEventDetailChallenges({
   }, [eventId]);
 
   const refetchChallenges = useCallback(async () => {
+    const generation = ++refetchGenerationRef.current;
+    const controller = beginRequest();
     if (guestEventDayOrPastTabBlocked) {
-      setChallenges([]);
+      if (mountedRef.current && generation === refetchGenerationRef.current) {
+        setChallenges([]);
+      }
+      endRequest(controller);
       return;
     }
-    const nextChallenges = await eventRepository.fetchEventChallenges(eventId);
-    setChallenges(nextChallenges);
-  }, [eventId, guestEventDayOrPastTabBlocked]);
+    try {
+      const nextChallenges = await eventRepository.fetchEventChallenges(eventId, {
+        signal: controller.signal,
+      });
+      if (!mountedRef.current || generation !== refetchGenerationRef.current) {
+        return;
+      }
+      setChallenges(nextChallenges);
+    } catch (e) {
+      if (!isAbortError(e) && mountedRef.current && generation === refetchGenerationRef.current) {
+        setChallenges(getEventChallenges(eventId));
+      }
+    } finally {
+      endRequest(controller);
+    }
+  }, [beginRequest, endRequest, eventId, guestEventDayOrPastTabBlocked, mountedRef]);
 
   const onChallengePress = useCallback(
     async (challenge: EventChallenge) => {

@@ -3,7 +3,7 @@ import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { StyleSheet, Text, View } from 'react-native';
 
-type GoingGuest = { id: string; name: string };
+type GoingGuest = { id: string; name?: string | null };
 
 type Props = {
   /** TODO(backend): Full RSVP list on overview when API exposes it beyond `goingGuests`. */
@@ -20,14 +20,17 @@ export function EventDetailOverviewGuestListSection({ goingGuests }: Props) {
   return (
     <>
       <Text style={styles.sectionHeading}>{t('eventDetail.guestListHeading')}</Text>
-      {guestListSource.map((g) => (
-        <View key={g.id} style={styles.guestRow}>
-          <View style={styles.guestAvatar}>
-            <Text style={styles.guestInitial}>{g.name.charAt(0)}</Text>
+      {guestListSource.map((g) => {
+        const displayName = g.name?.trim() || t('eventDetail.guestPlaceholder');
+        return (
+          <View key={g.id} style={styles.guestRow}>
+            <View style={styles.guestAvatar}>
+              <Text style={styles.guestInitial}>{displayName.charAt(0).toUpperCase()}</Text>
+            </View>
+            <Text style={styles.guestName}>{displayName}</Text>
           </View>
-          <Text style={styles.guestName}>{g.name}</Text>
-        </View>
-      ))}
+        );
+      })}
     </>
   );
 }

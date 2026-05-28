@@ -2,9 +2,7 @@ import { FloatingParticleView } from './FloatingParticleView';
 import type { ReactElement, ReactNode } from 'react';
 import { useCallback, useState } from 'react';
 import type { ImageSourcePropType } from 'react-native';
-import { Dimensions, StyleSheet, View } from 'react-native';
-
-const { height: SCREEN_H } = Dimensions.get('window');
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 /** Emoji text or image asset (same falling animation). */
 export type FloatingReactionPayload = string | ImageSourcePropType;
@@ -30,9 +28,10 @@ function createParticle(
   payload: FloatingReactionPayload,
   originX: number,
   originY: number,
+  screenHeight: number,
 ): FloatingReactionParticle {
   const bottomMargin = 24;
-  const maxFall = Math.min(SCREEN_H - originY - bottomMargin, SCREEN_H * 0.55);
+  const maxFall = Math.min(screenHeight - originY - bottomMargin, screenHeight * 0.55);
   const fallDistance = Math.max(220, maxFall);
 
   const driftDir = Math.random() < 0.5 ? -1 : 1;
@@ -76,6 +75,7 @@ export function useFloatingReactions(options: UseFloatingReactionsOptions = {}):
   spawnAt: SpawnFloatingReaction;
   overlay: ReactElement;
 } {
+  const { height: screenHeight } = useWindowDimensions();
   const maxConcurrent = options.maxConcurrent ?? 10;
   const [particles, setParticles] = useState<FloatingReactionParticle[]>([]);
 
@@ -86,14 +86,14 @@ export function useFloatingReactions(options: UseFloatingReactionsOptions = {}):
   const spawnAt = useCallback(
     (payload: FloatingReactionPayload, originX: number, originY: number) => {
       setParticles((prev) => {
-        const next = [...prev, createParticle(payload, originX, originY)];
+        const next = [...prev, createParticle(payload, originX, originY, screenHeight)];
         if (next.length <= maxConcurrent) {
           return next;
         }
         return next.slice(next.length - maxConcurrent);
       });
     },
-    [maxConcurrent],
+    [maxConcurrent, screenHeight],
   );
 
   const overlay = (

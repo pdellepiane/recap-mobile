@@ -1,4 +1,7 @@
-import { isApiRequestError } from '@/src/core/http/ApiRequestError';
+import {
+  loginMessageForKey,
+  messageForLoginFailure,
+} from '@/src/features/auth/data/loginErrorMessage';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import { useState, useCallback } from 'react';
 
@@ -23,13 +26,13 @@ export const useLogin = () => {
 
       if (!trimmedEmail) {
         setHasError(true);
-        setErrorMessage('correo incorrecto');
+        setErrorMessage(loginMessageForKey('auth.invalidEmail'));
         return;
       }
 
       if (!EMAIL_REGEX.test(trimmedEmail)) {
         setHasError(true);
-        setErrorMessage('correo incorrecto');
+        setErrorMessage(loginMessageForKey('auth.invalidEmail'));
         return;
       }
 
@@ -42,7 +45,7 @@ export const useLogin = () => {
         onRequestSent(trimmedEmail);
       } catch (e) {
         setHasError(true);
-        setErrorMessage(isApiRequestError(e) ? e.message : 'correo incorrecto');
+        setErrorMessage(messageForLoginFailure(e));
       } finally {
         setIsLoading(false);
       }

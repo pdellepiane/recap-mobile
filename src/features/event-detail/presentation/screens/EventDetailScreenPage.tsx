@@ -17,11 +17,14 @@ import {
   Button,
   FloatingCameraFab,
   FloatingReactions,
+  type SpawnFloatingReaction,
   ScreenLoading,
   ScreenNotFoundFallback,
   colors,
+  showShortUserMessage,
 } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -89,6 +92,24 @@ export const EventDetailScreenPage = ({
     onCreatePhotoChallengeSelect,
     onAlbumPhotoLike,
   } = handlers;
+
+  const handleLiveReaction = useCallback(
+    async (
+      spawnAt: SpawnFloatingReaction,
+      { reaction, source, center }: EventDetailReactionPressPayload,
+    ) => {
+      if (!event?.id) {
+        return;
+      }
+      const ok = await eventRepository.postEventReaction(event.id, reaction);
+      if (ok) {
+        spawnAt(source, center.x, center.y);
+        return;
+      }
+      showShortUserMessage(t('eventDetail.reactionError'));
+    },
+    [event?.id, t],
+  );
 
   if (isLoading) {
     return <ScreenLoading />;
@@ -175,9 +196,8 @@ export const EventDetailScreenPage = ({
       {isGuestLiveActionsVisible ? (
         <FloatingReactions maxConcurrent={10}>
           {(spawnAt) =>
-            scrollBody(({ reaction, source, center }) => {
-              void eventRepository.postEventReaction(event.id, reaction);
-              spawnAt(source, center.x, center.y);
+            scrollBody((payload) => {
+              void handleLiveReaction(spawnAt, payload);
             })
           }
         </FloatingReactions>

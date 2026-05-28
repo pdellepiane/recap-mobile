@@ -10,7 +10,7 @@ type Props = {
   /** Lugar / dirección (API `location`). */
   venue?: string;
   /** Texto completo para mapas cuando faltan partes. */
-  mapQuery: string;
+  mapQuery?: string | null;
   onOpenMap: () => void;
 };
 
@@ -18,7 +18,7 @@ export function EventDetailOverviewAddressCard({ city, venue, mapQuery, onOpenMa
   const { t } = useTranslation();
   const cityT = city?.trim() ?? '';
   const venueT = venue?.trim() ?? '';
-  const merged = mapQuery.trim();
+  const merged = mapQuery?.trim() ?? '';
   const line1 = cityT.length > 0 ? cityT : venueT.length > 0 ? venueT : merged;
   const line2Raw = cityT.length > 0 && venueT.length > 0 && venueT !== cityT ? venueT : '';
   const canOpenMap = merged.length > 0;
