@@ -198,14 +198,41 @@ One-shot build + submit (when credentials are ready):
 eas build --profile production --platform ios --auto-submit
 ```
 
-### Production Android (Play Store)
+### Production Android (Play Store — internal testing ≈ TestFlight)
+
+**Package name:** `com.sinenvolturas.recap` (`app.json` → `android.package`). Must match the app created in Google Play Console.
+
+#### One-time setup
+
+1. **Google Play Developer account** — [play.google.com/console](https://play.google.com/console) (one-time registration fee).
+2. **Create the app** in Play Console with package **`com.sinenvolturas.recap`** (cannot change later).
+3. **Upload signing (EAS):** run `npm run eas:credentials:android` → choose **production** → let EAS **generate a new keystore** (or upload yours). EAS stores it; required for every release build.
+4. **Service account for submit:**
+   - [Google Cloud Console](https://console.cloud.google.com/) → IAM → **Service accounts** → Create → JSON key → download.
+   - Play Console → **Setup** → **API access** → Link Cloud project → **Invite user** → add the service account email → grant **Release manager** (or Admin).
+   - Save the JSON as **`google-play-service-account.json`** in the project root (gitignored). See `google-play-service-account.json.example`.
+5. **EAS production env** (Expo dashboard → project → **production**): same `EXPO_PUBLIC_*` vars as iOS.
+
+> **First release:** Google sometimes requires the **first** `.aab` to be uploaded manually in Play Console (Release → Testing → Internal testing → Create release → Upload). After that, `eas submit` works for later builds.
+
+#### Build and submit
 
 ```bash
-eas build --profile production --platform android
-eas submit --platform android --profile production --latest
+npm run eas:build:prod:android
+npm run eas:submit:android
 ```
 
-Configure Play Console app id and service account in EAS/Google Play when Android store release is active (`submit.production.android` in `eas.json` is a placeholder).
+Or one command:
+
+```bash
+npm run eas:build:prod:android:submit
+```
+
+Submit uses `eas.json` → `submit.production.android`: **internal** track (internal testers, no public store). Change `track` to `alpha` or `beta` when you want open/closed testing.
+
+#### Add testers (internal testing)
+
+Play Console → **Testing** → **Internal testing** → Create release (if needed) → **Testers** tab → email list or Google Group → share the opt-in link.
 
 ---
 
@@ -213,10 +240,11 @@ Configure Play Console app id and service account in EAS/Google Play when Androi
 
 - [ ] EAS **production** env vars: `EXPO_PUBLIC_API_BASE_URL`, `EXPO_PUBLIC_MIXPANEL_TOKEN`
 - [ ] Version acceptable for store (`expo.version` / remote version policy)
-- [ ] `eas build --profile production --platform ios` succeeded
-- [ ] `eas submit` → build visible in TestFlight
+- [ ] **iOS:** `npm run eas:build:prod:ios` → `npm run eas:submit:ios` → build in TestFlight
+- [ ] **Android:** `google-play-service-account.json` present; `npm run eas:credentials:android` done; Play app `com.sinenvolturas.recap` created
+- [ ] **Android:** `npm run eas:build:prod:android` → `npm run eas:submit:android` → build on **Internal testing**
 - [ ] Smoke test on device: auth, home feed, event detail, photo/quiz challenges
-- [ ] App Store metadata and review submission (iOS)
+- [ ] Store metadata and review (when moving beyond internal testing)
 
 ---
 
