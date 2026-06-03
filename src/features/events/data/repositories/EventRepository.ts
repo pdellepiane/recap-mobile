@@ -1,20 +1,31 @@
-import { normalizeChallengesFromApi, parseChallengeAnswerEarnedPoints } from '../eventChallengesMap';
+import {
+  normalizeChallengesFromApi,
+  parseChallengeAnswerEarnedPoints,
+} from '../eventChallengesMap';
+import { cacheEventChallengeApiItems } from '../eventChallengeApiItemCache';
 import { seedEventChallengeQuizzesFromApi } from '../eventChallengesQuizSeed';
 import { mapEventDetailDataToDomain, mapHomeEventApiItemToDomain } from '../eventDomainMap';
-import { mapEventMediaApiToAlbumPhotos, mapEventMediaApiToStorySlides, normalizeMediaLikesCount } from '../eventMediaMap';
+import {
+  mapEventMediaApiToAlbumPhotos,
+  mapEventMediaApiToStorySlides,
+  normalizeMediaLikesCount,
+} from '../eventMediaMap';
 import { buildEventMediaFormData } from '../eventMediaUpload';
+import { prepareEventMediaUploadFile } from '../prepareEventMediaUploadFile';
 import { mapRankingApiItemsToRows } from '../eventRankingMap';
 import { getCachedHomeEvent } from '../homeEventCache';
 import { eventPaths, homePaths } from '@/src/core/api/paths';
 import type {
-  EventChallengeCreateResponse,
-  EventChallengePostBody,
   EventChallengeAnswerPostBody,
   EventChallengeAnswerPostResponse,
+  EventChallengeCreateResponse,
+  EventChallengePhotoSuggestionsResponse,
+  EventChallengePostBody,
+  EventChallengePutBody,
+  EventChallengeQuestionSuggestionsResponse,
+  EventChallengeUpdateResponse,
   EventChallengesListResponse,
   EventChallengesPendingResponse,
-  EventChallengePhotoSuggestionsResponse,
-  EventChallengeQuestionSuggestionsResponse,
   EventDetailApiResponse,
   EventMediaLikeResponse,
   EventMediaListResponse,
@@ -29,12 +40,12 @@ import type {
   HomeBannersListResponse,
   HomeEventsListResponse,
 } from '@/src/core/api/types';
+import { isApiRequestError } from '@/src/core/http/ApiRequestError';
 import type { FetchOpts } from '@/src/core/http/FetchOpts';
 import type { HttpClient } from '@/src/core/http/HttpClient';
 import { isAbortError } from '@/src/core/http/isAbortError';
 import type { Event as DomainEvent } from '@/src/domain/entities';
 import type { AlbumPhoto } from '@/src/features/event-detail/data/eventAlbum';
-import type { EventStorySlide } from '@/src/features/event-detail/data/eventStories';
 import {
   cacheEventChallengesFromRemote,
   getEventChallenges,
@@ -42,6 +53,7 @@ import {
 } from '@/src/features/event-detail/data/eventChallenges';
 import { emitEventChallengesListRefresh } from '@/src/features/event-detail/data/eventChallengesListRefresh';
 import type { RankingRow } from '@/src/features/event-detail/data/eventRanking';
+import type { EventStorySlide } from '@/src/features/event-detail/data/eventStories';
 
 function parseHomeEventsBody(res: HomeEventsListResponse): DomainEvent[] {
   if (!res.status || !Array.isArray(res.data)) {
@@ -101,7 +113,10 @@ export class EventRepository {
   /** GET /api/events/:id. */
   async fetchRemoteEventDetail(eventId: string, opts?: FetchOpts): Promise<DomainEvent | null> {
     try {
-      const res = await this.api.get<EventDetailApiResponse>(eventPaths.detail(eventId), bearer(opts));
+      const res = await this.api.get<EventDetailApiResponse>(
+        eventPaths.detail(eventId),
+        bearer(opts),
+      );
       if (!res.status || !res.data) {
         return null;
       }
@@ -150,7 +165,10 @@ export class EventRepository {
   /** GET /api/events/:id/media — album grid. */
   async fetchEventMedia(eventId: string, opts?: FetchOpts): Promise<AlbumPhoto[]> {
     try {
-      const res = await this.api.get<EventMediaListResponse>(eventPaths.media(eventId), bearer(opts));
+      const res = await this.api.get<EventMediaListResponse>(
+        eventPaths.media(eventId),
+        bearer(opts),
+      );
       if (!res.status || !Array.isArray(res.data)) {
         return [];
       }
@@ -166,7 +184,10 @@ export class EventRepository {
   /** GET /api/events/:id/media — story slides (photos, oldest first). */
   async fetchEventStorySlides(eventId: string, opts?: FetchOpts): Promise<EventStorySlide[]> {
     try {
-      const res = await this.api.get<EventMediaListResponse>(eventPaths.media(eventId), bearer(opts));
+      const res = await this.api.get<EventMediaListResponse>(
+        eventPaths.media(eventId),
+        bearer(opts),
+      );
       if (!res.status || !Array.isArray(res.data)) {
         return [];
       }
@@ -208,7 +229,13 @@ export class EventRepository {
     params: EventMediaUploadParams,
   ): Promise<{ ok: boolean; path?: string }> {
     try {
-      const formData = buildEventMediaFormData(params);
+      const prepared = await prepareEventMediaUploadFile(params.fileUri);
+      const formData = buildEventMediaFormData({
+        ...params,
+        fileUri: prepared.uri,
+        mimeType: prepared.mimeType,
+        fileName: prepared.fileName,
+      });
       const res = await this.api.postFormData<EventMediaPostResponse>(
         eventPaths.media(eventId),
         formData,
@@ -216,7 +243,10 @@ export class EventRepository {
       );
       const path = res.data?.path?.trim();
       return { ok: Boolean(res.status), path: path || undefined };
-    } catch {
+    } catch (e) {
+      if (isApiRequestError(e)) {
+        throw e;
+      }
       return { ok: false };
     }
   }
@@ -239,7 +269,10 @@ export class EventRepository {
       await this.fetchEventChallenges(eventId);
       emitEventChallengesListRefresh(eventId);
       return { points: parseChallengeAnswerEarnedPoints(res.data) };
-    } catch {
+    } catch (e) {
+      if (isApiRequestError(e)) {
+        throw e;
+      }
       return null;
     }
   }
@@ -273,6 +306,7 @@ export class EventRepository {
       if (!res.status || !Array.isArray(res.data)) {
         return getEventChallenges(eventId);
       }
+      cacheEventChallengeApiItems(res.data);
       seedEventChallengeQuizzesFromApi(res.data);
       const mapped = normalizeChallengesFromApi(res.data);
       cacheEventChallengesFromRemote(eventId, mapped);
@@ -322,6 +356,29 @@ export class EventRepository {
       }
     }
     return true;
+  }
+
+  /** PUT /api/events/:id/challenges/:challengeId — update an existing challenge. */
+  async updateEventChallenge(
+    eventId: string,
+    challengeId: string,
+    body: EventChallengePutBody,
+  ): Promise<boolean> {
+    try {
+      const res = await this.api.put<EventChallengeUpdateResponse>(
+        eventPaths.challenge(eventId, challengeId),
+        body,
+        { auth: 'bearer' },
+      );
+      const ok = Boolean(res.status && res.data);
+      if (ok) {
+        await this.fetchEventChallenges(eventId);
+        emitEventChallengesListRefresh(eventId);
+      }
+      return ok;
+    } catch {
+      return false;
+    }
   }
 
   /** GET /api/event-challenge-suggestions/questions. */

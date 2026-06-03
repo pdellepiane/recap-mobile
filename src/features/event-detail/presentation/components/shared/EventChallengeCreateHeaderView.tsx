@@ -5,12 +5,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = {
   onBack: () => void;
-  onTrash: () => void;
+  onTrash?: () => void;
   backAccessibilityLabel: string;
-  trashAccessibilityLabel: string;
+  trashAccessibilityLabel?: string;
 };
 
-export function EventChallengeCreatePreviewHeader({
+export function EventChallengeCreateHeaderView({
   onBack,
   onTrash,
   backAccessibilityLabel,
@@ -24,19 +24,23 @@ export function EventChallengeCreatePreviewHeader({
           onPress={onBack}
           accessibilityLabel={backAccessibilityLabel}
         />
-        <Pressable
-          onPress={onTrash}
-          accessibilityRole="button"
-          accessibilityLabel={trashAccessibilityLabel}
-        >
-          <Image
-            source={images.common.remove}
-            style={styles.trashIcon}
-            resizeMode="contain"
-            tintColor={colors.neutral.primary}
-            accessibilityElementsHidden
-          />
-        </Pressable>
+        {onTrash ? (
+          <Pressable
+            onPress={onTrash}
+            accessibilityRole="button"
+            accessibilityLabel={trashAccessibilityLabel}
+          >
+            <Image
+              source={images.common.remove}
+              style={styles.trashIcon}
+              resizeMode="contain"
+              tintColor={colors.neutral.primary}
+              accessibilityElementsHidden
+            />
+          </Pressable>
+        ) : (
+          <View style={styles.trashPlaceholder} />
+        )}
       </View>
     </SafeAreaView>
   );
@@ -47,13 +51,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
     paddingVertical: 20,
   },
   backButton: {
     marginBottom: 0,
   },
   trashIcon: {
+    width: 27,
+    height: 27,
+  },
+  trashPlaceholder: {
     width: 27,
     height: 27,
   },

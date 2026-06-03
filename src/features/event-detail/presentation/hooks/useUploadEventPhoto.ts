@@ -1,5 +1,5 @@
-import { useMountedRef } from '@/src/core/hooks/useMountedRef';
 import { eventRepository } from '@/src/core/di/container';
+import { useMountedRef } from '@/src/core/hooks/useMountedRef';
 import { useCallback, useRef, useState } from 'react';
 
 type Params = {
@@ -45,8 +45,6 @@ export function useUploadEventPhoto({ eventId }: Params) {
           fileName,
           event_challenge_answer_photo_id: eventChallengeAnswerPhotoId,
         });
-      } catch {
-        return { ok: false };
       } finally {
         uploadingRef.current = false;
         if (mountedRef.current) {
@@ -58,4 +56,4 @@ export function useUploadEventPhoto({ eventId }: Params) {
   );
 
   return { isUploading, uploadPhoto };
-};
+}

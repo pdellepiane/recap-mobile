@@ -1,9 +1,6 @@
-import { useTranslation } from '@/src/i18n';
-import { appendRemoteImageEpoch, CloseButton, colors, useRemoteImageCacheEpoch } from '@/src/ui';
-import { Ionicons } from '@expo/vector-icons';
-import { Image as ExpoImage } from 'expo-image';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { EventStoriesBottomChrome } from './EventStoriesBottomChrome';
+import { EventStoriesTapStrip } from './EventStoriesTapStrip';
+import { EventStoriesTopChrome } from './EventStoriesTopChrome';
 
 type Props = {
   chromeStyle: object;
@@ -19,6 +16,8 @@ type Props = {
   vote: 'like' | 'dislike' | null | undefined;
   onGoPrev: () => void;
   onGoNext: () => void;
+  onPauseProgress: () => void;
+  onResumeProgress: () => void;
   onBack: () => void;
   onVote: (value: 'like' | 'dislike') => void;
 };
@@ -37,197 +36,40 @@ export function EventStoriesChrome({
   vote,
   onGoPrev,
   onGoNext,
-  onBack,
+  onPauseProgress,
+  onResumeProgress,
   onVote,
 }: Props) {
-  const { t } = useTranslation();
-  const mediaCacheEpoch = useRemoteImageCacheEpoch();
-  const cachedAuthorAvatarUrl = appendRemoteImageEpoch(authorAvatarUrl, mediaCacheEpoch);
   return (
     <>
-      <Animated.View
-        style={[styles.tapStrip, chromeStyle, { top: tapStripTop, bottom: tapStripBottom }]}
-        pointerEvents="box-none"
-      >
-        <Pressable
-          style={styles.tapThird}
-          onPress={onGoPrev}
-          accessibilityRole="button"
-          accessibilityLabel={t('stories.prev')}
-        />
-        <View style={styles.tapThird} pointerEvents="none" />
-        <Pressable
-          style={styles.tapThird}
-          onPress={onGoNext}
-          accessibilityRole="button"
-          accessibilityLabel={t('stories.next')}
-        />
-      </Animated.View>
+      <EventStoriesTapStrip
+        chromeStyle={chromeStyle}
+        tapStripTop={tapStripTop}
+        tapStripBottom={tapStripBottom}
+        onGoPrev={onGoPrev}
+        onGoNext={onGoNext}
+        onPauseProgress={onPauseProgress}
+        onResumeProgress={onResumeProgress}
+      />
 
-      <Animated.View
-        style={[styles.topChrome, chromeStyle, { paddingTop: topInset + 8 }]}
-        pointerEvents="box-none"
-      >
-        <View style={styles.progressRow}>
-          {slideIds.map((id, i) => (
-            <View key={id} style={styles.progressSegment}>
-              <View style={styles.progressTrack}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    {
-                      width:
-                        i < currentIndex
-                          ? '100%'
-                          : i === currentIndex
-                            ? `${Math.round(progress * 100)}%`
-                            : '0%',
-                    },
-                  ]}
-                />
-              </View>
-            </View>
-          ))}
-        </View>
+      <EventStoriesTopChrome
+        chromeStyle={chromeStyle}
+        topInset={topInset}
+        authorAvatarUrl={authorAvatarUrl}
+        authorName={authorName}
+        slideIds={slideIds}
+        currentIndex={currentIndex}
+        progress={progress}
+      />
 
-        <View style={styles.headerRow}>
-          <CloseButton
-            onPress={onBack}
-            hitSlop={12}
-            iconStyle={styles.closeIcon}
-            accessibilityLabel={t('stories.close')}
-          />
-          <ExpoImage
-            source={{ uri: cachedAuthorAvatarUrl }}
-            style={styles.headerAvatar}
-            cachePolicy="memory-disk"
-          />
-          <Text style={styles.headerName} numberOfLines={1}>
-            {authorName}
-          </Text>
-        </View>
-      </Animated.View>
-
-      <Animated.View
-        style={[styles.bottomChrome, chromeStyle, { paddingBottom: bottomInset + 20 }]}
-        pointerEvents="box-none"
-      >
-        <View style={styles.actionsRow}>
-          <Pressable
-            onPress={() => onVote('like')}
-            style={[styles.actionBtn, vote === 'like' && styles.actionBtnActive]}
-            accessibilityRole="button"
-            accessibilityLabel={t('stories.like')}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          >
-            <Ionicons
-              name={vote === 'like' ? 'heart' : 'heart-outline'}
-              size={32}
-              color={colors.neutral.primary}
-            />
-          </Pressable>
-          <Pressable
-            onPress={() => onVote('dislike')}
-            style={[styles.actionBtn, vote === 'dislike' && styles.actionBtnActive]}
-            accessibilityRole="button"
-            accessibilityLabel={t('stories.dislike')}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          >
-            <Ionicons
-              name={vote === 'dislike' ? 'thumbs-down' : 'thumbs-down-outline'}
-              size={30}
-              color={colors.neutral.primary}
-            />
-          </Pressable>
-        </View>
-      </Animated.View>
+      <EventStoriesBottomChrome
+        chromeStyle={chromeStyle}
+        bottomInset={bottomInset}
+        vote={vote}
+        onVote={onVote}
+      />
     </>
   );
 }
 
-const styles = StyleSheet.create({
-  tapStrip: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    zIndex: 3,
-  },
-  tapThird: {
-    flex: 1,
-  },
-  topChrome: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: 12,
-    zIndex: 4,
-    backgroundColor: colors.overlay.black35,
-    paddingBottom: 12,
-  },
-  progressRow: {
-    flexDirection: 'row',
-    gap: 4,
-    marginBottom: 12,
-  },
-  progressSegment: {
-    flex: 1,
-  },
-  progressTrack: {
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: colors.overlay.white35,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: colors.neutral.primary,
-    borderRadius: 2,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  closeIcon: {
-    width: 20,
-    height: 20,
-  },
-  headerAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 2,
-    borderColor: colors.overlay.white60,
-  },
-  headerName: {
-    flex: 1,
-    color: colors.neutral.primary,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  bottomChrome: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingTop: 40,
-    paddingHorizontal: 24,
-    zIndex: 4,
-    backgroundColor: colors.overlay.black45,
-  },
-  actionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    gap: 28,
-  },
-  actionBtn: {
-    padding: 8,
-    borderRadius: 999,
-  },
-  actionBtnActive: {
-    backgroundColor: colors.overlay.white20,
-  },
-});
+export { EVENT_STORIES_BOTTOM_CHROME_HEIGHT } from './EventStoriesBottomChrome';

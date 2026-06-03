@@ -16,6 +16,8 @@ export type EventChallenge = {
   points?: number;
   /** Guest submissions count when API sends it (`responses_count` / `answers_count`). */
   responsesCount?: number;
+  /** Host user id that created the challenge (`event_host_id` from API). */
+  creatorHostId?: number;
   /** When GET challenges includes `current_guest_answer`, guest-earned points from that answer. */
   remoteCompletedPoints?: number;
 };

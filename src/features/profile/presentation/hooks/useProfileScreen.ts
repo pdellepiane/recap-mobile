@@ -1,4 +1,5 @@
 import { useProfile } from './useProfile';
+import { useProfileAvatarUpload } from './useProfileAvatarUpload';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useTranslation } from '@/src/i18n';
@@ -17,10 +18,12 @@ export function useProfileScreen() {
   const { t } = useTranslation();
   const { profile, isLoading } = useProfile();
   const { logout, refreshUser } = useAuth();
-  const { goToProfileEditName } = useCoordinator();
+  const { goToProfileEdit } = useCoordinator();
+  const { isUploadingAvatar, handleChangeAvatar } = useProfileAvatarUpload();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const displayName = profile?.name ?? '-';
+  const avatarUrl = profile?.avatarUrl;
   const initials = useMemo(() => initialsFromFullName(displayName), [displayName]);
 
   const version = useMemo(() => {
@@ -58,8 +61,8 @@ export function useProfileScreen() {
   }, [performLogout, t]);
 
   const handleAccountPress = useCallback(() => {
-    goToProfileEditName();
-  }, [goToProfileEditName]);
+    goToProfileEdit();
+  }, [goToProfileEdit]);
 
   const handleRate = useCallback(async () => {
     if (Platform.OS === 'web') {
@@ -82,6 +85,9 @@ export function useProfileScreen() {
     isSigningOut,
     displayName,
     initials,
+    avatarUrl,
+    isUploadingAvatar,
+    handleChangeAvatar,
     version,
     handleLogout,
     handleAccountPress,

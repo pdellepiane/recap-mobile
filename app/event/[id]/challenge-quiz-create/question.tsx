@@ -9,11 +9,19 @@ function firstString(v: string | string[] | undefined): string | undefined {
 }
 
 export default function ChallengeQuizCreateQuestionRoute() {
-  const { id, questionId } = useLocalSearchParams<{
+  const { id, questionId, challengeId } = useLocalSearchParams<{
     id?: string | string[];
     questionId?: string | string[];
+    challengeId?: string | string[];
   }>();
   const eventId = firstString(id) ?? '';
   const qid = firstString(questionId) ?? '';
-  return <EventChallengeQuizCreateQuestionScreenPage eventId={eventId} questionId={qid} />;
+  const remoteChallengeId = firstString(challengeId);
+  return (
+    <EventChallengeQuizCreateQuestionScreenPage
+      eventId={eventId}
+      questionId={qid}
+      remoteChallengeId={remoteChallengeId}
+    />
+  );
 }

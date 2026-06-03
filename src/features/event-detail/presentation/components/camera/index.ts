@@ -2,5 +2,8 @@ export * from './EventDetailCameraCaptureSection';
 export * from './EventDetailCameraControlsRow';
 export * from './EventDetailCameraGalleryButton';
 export * from './EventDetailCameraHeader';
+export * from './EventDetailCameraInfoButton';
+export * from './EventDetailCameraLoadingView';
+export * from './EventDetailCameraUploadOverlay';
 export * from './EventDetailCameraPermissionView';
 export * from './EventDetailCameraPreviewFooter';

@@ -1,11 +1,7 @@
-import { EventChallengeQuizQuestionView } from '../components/quiz/EventChallengeQuizQuestionView';
-import { EventChallengeQuizScreenFooter } from '../components/quiz/EventChallengeQuizScreenFooter';
+import { EventChallengeQuizCompletedView } from '../components/quiz/EventChallengeQuizCompletedView';
 import { EventChallengeQuizUnavailableView } from '../components/quiz/EventChallengeQuizUnavailableView';
-import { EventChallengeFlowBackHeader } from '../components/shared/EventChallengeFlowBackHeader';
+import { EventChallengeQuizView } from '../components/quiz/EventChallengeQuizView';
 import { useEventChallengeQuizScreen } from '../hooks/useEventChallengeQuizScreen';
-import { EventChallengeQuizCompletedScreenPage } from './EventChallengeQuizCompletedScreenPage';
-import { colors } from '@/src/ui';
-import { ScrollView, StyleSheet, View } from 'react-native';
 
 type Props = {
   eventId: string;
@@ -38,7 +34,7 @@ export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNu
 
   if (showResult) {
     return (
-      <EventChallengeQuizCompletedScreenPage
+      <EventChallengeQuizCompletedView
         quizNumber={quiz.number}
         question={quiz.question}
         isCorrect={isCorrect}
@@ -53,31 +49,13 @@ export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNu
   }
 
   return (
-    <View style={styles.root}>
-      <EventChallengeFlowBackHeader />
-
-      <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-        <EventChallengeQuizQuestionView
-          quiz={quiz}
-          selectedIndex={selectedIndex}
-          onToggleOption={toggleOption}
-        />
-      </ScrollView>
-
-      <EventChallengeQuizScreenFooter
-        canFinish={canFinish}
-        loading={isSubmitting}
-        onPress={() => {
-          void finalize();
-        }}
-      />
-    </View>
+    <EventChallengeQuizView
+      quiz={quiz}
+      selectedIndex={selectedIndex}
+      canFinish={canFinish}
+      isSubmitting={isSubmitting}
+      onToggleOption={toggleOption}
+      onFinalize={finalize}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-});

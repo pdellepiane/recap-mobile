@@ -6,7 +6,7 @@ export const routePaths = {
   verifyCode: '/verify-code',
   home: '/home',
   profile: '/home/profile',
-  profileEditName: '/home/profile/edit-name',
+  profileEdit: '/home/profile/edit',
   /** In-app WebView modal; `url` must be a full `https` URL (encoded). */
   homeWeb: (url: string) => `/in-app-web?url=${encodeURIComponent(url)}`,
   eventDetail: (eventId: string, tab?: EventDetailTab) =>
@@ -37,8 +37,16 @@ export const routePaths = {
   ) =>
     `/event/${eventId}/challenge-quiz-completed?challengeId=${encodeURIComponent(challengeId)}&challengeNumber=${encodeURIComponent(String(challengeNumber))}&points=${encodeURIComponent(String(points))}`,
   eventChallengeQuizCreate: (eventId: string) => `/event/${eventId}/challenge-quiz-create`,
-  eventChallengeQuizCreateQuestion: (eventId: string, questionId: string) =>
-    `/event/${eventId}/challenge-quiz-create/question?questionId=${encodeURIComponent(questionId)}`,
+  eventChallengeQuizCreateQuestion: (
+    eventId: string,
+    questionId: string,
+    remoteChallengeId?: string,
+  ) => {
+    const base = `/event/${eventId}/challenge-quiz-create/question?questionId=${encodeURIComponent(questionId)}`;
+    return remoteChallengeId
+      ? `${base}&challengeId=${encodeURIComponent(remoteChallengeId)}`
+      : base;
+  },
   eventChallengePhotoCreate: (eventId: string) => `/event/${eventId}/challenge-photo-create`,
   eventChallengePhotoCreateChallenge: (eventId: string, challengeId: string) =>
     `/event/${eventId}/challenge-photo-create/challenge?challengeId=${encodeURIComponent(challengeId)}`,

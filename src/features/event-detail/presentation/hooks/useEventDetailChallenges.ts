@@ -1,3 +1,4 @@
+import { canUserEditQuizChallenge } from '../../data/eventChallengeQuizEdit';
 import {
   EventChallengeKind,
   getEventChallenges,
@@ -13,6 +14,7 @@ import { eventRepository } from '@/src/core/di/container';
 import type { Event } from '@/src/domain/entities';
 import { isEventHostedFromHomeFeed } from '@/src/features/events/data/homeEventCache';
 import { isBeforeEventCalendarDay } from '@/src/features/home/presentation/components/utils/eventCalendar';
+import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useAbortController } from '@/src/core/hooks/useAbortController';
 import { useMountedRef } from '@/src/core/hooks/useMountedRef';
@@ -36,7 +38,9 @@ export function useEventDetailChallenges({
   completedChallengeId,
   completedPoints,
 }: Params) {
-  const { goToEventChallengeQuiz, goToEventChallengePhoto } = useCoordinator();
+  const { goToEventChallengeQuiz, goToEventChallengePhoto, goToEventChallengeQuizEdit } =
+    useCoordinator();
+  const { session } = useAuth();
   const mountedRef = useMountedRef();
   const refetchGenerationRef = useRef(0);
   const { beginRequest, endRequest, abortAll } = useAbortController();
@@ -151,10 +155,18 @@ export function useEventDetailChallenges({
       if (!event) {
         return;
       }
+      const isHost = isEventHostedFromHomeFeed(event.id);
+      if (
+        isHost &&
+        canUserEditQuizChallenge(challenge, session?.user.id) &&
+        challenge.kind === EventChallengeKind.Quiz
+      ) {
+        goToEventChallengeQuizEdit(event.id, challenge.id);
+        return;
+      }
       if (challenge.remoteCompletedPoints !== undefined) {
         return;
       }
-      const isHost = isEventHostedFromHomeFeed(event.id);
       if (!isHost) {
         const trimmed = event.date?.trim() ?? '';
         const hasValidDate = trimmed.length > 0 && !Number.isNaN(Date.parse(trimmed));
@@ -168,7 +180,7 @@ export function useEventDetailChallenges({
       }
       goToEventChallengePhoto(event.id, challenge.id, challenge.number);
     },
-    [event, goToEventChallengeQuiz, goToEventChallengePhoto],
+    [event, goToEventChallengeQuiz, goToEventChallengePhoto, goToEventChallengeQuizEdit, session?.user.id],
   );
 
   const completedByChallengeIdForUi = useMemo(() => {

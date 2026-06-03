@@ -1,6 +1,7 @@
 import { EventDetailCameraControlsRow } from './EventDetailCameraControlsRow';
 import { EventDetailCameraGalleryButton } from './EventDetailCameraGalleryButton';
 import { EventDetailCameraHeader } from './EventDetailCameraHeader';
+import { EventDetailCameraUploadOverlay } from './EventDetailCameraUploadOverlay';
 import { colors } from '@/src/ui';
 import { CameraView } from 'expo-camera';
 import { Image } from 'expo-image';
@@ -30,7 +31,10 @@ type Props = {
   previewOverlay?: ReactNode;
   /** Optional preview footer pinned to bottom-right inside camera card. */
   previewFooter?: ReactNode;
-  /** Optional full-card overlay rendered last (e.g. uploading scrim/spinner). */
+  /** When true and `selectedPhotoUri` is set, shows the default upload scrim (unless `stageOverlay` is passed). */
+  isUploading?: boolean;
+  uploadingLabel?: string;
+  /** Optional full-card overlay rendered last instead of the default upload overlay. */
   stageOverlay?: ReactNode;
   closeLabel: string;
   discardLabel: string;
@@ -45,7 +49,7 @@ type Props = {
   onDiscardPreview: () => void;
   onToggleFlash: () => void;
   onToggleFacing: () => void;
-  onCapture: () => void | Promise<void>;
+  onCapture: () => void;
   onOpenGallery: () => void;
 };
 
@@ -65,6 +69,8 @@ export function EventDetailCameraCaptureSection({
   cameraOverlay,
   previewOverlay,
   previewFooter,
+  isUploading = false,
+  uploadingLabel,
   stageOverlay,
   closeLabel,
   discardLabel,
@@ -82,6 +88,15 @@ export function EventDetailCameraCaptureSection({
   onCapture,
   onOpenGallery,
 }: Props) {
+  const resolvedStageOverlay =
+    stageOverlay ??
+    (isUploading && selectedPhotoUri && uploadingLabel ? (
+      <EventDetailCameraUploadOverlay
+        photoUri={selectedPhotoUri}
+        uploadingLabel={uploadingLabel}
+      />
+    ) : null);
+
   return (
     <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
       <View style={styles.cameraCard}>
@@ -147,9 +162,9 @@ export function EventDetailCameraCaptureSection({
           />
         )}
 
-        {stageOverlay ? (
+        {resolvedStageOverlay ? (
           <View style={styles.stageOverlaySlot} pointerEvents="box-none">
-            {stageOverlay}
+            {resolvedStageOverlay}
           </View>
         ) : null}
       </View>

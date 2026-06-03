@@ -1,5 +1,5 @@
 import { EventChallengeCreatePreviewFooter } from '../components/shared/EventChallengeCreatePreviewFooter';
-import { EventChallengeCreatePreviewHeader } from '../components/shared/EventChallengeCreatePreviewHeader';
+import { EventChallengeCreateHeaderView } from '../components/shared/EventChallengeCreateHeaderView';
 import { EventChallengePhotoCreatePreviewBody } from '../components/photo/EventChallengePhotoCreatePreviewBody';
 import { useEventChallengePhotoCreatePreviewScreen } from '../hooks/useEventChallengePhotoCreatePreviewScreen';
 import { useTranslation } from '@/src/i18n';
@@ -22,7 +22,7 @@ export function EventChallengePhotoCreatePreviewScreenPage({ challengeId }: Prop
 
   return (
     <View style={styles.root}>
-      <EventChallengeCreatePreviewHeader
+      <EventChallengeCreateHeaderView
         onBack={goBack}
         onTrash={onTrash}
         backAccessibilityLabel={t('common.back')}

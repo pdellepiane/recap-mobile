@@ -1,9 +1,10 @@
 import { EventStoriesChrome } from '../components/stories/EventStoriesChrome';
 import { EventStoriesFallback } from '../components/stories/EventStoriesFallback';
 import { useEventStoriesScreen } from '../hooks/useEventStoriesScreen';
+import { useTranslation } from '@/src/i18n';
 import { appendRemoteImageEpoch, useRemoteImageCacheEpoch } from '@/src/ui';
 import { Image as ExpoImage } from 'expo-image';
-import { StatusBar, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Pressable, StatusBar, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 
@@ -15,6 +16,7 @@ type Props = {
  * Full-screen WhatsApp-style stories: photos, segmented progress, like / dislike.
  */
 export function EventStoriesScreenPage({ eventId }: Props) {
+  const { t } = useTranslation();
   const { width: screenW, height: screenH } = useWindowDimensions();
   const mediaCacheEpoch = useRemoteImageCacheEpoch();
   const {
@@ -36,6 +38,8 @@ export function EventStoriesScreenPage({ eventId }: Props) {
     tapStripTop,
     tapStripBottom,
     setVote,
+    pauseProgress,
+    resumeProgress,
   } = useEventStoriesScreen(eventId);
 
   if (isLoading) {
@@ -56,13 +60,21 @@ export function EventStoriesScreenPage({ eventId }: Props) {
         <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
         <Animated.View style={dimmerStyle} pointerEvents="none" />
         <Animated.View style={mediaShellStyle}>
-          <ExpoImage
-            source={slideImageUrl ? { uri: slideImageUrl } : undefined}
-            style={styles.mediaFill}
-            contentFit="cover"
-            recyclingKey={slide?.id}
-            cachePolicy="memory-disk"
-          />
+          <Pressable
+            style={styles.mediaPressable}
+            onPressIn={pauseProgress}
+            onPressOut={resumeProgress}
+            accessibilityRole="button"
+            accessibilityLabel={t('stories.holdToPause')}
+          >
+            <ExpoImage
+              source={slideImageUrl ? { uri: slideImageUrl } : undefined}
+              style={styles.mediaFill}
+              contentFit="cover"
+              recyclingKey={slide?.id}
+              cachePolicy="memory-disk"
+            />
+          </Pressable>
         </Animated.View>
 
         <EventStoriesChrome
@@ -79,6 +91,8 @@ export function EventStoriesScreenPage({ eventId }: Props) {
           vote={vote}
           onGoPrev={goPrev}
           onGoNext={goNext}
+          onPauseProgress={pauseProgress}
+          onResumeProgress={resumeProgress}
           onBack={goBack}
           onVote={setVote}
         />
@@ -91,6 +105,11 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: 'transparent',
+  },
+  mediaPressable: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
   },
   mediaFill: {
     width: '100%',

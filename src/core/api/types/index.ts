@@ -1,4 +1,5 @@
 export * from './auth';
+export * from './userProfile';
 export * from './banners';
 export * from './eventChallenges';
 export * from './eventChallengeSuggestions';

@@ -78,7 +78,7 @@ export function usePhotoCaptureFlow({ galleryPermissionTitle, galleryPermissionM
         return;
       }
       try {
-        const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
+        const photo = await cameraRef.current.takePictureAsync({ quality: 0.85 });
         handleCaptureResult(photo);
       } catch {
         // no-op
@@ -100,7 +100,7 @@ export function usePhotoCaptureFlow({ galleryPermissionTitle, galleryPermissionM
     }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
+      quality: 0.85,
     });
     if (result.canceled || !result.assets?.length) {
       return;

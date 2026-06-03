@@ -1,19 +1,46 @@
 import { EventChallengePostBody } from '@/src/core/api/types';
 import { eventRepository } from '@/src/core/di/container';
+import { isAbortError } from '@/src/core/http/isAbortError';
+import {
+  buildQuizEditSnapshotFromApiItem,
+  quizDraftQuestionFromRemoteChallenge,
+  quizOptionsChangedForEdit,
+  type QuizEditSnapshot,
+} from '@/src/features/event-detail/data/eventChallengeQuizEdit';
+import { getCachedEventChallengeApiItem } from '@/src/features/events/data/eventChallengeApiItemCache';
+import {
+  EventChallengeKind,
+  getEventChallenges,
+  type EventChallenge,
+} from '@/src/features/event-detail/data/eventChallenges';
+import { subscribeEventChallengesListRefresh } from '@/src/features/event-detail/data/eventChallengesListRefresh';
 import {
   normalizeChallengePromptText,
   usedChallengePromptKeySet,
 } from '@/src/features/events/data/eventChallengesMap';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
+import {
+  firstRouteParam,
+  resolveEditRemoteChallengeId,
+} from '@/src/features/event-detail/presentation/utils/quizCreateRouteParams';
 import { showShortUserMessage } from '@/src/ui';
-import { isAbortError } from '@/src/core/http/isAbortError';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useGlobalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard } from 'react-native';
 
 type Params = {
   eventId: string;
+  editRemoteChallengeId?: string;
+};
+
+type QuizEditMeta = {
+  remoteChallengeId: string;
+  position: number;
+  points: number;
+  isActive: boolean;
+  snapshot: QuizEditSnapshot;
 };
 
 const OPTION_SLOTS = 4;
@@ -33,7 +60,24 @@ export type QuizCreateAddedQuestion = {
   answerOptions: QuizCreateQuestionOption[];
   correctOptionId: string | null;
   consumedSuggestion?: QuizCreateQuestionSuggestion;
+  /** Set when the question already exists on the API (listed from GET /challenges). */
+  remoteChallengeId?: string;
 };
+
+/** Challenge row loaded from GET /challenges or local id `edit-{remoteId}`. */
+export function isPublishedQuizQuestion(q: QuizCreateAddedQuestion): boolean {
+  return Boolean(q.remoteChallengeId) || q.id.startsWith('edit-');
+}
+
+function remoteQuizQuestionsFromEventChallenges(
+  challenges: EventChallenge[],
+): QuizCreateAddedQuestion[] {
+  return challenges
+    .filter((c) => c.kind === EventChallengeKind.Quiz)
+    .sort((a, b) => a.number - b.number)
+    .map((c) => quizDraftQuestionFromRemoteChallenge(c.id))
+    .filter((q): q is QuizCreateAddedQuestion => q != null);
+}
 
 export type QuizCreateQuestionSuggestion = {
   id: string;
@@ -82,9 +126,10 @@ function buildQuestion(
   };
 }
 
-function buildQuizChallengeBody(
+export function buildQuizChallengeBody(
   q: QuizCreateAddedQuestion,
   position: number,
+  overrides?: { points?: number; is_active?: boolean },
 ): EventChallengePostBody | null {
   if (!questionHasValidAnswers(q)) {
     return null;
@@ -110,9 +155,9 @@ function buildQuizChallengeBody(
     type: 'question',
     title: q.text.trim(),
     question: q.text.trim(),
-    points: 10,
+    points: overrides?.points ?? 10,
     position,
-    is_active: true,
+    is_active: overrides?.is_active ?? true,
     options: sourceOptions.map(({ option, position: optionPosition, points }) => ({
       option,
       position: optionPosition,
@@ -122,22 +167,100 @@ function buildQuizChallengeBody(
   };
 }
 
-export function useEventChallengeQuizCreateScreen({ eventId }: Params) {
+export function useEventChallengeQuizCreateScreen({ eventId, editRemoteChallengeId }: Params) {
   const { t } = useTranslation();
   const { goBack } = useCoordinator();
+  const routeParams = useGlobalSearchParams<{
+    challengeId?: string | string[];
+    questionId?: string | string[];
+  }>();
+  const resolvedEditRemoteChallengeId = useMemo(
+    () =>
+      resolveEditRemoteChallengeId({
+        challengeId: editRemoteChallengeId ?? firstRouteParam(routeParams.challengeId),
+        questionId: firstRouteParam(routeParams.questionId),
+      }),
+    [editRemoteChallengeId, routeParams.challengeId, routeParams.questionId],
+  );
+  const isEditMode = Boolean(resolvedEditRemoteChallengeId);
   const [composerOpen, setComposerOpen] = useState(false);
   const [draft, setDraft] = useState('');
   const [addedQuestions, setAddedQuestions] = useState<QuizCreateAddedQuestion[]>([]);
+  const [remoteQuizQuestions, setRemoteQuizQuestions] = useState<QuizCreateAddedQuestion[]>([]);
   const [availableSuggestions, setAvailableSuggestions] = useState<QuizCreateQuestionSuggestion[]>(
     [],
   );
+  const [editMeta, setEditMeta] = useState<QuizEditMeta | null>(null);
+  const [editHydrating, setEditHydrating] = useState(isEditMode);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addedQuestionsRef = useRef(addedQuestions);
   addedQuestionsRef.current = addedQuestions;
 
+  const pendingLocalQuestions = useMemo(
+    () => addedQuestions.filter((q) => !isPublishedQuizQuestion(q)),
+    [addedQuestions],
+  );
+
+  const listedQuestions = useMemo(() => {
+    if (isEditMode) {
+      return addedQuestions;
+    }
+    const remoteKeys = new Set(
+      remoteQuizQuestions.map((q) => normalizeChallengePromptText(q.text)),
+    );
+    const localDrafts = pendingLocalQuestions.filter(
+      (q) => !remoteKeys.has(normalizeChallengePromptText(q.text)),
+    );
+    return [...remoteQuizQuestions, ...localDrafts];
+  }, [addedQuestions, isEditMode, pendingLocalQuestions, remoteQuizQuestions]);
+
+  const syncRemoteQuizQuestions = useCallback((challenges: EventChallenge[]) => {
+    setRemoteQuizQuestions(remoteQuizQuestionsFromEventChallenges(challenges));
+  }, []);
+
+  useEffect(() => {
+    const remoteId = resolvedEditRemoteChallengeId;
+    if (!eventId || !remoteId) {
+      setEditHydrating(false);
+      return;
+    }
+    let cancelled = false;
+    setEditHydrating(true);
+    void (async () => {
+      let item = getCachedEventChallengeApiItem(remoteId);
+      if (!item) {
+        await eventRepository.fetchEventChallenges(eventId);
+        item = getCachedEventChallengeApiItem(remoteId);
+      }
+      if (cancelled) {
+        return;
+      }
+      const draftQuestion = quizDraftQuestionFromRemoteChallenge(remoteId);
+      if (!item || !draftQuestion) {
+        setEditHydrating(false);
+        showShortUserMessage(t('eventDetail.createQuizUpdateLoadError'));
+        goBack();
+        return;
+      }
+      setAddedQuestions([draftQuestion]);
+      setEditMeta({
+        remoteChallengeId: remoteId,
+        position: typeof item.position === 'number' && item.position > 0 ? item.position : 1,
+        points: typeof item.points === 'number' ? item.points : 10,
+        isActive: item.is_active !== false,
+        snapshot: buildQuizEditSnapshotFromApiItem(item),
+      });
+      setEditHydrating(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [resolvedEditRemoteChallengeId, eventId, goBack, t]);
+
   useFocusEffect(
     useCallback(() => {
-      if (!eventId) {
+      if (!eventId || isEditMode) {
         return undefined;
       }
       const controller = new AbortController();
@@ -152,6 +275,7 @@ export function useEventChallengeQuizCreateScreen({ eventId }: Params) {
           if (controller.signal.aborted) {
             return;
           }
+          syncRemoteQuizQuestions(existing);
           const used = usedChallengePromptKeySet(existing);
           for (const row of addedQuestionsRef.current) {
             const k = normalizeChallengePromptText(row.text);
@@ -170,8 +294,17 @@ export function useEventChallengeQuizCreateScreen({ eventId }: Params) {
       return () => {
         controller.abort();
       };
-    }, [eventId]),
+    }, [eventId, syncRemoteQuizQuestions]),
   );
+
+  useEffect(() => {
+    if (!eventId || isEditMode) {
+      return undefined;
+    }
+    return subscribeEventChallengesListRefresh(eventId, () => {
+      syncRemoteQuizQuestions(getEventChallenges(eventId));
+    });
+  }, [eventId, isEditMode, syncRemoteQuizQuestions]);
 
   const openComposer = useCallback(() => {
     setComposerOpen(true);
@@ -241,9 +374,10 @@ export function useEventChallengeQuizCreateScreen({ eventId }: Params) {
     );
   }, []);
 
-  const canContinue =
-    addedQuestions.length > 0 &&
-    addedQuestions.every((question) => questionHasValidAnswers(question));
+  const canContinue = isEditMode
+    ? addedQuestions.length === 1 && questionHasValidAnswers(addedQuestions[0]!)
+    : pendingLocalQuestions.length > 0 &&
+      pendingLocalQuestions.every((question) => questionHasValidAnswers(question));
 
   const quizCreatePayload = useMemo(
     () => ({ eventId, questions: addedQuestions }),
@@ -251,31 +385,90 @@ export function useEventChallengeQuizCreateScreen({ eventId }: Params) {
   );
 
   const submit = useCallback(async () => {
-    if (!eventId || !canContinue) {
+    if (!eventId || !canContinue || editHydrating || isSubmitting) {
       return;
     }
-    const payloads = addedQuestions
-      .map((q, index) => buildQuizChallengeBody(q, index + 1))
-      .filter((item): item is EventChallengePostBody => item != null);
-    if (payloads.length === 0) {
-      showShortUserMessage(t('eventDetail.createQuizCreateInvalid'));
-      return;
+    setIsSubmitting(true);
+    try {
+      if (isEditMode && editMeta) {
+        const q = addedQuestions[0];
+        if (!q) {
+          return;
+        }
+        const body = buildQuizChallengeBody(q, editMeta.position, {
+          points: editMeta.points,
+          is_active: editMeta.isActive,
+        });
+        if (!body) {
+          showShortUserMessage(t('eventDetail.createQuizCreateInvalid'));
+          return;
+        }
+        const answersMayClear = quizOptionsChangedForEdit(editMeta.snapshot, q);
+        const ok = await eventRepository.updateEventChallenge(
+          eventId,
+          editMeta.remoteChallengeId,
+          body,
+        );
+        if (!ok) {
+          showShortUserMessage(t('eventDetail.createQuizUpdateError'));
+          return;
+        }
+        goBack();
+        showShortUserMessage(
+          answersMayClear
+            ? t('eventDetail.createQuizUpdateSuccessAnswersCleared')
+            : t('eventDetail.createQuizUpdateSuccess'),
+        );
+        return;
+      }
+      const payloads = pendingLocalQuestions
+        .map((q, index) => buildQuizChallengeBody(q, remoteQuizQuestions.length + index + 1))
+        .filter((item): item is EventChallengePostBody => item != null);
+      if (payloads.length === 0) {
+        showShortUserMessage(t('eventDetail.createQuizCreateInvalid'));
+        return;
+      }
+      const ok = await eventRepository.createEventChallengesSequential(eventId, payloads);
+      if (!ok) {
+        showShortUserMessage(t('eventDetail.createQuizCreateError'));
+        return;
+      }
+      goBack();
+      showShortUserMessage(t('eventDetail.createQuizCreateSuccess'));
+      void eventRepository.fetchEventChallenges(eventId).then((refreshed) => {
+        setAddedQuestions((prev) => prev.filter((q) => isPublishedQuizQuestion(q)));
+        syncRemoteQuizQuestions(refreshed);
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-    const ok = await eventRepository.createEventChallengesSequential(eventId, payloads);
-    if (!ok) {
-      showShortUserMessage(t('eventDetail.createQuizCreateError'));
-      return;
-    }
-    showShortUserMessage(t('eventDetail.createQuizCreateSuccess'));
-    goBack();
-  }, [addedQuestions, canContinue, eventId, goBack, t]);
+  }, [
+    addedQuestions,
+    pendingLocalQuestions,
+    remoteQuizQuestions.length,
+    canContinue,
+    editHydrating,
+    editMeta,
+    eventId,
+    goBack,
+    isEditMode,
+    isSubmitting,
+    syncRemoteQuizQuestions,
+    t,
+  ]);
 
   return {
     eventId,
+    isEditMode,
+    editHydrating,
+    isSubmitting,
     composerOpen,
     draft,
     setDraft,
     addedQuestions,
+    listedQuestions,
+    pendingLocalQuestions,
+    remoteQuizQuestions,
     availableSuggestions,
     openComposer,
     resetComposerIdle,

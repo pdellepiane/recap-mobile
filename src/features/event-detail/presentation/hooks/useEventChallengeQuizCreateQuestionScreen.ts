@@ -1,4 +1,5 @@
 import { useQuizCreateDraft } from '../context/QuizCreateDraftContext';
+import { resolveEditRemoteChallengeId } from '../utils/quizCreateRouteParams';
 import {
   questionHasValidAnswers,
   type QuizCreateQuestionOption,
@@ -8,23 +9,33 @@ import { useCallback, useMemo, useState } from 'react';
 
 type Params = {
   questionId: string;
+  remoteChallengeId?: string;
 };
 
 /** Edit answer options + correct choice for one draft quiz question, then finish the challenge. */
-export function useEventChallengeQuizCreateQuestionScreen({ questionId }: Params) {
+export function useEventChallengeQuizCreateQuestionScreen({
+  questionId,
+  remoteChallengeId,
+}: Params) {
   const { goBack } = useCoordinator();
   const {
     addedQuestions,
+    listedQuestions,
     deleteQuestion,
     restoreConsumedQuestionSuggestion,
     setAnswerOptionText,
     setCorrectOptionId,
     submit,
+    isEditMode,
+    editHydrating,
+    isSubmitting,
   } = useQuizCreateDraft();
 
   const question = useMemo(
-    () => addedQuestions.find((q) => q.id === questionId),
-    [addedQuestions, questionId],
+    () =>
+      listedQuestions.find((q) => q.id === questionId) ??
+      addedQuestions.find((q) => q.id === questionId),
+    [addedQuestions, listedQuestions, questionId],
   );
 
   const [editingOption, setEditingOption] = useState<QuizCreateQuestionOption | null>(null);
@@ -52,11 +63,11 @@ export function useEventChallengeQuizCreateQuestionScreen({ questionId }: Params
   const canFinish = question ? questionHasValidAnswers(question) : false;
 
   const onFinish = useCallback(async () => {
-    if (!canFinish) {
+    if (!canFinish || editHydrating || isSubmitting) {
       return;
     }
     await submit();
-  }, [canFinish, submit]);
+  }, [canFinish, editHydrating, isSubmitting, submit]);
 
   const saveAnswerEdit = useCallback(
     (text: string, isCorrect: boolean) => {
@@ -77,16 +88,28 @@ export function useEventChallengeQuizCreateQuestionScreen({ questionId }: Params
   const modalInitialCorrect =
     editingOption != null && question != null && question.correctOptionId === editingOption.id;
 
+  const isEditModeUi =
+    isEditMode ||
+    Boolean(
+      resolveEditRemoteChallengeId({
+        challengeId: remoteChallengeId,
+        questionId,
+      }),
+    );
+
   return {
     question,
     goBack,
     editingOption,
     openSlot,
     closeModal,
-    onTrash,
+    onTrash: isEditModeUi ? undefined : onTrash,
     canFinish,
     onFinish,
     saveAnswerEdit,
     modalInitialCorrect,
+    isEditMode: isEditModeUi,
+    editHydrating,
+    isSubmitting,
   };
 }

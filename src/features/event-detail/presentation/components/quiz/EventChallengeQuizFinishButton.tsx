@@ -22,7 +22,7 @@ export function EventChallengeQuizFinishButton({ canFinish, loading = false, onP
         pressed && enabled && styles.pressed,
       ]}
       accessibilityRole="button"
-      accessibilityLabel={t('common.finish')}
+      accessibilityLabel={loading ? t('quiz.submittingAnswer') : t('common.finish')}
     >
       <Text
         style={[
@@ -30,7 +30,7 @@ export function EventChallengeQuizFinishButton({ canFinish, loading = false, onP
           enabled ? styles.finishTextEnabled : styles.finishTextDisabled,
         ]}
       >
-        {loading ? t('challenges.uploading') : t('common.finish')}
+        {loading ? t('quiz.submittingAnswer') : t('common.finish')}
       </Text>
     </Pressable>
   );

@@ -1,4 +1,4 @@
-import { EventChallengeFlowBackHeader } from '../shared/EventChallengeFlowBackHeader';
+import { EventChallengeHeaderView } from '../shared/EventChallengeHeaderView';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
@@ -14,7 +14,7 @@ export function EventChallengeQuizUnavailableView({ contentTopInset }: Props) {
 
   return (
     <View style={styles.root}>
-      <EventChallengeFlowBackHeader />
+      <EventChallengeHeaderView />
       <View style={[styles.body, { paddingTop: contentTopInset }]}>
         <Text style={styles.message}>{t('quiz.unavailable')}</Text>
       </View>

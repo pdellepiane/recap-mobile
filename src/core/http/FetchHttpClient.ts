@@ -167,4 +167,21 @@ export class FetchHttpClient implements HttpClient {
       auth: options.auth,
     });
   }
+
+  async put<T>(path: string, body: object, options: FetchOpts = {}): Promise<T> {
+    const url = this.resolveUrl(path);
+    logHttp('→', 'PUT', url, { requestBody: body });
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: await this.headersFor(options, true),
+      body: JSON.stringify(body),
+      signal: options.signal,
+    });
+    return this.parseResponse<T>(res, {
+      method: 'PUT',
+      url,
+      requestBody: body,
+      auth: options.auth,
+    });
+  }
 }

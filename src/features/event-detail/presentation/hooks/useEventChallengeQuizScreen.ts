@@ -1,3 +1,4 @@
+import { showChallengeAnswerErrorAlert } from '../../data/challengeAnswerErrorMessage';
 import { getEventChallengeQuiz } from '../../data/eventChallengeQuiz';
 import { getEventChallenges } from '../../data/eventChallenges';
 import {
@@ -10,7 +11,6 @@ import { EventDetailTab } from './eventDetailTabs';
 import { eventRepository } from '@/src/core/di/container';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { showShortUserMessage } from '@/src/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -97,7 +97,7 @@ export function useEventChallengeQuizScreen({ eventId, challengeId }: Params) {
 
     const optionId = quiz.optionIds[selectedIndex];
     if (optionId == null) {
-      showShortUserMessage(t('quiz.submitError'));
+      showChallengeAnswerErrorAlert(null, t);
       return;
     }
 
@@ -107,11 +107,13 @@ export function useEventChallengeQuizScreen({ eventId, challengeId }: Params) {
         event_challenge_option_id: optionId,
       });
       if (!result) {
-        showShortUserMessage(t('quiz.submitError'));
+        showChallengeAnswerErrorAlert(null, t);
         return;
       }
       setPointsEarned(result.points);
       setShowResult(true);
+    } catch (e) {
+      showChallengeAnswerErrorAlert(e, t);
     } finally {
       setIsSubmitting(false);
     }

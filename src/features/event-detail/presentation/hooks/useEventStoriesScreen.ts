@@ -1,3 +1,4 @@
+import { EVENT_STORIES_BOTTOM_CHROME_HEIGHT } from '../components/stories/EventStoriesChrome';
 import { buildEventStoriesBundle, type EventStoriesBundle } from '../../data/eventStories';
 import { hostsLineForDetailView } from '../../data/eventDetailDerived';
 import { useEventDetailRoute } from '../context/EventDetailRouteContext';
@@ -78,7 +79,8 @@ export function useEventStoriesScreen(eventId: string) {
     goBack();
   }, [goBack]);
 
-  const { currentIndex, progress, goPrev, goNext } = useEventStoriesViewer(slideCount, onFinish);
+  const { currentIndex, progress, goPrev, goNext, pauseProgress, resumeProgress } =
+    useEventStoriesViewer(slideCount, onFinish);
   const { panGesture, dimmerStyle, mediaShellStyle, chromeStyle } = useSwipeDownToClose(
     onFinish,
     currentIndex,
@@ -87,7 +89,7 @@ export function useEventStoriesScreen(eventId: string) {
   const vote = votes[currentIndex];
   const slide = bundle?.slides[currentIndex];
   const tapStripTop = insets.top + 100;
-  const tapStripBottom = insets.bottom + 100;
+  const tapStripBottom = insets.bottom + EVENT_STORIES_BOTTOM_CHROME_HEIGHT;
 
   const setVote = (v: Vote) => {
     setVotes((prev) => ({
@@ -115,5 +117,7 @@ export function useEventStoriesScreen(eventId: string) {
     tapStripTop,
     tapStripBottom,
     setVote,
+    pauseProgress,
+    resumeProgress,
   };
 }

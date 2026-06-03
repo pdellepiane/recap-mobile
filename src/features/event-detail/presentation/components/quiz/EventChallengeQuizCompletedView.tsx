@@ -1,4 +1,4 @@
-import { EventChallengeQuizCompletedBody } from '../components/quiz/EventChallengeQuizCompletedBody';
+import { EventChallengeQuizCompletedBody } from './EventChallengeQuizCompletedBody';
 import { useTranslation } from '@/src/i18n';
 import { CloseButton, colors } from '@/src/ui';
 import { StyleSheet, View } from 'react-native';
@@ -17,7 +17,7 @@ type Props = {
   onOpenRanking: () => void;
 };
 
-export function EventChallengeQuizCompletedScreenPage({
+export function EventChallengeQuizCompletedView({
   quizNumber,
   question,
   isCorrect,

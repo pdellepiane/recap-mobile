@@ -62,6 +62,7 @@ export function mapEventChallengeApiItemToPresentation(
     question: questionRaw || undefined,
     points: typeof item.points === 'number' ? item.points : undefined,
     responsesCount: pickResponsesCount(item),
+    creatorHostId: item.event_host_id,
     remoteCompletedPoints:
       item.current_guest_answer != null
         ? parseGuestAnswerPoints(item.current_guest_answer)

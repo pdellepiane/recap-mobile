@@ -2,35 +2,75 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 const STORY_DURATION_MS = 5500;
 
+type SegmentTiming = {
+  segmentStartMs: number;
+  segmentOffsetMs: number;
+  isPaused: boolean;
+  raf: number;
+};
+
 /**
  * Advances the stories carousel with a progress bar; calls `onFinish` after the last slide.
+ * Hold to pause via {@link pauseProgress} / {@link resumeProgress}.
  */
 export function useEventStoriesViewer(slideCount: number, onFinish: () => void) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const indexRef = useRef(0);
+  const timingRef = useRef<SegmentTiming>({
+    segmentStartMs: 0,
+    segmentOffsetMs: 0,
+    isPaused: false,
+    raf: 0,
+  });
 
   useEffect(() => {
     indexRef.current = currentIndex;
   }, [currentIndex]);
 
+  const pauseProgress = useCallback(() => {
+    const timing = timingRef.current;
+    if (timing.isPaused) {
+      return;
+    }
+    timing.isPaused = true;
+    timing.segmentOffsetMs += Date.now() - timing.segmentStartMs;
+  }, []);
+
+  const resumeProgress = useCallback(() => {
+    const timing = timingRef.current;
+    if (!timing.isPaused) {
+      return;
+    }
+    timing.isPaused = false;
+    timing.segmentStartMs = Date.now();
+  }, []);
+
   useEffect(() => {
     if (slideCount <= 0) {
       return;
     }
+
     let cancelled = false;
-    let raf = 0;
-    const start = Date.now();
+    const timing = timingRef.current;
+    timing.segmentStartMs = Date.now();
+    timing.segmentOffsetMs = 0;
+    timing.isPaused = false;
 
     const tick = () => {
       if (cancelled) {
         return;
       }
-      const p = (Date.now() - start) / STORY_DURATION_MS;
+
+      if (timing.isPaused) {
+        timing.raf = requestAnimationFrame(tick);
+        return;
+      }
+
+      const elapsedMs = timing.segmentOffsetMs + (Date.now() - timing.segmentStartMs);
+      const p = elapsedMs / STORY_DURATION_MS;
+
       if (p >= 1) {
-        if (cancelled) {
-          return;
-        }
         const idx = indexRef.current;
         if (idx >= slideCount - 1) {
           onFinish();
@@ -39,16 +79,17 @@ export function useEventStoriesViewer(slideCount: number, onFinish: () => void) 
         }
         return;
       }
+
       setProgress(p);
-      raf = requestAnimationFrame(tick);
+      timing.raf = requestAnimationFrame(tick);
     };
 
     setProgress(0);
-    raf = requestAnimationFrame(tick);
+    timing.raf = requestAnimationFrame(tick);
 
     return () => {
       cancelled = true;
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(timing.raf);
     };
   }, [currentIndex, slideCount, onFinish]);
 
@@ -71,5 +112,5 @@ export function useEventStoriesViewer(slideCount: number, onFinish: () => void) 
     });
   }, [slideCount, onFinish]);
 
-  return { currentIndex, progress, goPrev, goNext };
+  return { currentIndex, progress, goPrev, goNext, pauseProgress, resumeProgress };
 }

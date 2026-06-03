@@ -1,8 +1,5 @@
-import { EventChallengePhotoBody } from '../components/photo/EventChallengePhotoBody';
-import { EventChallengeFlowBackHeader } from '../components/shared/EventChallengeFlowBackHeader';
+import { EventChallengePhotoView } from '../components/photo/EventChallengePhotoView';
 import { useEventChallengePhotoScreen } from '../hooks/useEventChallengePhotoScreen';
-import { colors } from '@/src/ui';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   eventId: string;
@@ -21,21 +18,10 @@ export function EventChallengePhotoScreenPage({ eventId, challengeId, challengeN
   });
 
   return (
-    <View style={styles.root}>
-      <EventChallengeFlowBackHeader />
-
-      <EventChallengePhotoBody
-        kicker={kicker}
-        instructionParagraphs={instructionParagraphs}
-        onOpenCamera={handleOpenCamera}
-      />
-    </View>
+    <EventChallengePhotoView
+      kicker={kicker}
+      instructionParagraphs={instructionParagraphs}
+      onOpenCamera={handleOpenCamera}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-});

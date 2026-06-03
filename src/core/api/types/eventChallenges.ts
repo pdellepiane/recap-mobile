@@ -69,6 +69,16 @@ export type EventChallengePostBody = {
   correct_option_index?: number;
 };
 
+/** PUT /api/events/:id/challenges/:challengeId — same shape as create. */
+export type EventChallengePutBody = EventChallengePostBody;
+
+export type EventChallengeUpdateResponse = {
+  data: EventChallengeApiItem;
+  status: boolean;
+  errors: unknown;
+  error: string | null;
+};
+
 export type EventChallengeCreateResponse = {
   data: EventChallengeApiItem;
   status: boolean;

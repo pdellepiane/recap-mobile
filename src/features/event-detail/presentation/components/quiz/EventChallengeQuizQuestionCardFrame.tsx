@@ -4,15 +4,7 @@ import { fontFamilies } from '@/src/ui/typography';
 import type { ReactNode } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
-/** Shared quiz card chrome (guest + organizer flows). */
-export const QUIZ_CARD = {
-  kickerGuest: '#9D59FF',
-  card: '#2B2B2B',
-} as const;
-
-const CARD_TOP = 118;
 const ICON_TOP_W = 170;
-const ICON_TOP_H = 120;
 
 type Props = {
   /** e.g. challenge number label (guest) or “Reto nuevo” (organizer). */
@@ -21,6 +13,10 @@ type Props = {
   question: string;
   /** Option rows or editor slots rendered inside the card. */
   children: ReactNode;
+  /** Top inset so content centers below a floating header (guest quiz flow). */
+  contentInsetTop?: number;
+  /** Bottom inset when the footer overlays content instead of pushing layout. */
+  contentInsetBottom?: number;
 };
 
 /**
@@ -29,54 +25,59 @@ type Props = {
  */
 export function EventChallengeQuizQuestionCardFrame({
   kicker,
-  kickerColor = QUIZ_CARD.kickerGuest,
   question,
   children,
+  contentInsetTop = 0,
+  contentInsetBottom = 0,
 }: Props) {
   return (
-    <View style={styles.cardSection}>
-      <View style={styles.card}>
+    <View
+      style={[
+        styles.cardSection,
+        { paddingTop: contentInsetTop, paddingBottom: contentInsetBottom },
+      ]}
+    >
+      <View>
         <Image
-          source={images.eventDetail.challenges.cardDecorUnion}
-          style={styles.cardBgImage}
+          source={images.eventDetail.challenges.triviaBubbles}
+          style={styles.triviaBubbles}
           resizeMode="contain"
-          accessibilityElementsHidden
+          accessibilityIgnoresInvertColors
         />
+        <View style={styles.card}>
+          <Image
+            source={images.eventDetail.challenges.cardDecorUnion}
+            style={styles.cardBgImage}
+            resizeMode="contain"
+            accessibilityElementsHidden
+          />
 
-        <Text style={[styles.kicker, { color: kickerColor }]}>{kicker}</Text>
-        <Text style={styles.challengeTitle}>{question}</Text>
-        {children}
+          <Text style={styles.kicker}>{kicker}</Text>
+          <Text style={styles.challengeTitle}>{question}</Text>
+          {children}
+        </View>
       </View>
-
-      <Image
-        source={images.eventDetail.challenges.triviaBubbles}
-        style={styles.triviaBubbles}
-        resizeMode="contain"
-        accessibilityIgnoresInvertColors
-      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   cardSection: {
-    marginTop: CARD_TOP,
-    alignSelf: 'center',
-    width: '80%',
+    flex: 1,
+    justifyContent: 'center',
   },
   card: {
-    width: '100%',
     borderRadius: 16,
     backgroundColor: colors.background.elevated,
-    paddingHorizontal: 20,
-    paddingTop: 80,
-    paddingBottom: 22,
+    padding: 20,
     overflow: 'hidden',
+    width: '100%',
   },
   cardBgImage: {
     position: 'absolute',
-    width: '80%',
+    width: '90%',
     height: '90%',
+    left: '-20%',
   },
   kicker: {
     color: colors.brand[300],
@@ -86,6 +87,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.signikaRegular,
     textAlign: 'center',
     marginBottom: 14,
+    marginTop: 40,
   },
   challengeTitle: {
     color: colors.neutral.primary,
@@ -94,14 +96,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 36,
     fontFamily: fontFamilies.medium,
-    paddingHorizontal: 4,
     marginBottom: 20,
   },
   triviaBubbles: {
     position: 'absolute',
     width: ICON_TOP_W,
-    height: ICON_TOP_H,
-    top: -80,
+    height: 120,
+    top: -75,
     alignSelf: 'center',
     zIndex: 2,
   },

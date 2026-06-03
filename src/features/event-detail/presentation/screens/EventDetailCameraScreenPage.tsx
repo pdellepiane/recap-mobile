@@ -1,18 +1,13 @@
 import {
   EventDetailCameraCaptureSection,
+  EventDetailCameraLoadingView,
   EventDetailCameraPermissionView,
   EventDetailCameraPreviewFooter,
 } from '../components/camera';
-import { useEventDetailRoute } from '../context/EventDetailRouteContext';
-import { usePhotoCaptureFlow } from '../hooks/usePhotoCaptureFlow';
-import { useUploadEventPhoto } from '../hooks/useUploadEventPhoto';
+import { useEventDetailCameraScreen } from '../hooks/useEventDetailCameraScreen';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useRouter } from 'expo-router';
-import { useCallback, useRef } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
 
 type Props = {
   eventId: string;
@@ -21,11 +16,11 @@ type Props = {
 
 export function EventDetailCameraScreenPage({ eventId, eventTitle }: Props) {
   const { t } = useTranslation();
-  const router = useRouter();
-  const { isLoading: isEventDetailLoading } = useEventDetailRoute();
-  const cameraRef = useRef<InstanceType<typeof CameraView>>(null);
-  const [permission, requestPermission] = useCameraPermissions();
   const {
+    cameraRef,
+    permission,
+    requestPermission,
+    isEventDetailLoading,
     cameraReady,
     onCameraReady,
     facing,
@@ -40,45 +35,13 @@ export function EventDetailCameraScreenPage({ eventId, eventTitle }: Props) {
     discardPreview,
     showCamera,
     showPreview,
-  } = usePhotoCaptureFlow({
-    galleryPermissionTitle: t('eventDetail.galleryPermissionTitle'),
-    galleryPermissionMessage: t('eventDetail.galleryPermissionMessage'),
-  });
+    closeScreen,
+    isUploading,
+    handleAddPhoto,
+  } = useEventDetailCameraScreen({ eventId });
 
-  const closeScreen = useCallback(() => {
-    router.back();
-  }, [router]);
-
-  const { isUploading, uploadPhoto } = useUploadEventPhoto({
-    eventId,
-  });
-
-  const handleAddPhoto = useCallback(async () => {
-    if (!selectedPhoto) {
-      return;
-    }
-    const upload = await uploadPhoto({
-      fileUri: selectedPhoto.uri,
-    });
-    if (upload.ok) {
-      router.back();
-    }
-  }, [router, selectedPhoto, uploadPhoto]);
-
-  if (isEventDetailLoading) {
-    return (
-      <View style={[styles.root, styles.centered]}>
-        <ActivityIndicator color={colors.neutral.primary} />
-      </View>
-    );
-  }
-
-  if (!permission) {
-    return (
-      <View style={[styles.root, styles.centered]}>
-        <ActivityIndicator color={colors.neutral.primary} />
-      </View>
-    );
+  if (isEventDetailLoading || !permission) {
+    return <EventDetailCameraLoadingView />;
   }
 
   if (!permission.granted) {
@@ -94,47 +57,46 @@ export function EventDetailCameraScreenPage({ eventId, eventTitle }: Props) {
   }
 
   return (
-    <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-      <View style={styles.shell}>
-        <EventDetailCameraCaptureSection
-          cameraRef={cameraRef}
-          showCamera={showCamera}
-          showPreview={showPreview}
-          selectedPhotoUri={selectedPhoto?.uri}
-          facing={facing}
-          flashForCamera={flashForCamera}
-          flash={flash}
-          cameraReady={cameraReady}
-          capturing={capturing}
-          eventTitle={eventTitle}
-          closeLabel={t('common.close')}
-          discardLabel={t('challenges.discardRetake')}
-          fallbackTitle={t('eventDetail.cameraTitleFallback')}
-          flashOnLabel={t('common.flashOn')}
-          flashOffLabel={t('common.flashOff')}
-          takePictureLabel={t('common.takePicture')}
-          switchCameraLabel={t('common.switchCamera')}
-          openPhotoGalleryLabel={t('common.openPhotoGallery')}
-          onCameraReady={onCameraReady}
-          onClose={closeScreen}
-          onDiscardPreview={discardPreview}
-          onToggleFlash={toggleFlash}
-          onToggleFacing={toggleFacing}
-          onCapture={() => void capturePhoto(cameraRef)}
-          onOpenGallery={() => void openGallery()}
-        />
-
-        {showPreview && (
+    <View style={styles.root}>
+      <EventDetailCameraCaptureSection
+        cameraRef={cameraRef}
+        showCamera={showCamera}
+        showPreview={showPreview && !isUploading}
+        selectedPhotoUri={selectedPhoto?.uri}
+        isUploading={isUploading}
+        uploadingLabel={t('challenges.uploading')}
+        facing={facing}
+        flashForCamera={flashForCamera}
+        flash={flash}
+        cameraReady={cameraReady}
+        capturing={capturing}
+        eventTitle={eventTitle}
+        closeLabel={t('common.close')}
+        discardLabel={t('challenges.discardRetake')}
+        fallbackTitle={t('eventDetail.cameraTitleFallback')}
+        flashOnLabel={t('common.flashOn')}
+        flashOffLabel={t('common.flashOff')}
+        takePictureLabel={t('common.takePicture')}
+        switchCameraLabel={t('common.switchCamera')}
+        openPhotoGalleryLabel={t('common.openPhotoGallery')}
+        onCameraReady={onCameraReady}
+        onClose={closeScreen}
+        onDiscardPreview={discardPreview}
+        onToggleFlash={toggleFlash}
+        onToggleFacing={toggleFacing}
+        onCapture={() => void capturePhoto(cameraRef)}
+        onOpenGallery={openGallery}
+        previewFooter={
           <EventDetailCameraPreviewFooter
             addPhotoLabel={t('eventDetail.addPhotoToAlbum')}
             addPhotoText={t('challenges.addPhotoBtn')}
             uploadingText={t('challenges.uploading')}
             loading={isUploading}
-            onAddPhoto={() => void handleAddPhoto()}
+            onAddPhoto={handleAddPhoto}
           />
-        )}
-      </View>
-    </SafeAreaView>
+        }
+      />
+    </View>
   );
 }
 
@@ -142,12 +104,5 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: colors.background.primary,
-  },
-  centered: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  shell: {
-    flex: 1,
   },
 });

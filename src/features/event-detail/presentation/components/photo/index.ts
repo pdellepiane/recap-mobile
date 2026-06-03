@@ -1,3 +1,4 @@
+export { EventChallengePhotoBodyView } from './EventChallengePhotoBodyView';
 export { EventChallengePhotoCameraHero } from './EventChallengePhotoCameraHero';
 export { EventChallengePhotoCompletedBody } from './EventChallengePhotoCompletedBody';
 export { EventChallengePhotoCreateAddedSection } from './EventChallengePhotoCreateAddedSection';
@@ -6,3 +7,4 @@ export { EventChallengePhotoCreateComposerOpen } from './EventChallengePhotoCrea
 export { EventChallengePhotoCreatePreviewBody } from './EventChallengePhotoCreatePreviewBody';
 export { EventChallengePhotoCreateSuggestionsSection } from './EventChallengePhotoCreateSuggestionsSection';
 export { EventChallengePhotoIntroCard } from './EventChallengePhotoIntroCard';
+export { EventChallengePhotoView } from './EventChallengePhotoView';

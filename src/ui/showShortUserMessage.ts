@@ -1,10 +1,6 @@
-import { Alert, Platform, ToastAndroid } from 'react-native';
+import { showUserToast } from './userToast';
 
-/** Brief non-blocking feedback: toast on Android, alert on iOS. */
+/** Brief non-blocking feedback toast (iOS and Android). */
 export function showShortUserMessage(message: string): void {
-  if (Platform.OS === 'android') {
-    ToastAndroid.show(message, ToastAndroid.SHORT);
-    return;
-  }
-  Alert.alert(message);
+  showUserToast(message);
 }

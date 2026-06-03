@@ -10,6 +10,8 @@ export type {
   EventChallengeGuestAnswerApi,
   EventChallengeAnswerPostBody,
   EventChallengeAnswerPostResponse,
+  EventChallengePutBody,
+  EventChallengeUpdateResponse,
   EventChallengesListResponse,
   EventChallengesPendingData,
   EventChallengesPendingResponse,

@@ -44,9 +44,9 @@ export const useCoordinator = () => {
         trackNav('navigate', routePaths.profile);
         router.navigate(routePaths.profile as Href);
       },
-      goToProfileEditName: () => {
-        trackNav('push', routePaths.profileEditName);
-        router.push(routePaths.profileEditName as Href);
+      goToProfileEdit: () => {
+        trackNav('push', routePaths.profileEdit);
+        router.push(routePaths.profileEdit as Href);
       },
       /** Presents an in-app browser as a root modal for a trusted HTTPS URL. */
       goToHomeWeb: (url: string) => {
@@ -129,6 +129,22 @@ export const useCoordinator = () => {
           questionId,
         });
         router.push(routePaths.eventChallengeQuizCreateQuestion(eventId, questionId) as Href);
+      },
+      /** Host edits an existing quiz challenge (creator only; opens question options screen). */
+      goToEventChallengeQuizEdit: (eventId: string, remoteChallengeId: string) => {
+        const questionId = `edit-${remoteChallengeId}`;
+        trackNav(
+          'push',
+          routePaths.eventChallengeQuizCreateQuestion(eventId, questionId, remoteChallengeId),
+          { eventId, questionId, remoteChallengeId },
+        );
+        router.push(
+          routePaths.eventChallengeQuizCreateQuestion(
+            eventId,
+            questionId,
+            remoteChallengeId,
+          ) as Href,
+        );
       },
       /** Host flow to create new photo challenges (prompts + suggestions). */
       goToEventChallengePhotoCreate: (eventId: string) => {

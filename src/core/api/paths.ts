@@ -7,6 +7,8 @@ export const authUserPaths = {
 /** Authenticated user profile (Bearer). */
 export const userPaths = {
   me: 'api/user/me',
+  profile: 'api/user/profile',
+  avatar: 'api/user/avatar',
 } as const;
 
 export const homePaths = {
@@ -22,6 +24,9 @@ export const eventPaths = {
   ranking: (id: string | number) => `api/events/${encodeURIComponent(String(id))}/ranking`,
   /** GET /api/events/:id/challenges — event challenges for guests. */
   challenges: (id: string | number) => `api/events/${encodeURIComponent(String(id))}/challenges`,
+  /** PUT /api/events/:id/challenges/:challengeId — update challenge (host creator). */
+  challenge: (eventId: string | number, challengeId: string | number) =>
+    `api/events/${encodeURIComponent(String(eventId))}/challenges/${encodeURIComponent(String(challengeId))}`,
   /** POST /api/events/:id/challenges/:challengeId/answers — guest challenge submission. */
   challengeAnswers: (eventId: string | number, challengeId: string | number) =>
     `api/events/${encodeURIComponent(String(eventId))}/challenges/${encodeURIComponent(String(challengeId))}/answers`,

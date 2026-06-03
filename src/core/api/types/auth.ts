@@ -36,6 +36,8 @@ export type LoginCodeUserPayload = {
   lastname: string | null;
   full_name: string;
   full_phone: string;
+  /** Profile image path or URL from GET /api/user/me */
+  avatar?: string | null;
   language_id: number | null;
   language?: LoginCodeLanguagePayload | null;
   created_at: string | null;

@@ -1,6 +1,6 @@
 import { Button } from '@/src/ui';
-import { StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Props = {
   onConfirm: () => void;
@@ -8,17 +8,17 @@ type Props = {
 };
 
 export function EventChallengeCreatePreviewFooter({ onConfirm, finishButtonTitle }: Props) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <SafeAreaView edges={['bottom']} style={styles.footerSafe}>
+    <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
       <Button title={finishButtonTitle} onPress={onConfirm} variant="brand" />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  footerSafe: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 12,
+  footer: {
+    paddingTop: 4,
   },
 });

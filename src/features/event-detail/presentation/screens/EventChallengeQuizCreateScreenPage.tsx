@@ -22,7 +22,7 @@ export function EventChallengeQuizCreateScreenPage({ eventId }: Props) {
     composerOpen,
     draft,
     setDraft,
-    addedQuestions,
+    listedQuestions,
     availableSuggestions,
     openComposer,
     commitDraftQuestion,
@@ -59,7 +59,7 @@ export function EventChallengeQuizCreateScreenPage({ eventId }: Props) {
         )}
 
         <EventChallengeQuizCreateAddedQuestionsSection
-          questions={addedQuestions}
+          questions={listedQuestions}
           onPressChallenge={onPressChallenge}
         />
 

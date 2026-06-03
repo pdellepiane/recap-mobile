@@ -1,3 +1,7 @@
 export { EventChallengeCreatePreviewFooter } from './EventChallengeCreatePreviewFooter';
-export { EventChallengeCreatePreviewHeader } from './EventChallengeCreatePreviewHeader';
-export { EventChallengeFlowBackHeader } from './EventChallengeFlowBackHeader';
+export { EventChallengeCreateHeaderView } from './EventChallengeCreateHeaderView';
+export {
+  CHALLENGE_FLOW_BACK_BUTTON_SIZE,
+  challengeFlowBackHeaderBottom,
+  EventChallengeHeaderView,
+} from './EventChallengeHeaderView';

@@ -1,4 +1,5 @@
 export { EventChallengeQuizCompletedBody } from './EventChallengeQuizCompletedBody';
+export { EventChallengeQuizCompletedView } from './EventChallengeQuizCompletedView';
 export { EventChallengeQuizCreateAddedQuestionCard } from './EventChallengeQuizCreateAddedQuestionCard';
 export { EventChallengeQuizCreateAddedQuestionsSection } from './EventChallengeQuizCreateAddedQuestionsSection';
 export { EventChallengeQuizCreateAnswerEditModal } from './EventChallengeQuizCreateAnswerEditModal';
@@ -8,12 +9,13 @@ export { EventChallengeQuizCreateComposerOpen } from './EventChallengeQuizCreate
 export { EventChallengeQuizCreateSuggestionCard } from './EventChallengeQuizCreateSuggestionCard';
 export { EventChallengeQuizCreateSuggestionsSection } from './EventChallengeQuizCreateSuggestionsSection';
 export { EventChallengeQuizFinishButton } from './EventChallengeQuizFinishButton';
-export { EventChallengeQuizScreenFooter } from './EventChallengeQuizScreenFooter';
+export { EventChallengeQuizFooterView } from './EventChallengeQuizFooterView';
 export { EventChallengeQuizUnavailableView } from './EventChallengeQuizUnavailableView';
 export { EventChallengeQuizOptionRow } from './EventChallengeQuizOptionRow';
 export { EventChallengeQuizOptionsList } from './EventChallengeQuizOptionsList';
 export { EventChallengeQuizQuestionCardFrame, QUIZ_CARD } from './EventChallengeQuizQuestionCardFrame';
-export { EventChallengeQuizQuestionView } from './EventChallengeQuizQuestionView';
+export { EventChallengeQuizBodyView } from './EventChallengeQuizBodyView';
+export { EventChallengeQuizView } from './EventChallengeQuizView';
 export { EventChallengeQuizResultCorrectCard } from './EventChallengeQuizResultCorrectCard';
 export { EventChallengeQuizResultFeedbackRow } from './EventChallengeQuizResultFeedbackRow';
 export { EventChallengeQuizResultOutcomeIcon } from './EventChallengeQuizResultOutcomeIcon';

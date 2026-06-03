@@ -1,25 +1,24 @@
-import { EventChallengeCreatePreviewFooter } from '../components/shared/EventChallengeCreatePreviewFooter';
-import { EventChallengeCreatePreviewHeader } from '../components/shared/EventChallengeCreatePreviewHeader';
 import { EventChallengeQuizCreateAnswerEditModal } from '../components/quiz/EventChallengeQuizCreateAnswerEditModal';
 import { EventChallengeQuizCreateAnswerInputRow } from '../components/quiz/EventChallengeQuizCreateAnswerInputRow';
-import {
-  EventChallengeQuizQuestionCardFrame,
-  QUIZ_CARD,
-} from '../components/quiz/EventChallengeQuizQuestionCardFrame';
+import { EventChallengeQuizQuestionCardFrame } from '../components/quiz/EventChallengeQuizQuestionCardFrame';
+import { EventChallengeCreateHeaderView } from '../components/shared/EventChallengeCreateHeaderView';
+import { EventChallengeCreatePreviewFooter } from '../components/shared/EventChallengeCreatePreviewFooter';
 import { useEventChallengeQuizCreateQuestionScreen } from '../hooks/useEventChallengeQuizCreateQuestionScreen';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 type Props = {
   eventId: string;
   questionId: string;
+  remoteChallengeId?: string;
 };
 
 /** Configure answer options for one draft quiz question (`challenge-quiz-create/question`). */
 export function EventChallengeQuizCreateQuestionScreenPage({
   eventId: _eventId,
   questionId,
+  remoteChallengeId,
 }: Props) {
   const { t } = useTranslation();
   const {
@@ -32,7 +31,18 @@ export function EventChallengeQuizCreateQuestionScreenPage({
     onFinish,
     saveAnswerEdit,
     modalInitialCorrect,
-  } = useEventChallengeQuizCreateQuestionScreen({ questionId });
+    isEditMode,
+    editHydrating,
+    isSubmitting,
+  } = useEventChallengeQuizCreateQuestionScreen({ questionId, remoteChallengeId });
+
+  if (editHydrating || isSubmitting) {
+    return (
+      <View style={styles.loadingRoot}>
+        <ActivityIndicator size="large" color={colors.states.active} />
+      </View>
+    );
+  }
 
   if (!question) {
     return null;
@@ -47,7 +57,7 @@ export function EventChallengeQuizCreateQuestionScreenPage({
 
   return (
     <View style={styles.root}>
-      <EventChallengeCreatePreviewHeader
+      <EventChallengeCreateHeaderView
         onBack={goBack}
         onTrash={onTrash}
         backAccessibilityLabel={t('common.back')}
@@ -56,10 +66,12 @@ export function EventChallengeQuizCreateQuestionScreenPage({
 
       <View style={styles.body}>
         <EventChallengeQuizQuestionCardFrame
-          kicker={t('eventDetail.createQuizNewChallengeKicker')}
-          kickerColor={QUIZ_CARD.kickerGuest}
+          kicker={
+            isEditMode
+              ? t('eventDetail.createQuizEditChallengeKicker')
+              : t('eventDetail.createQuizNewChallengeKicker')
+          }
           question={question.text}
-          compact
         >
           <View style={styles.slotList}>
             {question.answerOptions.map((opt, index) => (
@@ -79,7 +91,11 @@ export function EventChallengeQuizCreateQuestionScreenPage({
 
       <EventChallengeCreatePreviewFooter
         onConfirm={onFinish}
-        finishButtonTitle={t('eventDetail.createQuizFinishChallenge')}
+        finishButtonTitle={
+          isEditMode
+            ? t('eventDetail.createQuizUpdateChallenge')
+            : t('eventDetail.createQuizFinishChallenge')
+        }
       />
 
       {editingOption ? (
@@ -97,9 +113,16 @@ export function EventChallengeQuizCreateQuestionScreenPage({
 }
 
 const styles = StyleSheet.create({
+  loadingRoot: {
+    flex: 1,
+    backgroundColor: colors.background.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   root: {
     flex: 1,
     backgroundColor: colors.background.primary,
+    paddingHorizontal: 20,
   },
   body: {
     flex: 1,

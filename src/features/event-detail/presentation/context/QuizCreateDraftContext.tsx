@@ -9,12 +9,14 @@ const QuizCreateDraftContext = createContext<QuizCreateDraftContextValue | null>
 
 export function QuizCreateDraftProvider({
   eventId,
+  editRemoteChallengeId,
   children,
 }: {
   eventId: string;
+  editRemoteChallengeId?: string;
   children: ReactNode;
 }) {
-  const value = useEventChallengeQuizCreateScreen({ eventId });
+  const value = useEventChallengeQuizCreateScreen({ eventId, editRemoteChallengeId });
   return (
     <QuizCreateDraftContext.Provider value={value}>{children}</QuizCreateDraftContext.Provider>
   );

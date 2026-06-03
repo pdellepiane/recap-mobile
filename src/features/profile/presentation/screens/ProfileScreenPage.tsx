@@ -15,6 +15,9 @@ export const ProfileScreenPage = () => {
     isSigningOut,
     displayName,
     initials,
+    avatarUrl,
+    isUploadingAvatar,
+    handleChangeAvatar,
     version,
     handleLogout,
     handleAccountPress,
@@ -29,7 +32,13 @@ export const ProfileScreenPage = () => {
   return (
     <Form>
       <>
-        <ProfileMenuHeader displayName={displayName} initials={initials} />
+        <ProfileMenuHeader
+          displayName={displayName}
+          initials={initials}
+          avatarUrl={avatarUrl}
+          isUploadingAvatar={isUploadingAvatar}
+          onChangeAvatar={handleChangeAvatar}
+        />
 
         <Text style={styles.sectionTitle}>{t('profile.sectionAccount')}</Text>
 

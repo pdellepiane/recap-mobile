@@ -1,12 +1,14 @@
+import { showChallengeAnswerErrorAlert } from '../../data/challengeAnswerErrorMessage';
 import { setChallengePhotoCompletionPreview } from '../../data/challengePhotoCompletionPreview';
 import { getEventChallenges } from '../../data/eventChallenges';
+import { showEventMediaUploadErrorAlert } from '../../data/eventMediaUploadErrorMessage';
 import { usePhotoCaptureFlow } from './usePhotoCaptureFlow';
 import { useUploadEventPhoto } from './useUploadEventPhoto';
 import { eventRepository } from '@/src/core/di/container';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { showShortUserMessage } from '@/src/ui';
-import { useCallback, useMemo } from 'react';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useCallback, useMemo, useRef } from 'react';
 import { Alert } from 'react-native';
 
 type Params = {
@@ -25,6 +27,8 @@ export function useEventChallengePhotoCameraScreen({
 }: Params) {
   const { goBack, goToEventChallengePhotoCompleted } = useCoordinator();
   const { t } = useTranslation();
+  const cameraRef = useRef<InstanceType<typeof CameraView>>(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const { isUploading, uploadPhoto } = useUploadEventPhoto({
     eventId,
   });
@@ -40,6 +44,7 @@ export function useEventChallengePhotoCameraScreen({
     endCapture,
     handleCaptureResult,
     toggleFlash,
+    capturePhoto,
     openGallery,
     discardPreview,
     showCamera,
@@ -53,17 +58,17 @@ export function useEventChallengePhotoCameraScreen({
 
   const { challengeTitle, numberLabel, resolvedNumber, photoPointsFallback, isAlreadyAnswered } =
     useMemo(() => {
-    const challenges = getEventChallenges(eventId);
-    const challenge = challenges.find((r) => r.id === challengeId);
-    const n = challenge?.number ?? challengeNumber ?? 1;
-    return {
-      challengeTitle: challenge?.title ?? t('challenges.photoIntroDefault'),
-      numberLabel: t('challenges.challengeNumberLabel', { n }),
-      resolvedNumber: n,
-      photoPointsFallback: challenge?.points ?? 0,
-      isAlreadyAnswered: challenge?.remoteCompletedPoints !== undefined,
-    };
-  }, [eventId, challengeId, challengeNumber, t]);
+      const challenges = getEventChallenges(eventId);
+      const challenge = challenges.find((r) => r.id === challengeId);
+      const n = challenge?.number ?? challengeNumber ?? 1;
+      return {
+        challengeTitle: challenge?.title ?? t('challenges.photoIntroDefault'),
+        numberLabel: t('challenges.challengeNumberLabel', { n }),
+        resolvedNumber: n,
+        photoPointsFallback: challenge?.points ?? 0,
+        isAlreadyAnswered: challenge?.remoteCompletedPoints !== undefined,
+      };
+    }, [eventId, challengeId, challengeNumber, t]);
 
   const instructionParagraphs = useMemo(
     () =>
@@ -79,30 +84,38 @@ export function useEventChallengePhotoCameraScreen({
       return;
     }
 
-    const upload = await uploadPhoto({
-      fileUri: selectedPhotoUri,
-    });
-    if (!upload.ok || !upload.path) {
-      showShortUserMessage(t('challenges.answerSubmitError'));
-      return;
-    }
+    try {
+      const upload = await uploadPhoto({
+        fileUri: selectedPhotoUri,
+      });
+      if (!upload.ok || !upload.path) {
+        showEventMediaUploadErrorAlert(null, t);
+        return;
+      }
 
-    const answer = await eventRepository.submitEventChallengeAnswer(eventId, challengeId, {
-      photos: [upload.path],
-    });
-    if (!answer) {
-      showShortUserMessage(t('challenges.answerSubmitError'));
-      return;
-    }
+      try {
+        const answer = await eventRepository.submitEventChallengeAnswer(eventId, challengeId, {
+          photos: [upload.path],
+        });
+        if (!answer) {
+          showChallengeAnswerErrorAlert(null, t);
+          return;
+        }
 
-    discardPreview();
-    setChallengePhotoCompletionPreview(selectedPhotoUri);
-    goToEventChallengePhotoCompleted(
-      eventId,
-      challengeId,
-      resolvedNumber,
-      answer.points ?? photoPointsFallback,
-    );
+        discardPreview();
+        setChallengePhotoCompletionPreview(selectedPhotoUri);
+        goToEventChallengePhotoCompleted(
+          eventId,
+          challengeId,
+          resolvedNumber,
+          answer.points ?? photoPointsFallback,
+        );
+      } catch (e) {
+        showChallengeAnswerErrorAlert(e, t);
+      }
+    } catch (e) {
+      showEventMediaUploadErrorAlert(e, t);
+    }
   }, [
     challengeId,
     discardPreview,
@@ -117,7 +130,6 @@ export function useEventChallengePhotoCameraScreen({
   ]);
 
   const showPreviewSharp = showPreview && !isUploading;
-  const showUploadingOverlay = Boolean(selectedPhotoUri) && isUploading;
 
   const showInfoAlert = useCallback(() => {
     Alert.alert(t('challenges.photoInfoTitle'), t('challenges.photoInfoCameraBody'));
@@ -128,6 +140,9 @@ export function useEventChallengePhotoCameraScreen({
   }, [t]);
 
   return {
+    cameraRef,
+    permission,
+    requestPermission,
     goBack,
     cameraReady,
     onCameraReady,
@@ -139,18 +154,15 @@ export function useEventChallengePhotoCameraScreen({
     isUploading,
     numberLabel,
     instructionParagraphs,
-    beginCapture,
-    endCapture,
-    handleCaptureResult,
+    capturePhoto,
     toggleFlash,
     openGallery,
     discardPreview,
     submitChallengePhoto,
     showCamera,
     showPreviewSharp,
-    showUploadingOverlay,
     showInfoAlert,
     showPreviewInfoAlert,
     toggleFacing,
   };
-};
+}

@@ -2,13 +2,14 @@ import { AnalyticsRouteObserver } from '@/src/core/analytics/AnalyticsRouteObser
 import { AuthSync } from '@/src/features/auth/presentation/AuthSync';
 import { AuthProvider } from '@/src/features/auth/presentation/context/AuthContext';
 import '@/src/i18n';
-import { RemoteImageCacheProvider } from '@/src/ui';
+import { RemoteImageCacheProvider, UserToastHost } from '@/src/ui';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { Text, TextInput, type TextInputProps, type TextProps } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -63,10 +64,12 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
       <RemoteImageCacheProvider>
         <AuthProvider>
           <AuthSync />
           <AnalyticsRouteObserver />
+          <UserToastHost />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="onboarding" />
@@ -81,6 +84,7 @@ export default function RootLayout() {
           </Stack>
         </AuthProvider>
       </RemoteImageCacheProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

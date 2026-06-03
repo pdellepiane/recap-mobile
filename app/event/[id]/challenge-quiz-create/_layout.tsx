@@ -9,11 +9,15 @@ function firstString(v: string | string[] | undefined): string | undefined {
 }
 
 export default function ChallengeQuizCreateLayout() {
-  const { id } = useLocalSearchParams<{ id?: string | string[] }>();
+  const { id, challengeId } = useLocalSearchParams<{
+    id?: string | string[];
+    challengeId?: string | string[];
+  }>();
   const eventId = firstString(id) ?? '';
+  const editRemoteChallengeId = firstString(challengeId);
 
   return (
-    <QuizCreateDraftProvider eventId={eventId}>
+    <QuizCreateDraftProvider eventId={eventId} editRemoteChallengeId={editRemoteChallengeId}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="question" />
