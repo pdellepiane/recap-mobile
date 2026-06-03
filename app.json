@@ -12,7 +12,8 @@
       "bundleIdentifier": "com.sinenvolturas.recap",
       "supportsTablet": false,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "LSApplicationQueriesSchemes": ["comgooglemaps", "waze", "maps"]
       }
     },
     "android": {
