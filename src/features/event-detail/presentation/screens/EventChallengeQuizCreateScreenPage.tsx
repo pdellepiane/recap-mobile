@@ -1,7 +1,7 @@
-import { EventChallengeQuizCreateAddedQuestionsSection } from '../components/EventChallengeQuizCreateAddedQuestionsSection';
-import { EventChallengeQuizCreateComposerIdle } from '../components/EventChallengeQuizCreateComposerIdle';
-import { EventChallengeQuizCreateComposerOpen } from '../components/EventChallengeQuizCreateComposerOpen';
-import { EventChallengeQuizCreateSuggestionsSection } from '../components/EventChallengeQuizCreateSuggestionsSection';
+import { EventChallengeQuizCreateAddedQuestionsSection } from '../components/quiz/EventChallengeQuizCreateAddedQuestionsSection';
+import { EventChallengeQuizCreateComposerIdle } from '../components/quiz/EventChallengeQuizCreateComposerIdle';
+import { EventChallengeQuizCreateComposerOpen } from '../components/quiz/EventChallengeQuizCreateComposerOpen';
+import { EventChallengeQuizCreateSuggestionsSection } from '../components/quiz/EventChallengeQuizCreateSuggestionsSection';
 import { useEventChallengeQuizCreateScreenPage } from '../hooks/useEventChallengeQuizCreateScreenPage';
 import { useTranslation } from '@/src/i18n';
 import { CloseButton, colors } from '@/src/ui';

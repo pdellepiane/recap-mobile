@@ -16,14 +16,15 @@ export function useEventChallengePhotoScreen({ eventId, challengeId, challengeNu
   const { goToEventChallengePhotoCamera } = useCoordinator();
   const { t } = useTranslation();
 
-  const { title, numberLabel, resolvedChallengeNumber } = useMemo(() => {
+  const { title, kicker, resolvedChallengeNumber, isAlreadyAnswered } = useMemo(() => {
     const challenges = getEventChallenges(eventId);
     const challenge = challenges.find((r) => r.id === challengeId);
     const n = challenge?.number ?? challengeNumber ?? 2;
     return {
       title: challenge?.title ?? t('challenges.photoIntroDefault'),
-      numberLabel: t('challenges.challengeNumberLabel', { n }),
+      kicker: t('challenges.challengeNumberLabel', { n }),
       resolvedChallengeNumber: n,
+      isAlreadyAnswered: challenge?.remoteCompletedPoints !== undefined,
     };
   }, [eventId, challengeId, challengeNumber, t]);
 
@@ -36,12 +37,17 @@ export function useEventChallengePhotoScreen({ eventId, challengeId, challengeNu
     [title],
   );
 
-  const handleOpenCamera = () =>
+  const handleOpenCamera = () => {
+    if (isAlreadyAnswered) {
+      return;
+    }
     goToEventChallengePhotoCamera(eventId, challengeId, resolvedChallengeNumber);
+  };
 
   return {
-    numberLabel,
+    kicker,
     instructionParagraphs,
     handleOpenCamera,
+    isAlreadyAnswered,
   };
 }

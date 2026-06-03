@@ -2,6 +2,26 @@ import type { EventDetailParticipantRow } from './participantRow';
 import type { Event, EventGuest } from '@/src/domain/entities';
 import { isDuringEventStartPlus24hWindow } from '@/src/features/home/presentation/components/utils/eventCalendar';
 
+export type EventGuestListRow = {
+  id: string;
+  name: string;
+  initial: string;
+};
+
+function mapGuestToListRow(guest: EventGuest): EventGuestListRow {
+  const name = guest.name.trim();
+  return {
+    id: guest.id,
+    name,
+    initial: name.charAt(0).toUpperCase(),
+  };
+}
+
+/** Going guests mapped for overview guest list UI. */
+export function eventGuestListGoingRows(event: Event | null): EventGuestListRow[] {
+  return eventGuestsGoing(event).map(mapGuestToListRow);
+}
+
 export function eventGuestsGoing(event: Event | null): EventGuest[] {
   return (event?.guests ?? []).filter((g) => g.rsvp === 'going');
 }
@@ -105,36 +125,22 @@ export function hostsLineForDetailView(
   return opts.translatedFallback ?? '';
 }
 
-export function buildOrganizerParticipantRows(
-  event: Event | null,
-  guestPlaceholder: string,
-): EventDetailParticipantRow[] {
-  const { listTotalInvited } = organizerGuestListCounts(event);
-  const going = eventGuestsGoing(event);
-  const notGoing = eventGuestsNotGoing(event);
-  const confirmedNames = going.map((g, i) => ({
-    id: `confirmed-${g.id}-${i}`,
-    name: g.name,
-    status: 'confirmed' as const,
-  }));
+export function organizerParticipantRows(event: Event | null): EventDetailParticipantRow[] {
+  const confirmed = eventGuestsGoing(event)
+    .map((guest, index) => ({
+      id: `confirmed-${guest.id}-${index}`,
+      name: guest.name.trim(),
+      status: 'confirmed' as const,
+    }))
+    .filter((row) => row.name.length > 0);
 
-  const pendingCount = Math.max(0, listTotalInvited - going.length);
-  const pendingNamePool = notGoing.map((g) => g.name?.trim() ?? '');
-  const pendingRows = Array.from({ length: pendingCount }, (_, i) => ({
-    id: `pending-${i}`,
-    name: pendingNamePool[i] || guestPlaceholder,
-    status: 'pending' as const,
-  }));
+  const pending = eventGuestsNotGoing(event)
+    .map((guest, index) => ({
+      id: `pending-${guest.id}-${index}`,
+      name: guest.name.trim(),
+      status: 'pending' as const,
+    }))
+    .filter((row) => row.name.length > 0);
 
-  const rows = [...confirmedNames, ...pendingRows];
-  if (rows.length > 0) {
-    return rows;
-  }
-  return [
-    {
-      id: 'fallback-participant',
-      name: guestPlaceholder,
-      status: 'pending',
-    },
-  ];
+  return [...confirmed, ...pending];
 }

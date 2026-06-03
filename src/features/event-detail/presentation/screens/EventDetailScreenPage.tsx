@@ -1,10 +1,11 @@
-import { EventDetailCreateChallengeSheet } from '../components/EventDetailCreateChallengeSheet';
-import { EventDetailScrollBody } from '../components/EventDetailScrollBody';
-import { EventDetailShareSheet } from '../components/EventDetailShareSheet';
+import { EventDetailCreateChallengeSheet } from '../components/detail/EventDetailCreateChallengeSheet';
+import { EventDetailScrollBody } from '../components/detail/EventDetailScrollBody';
+import { EventDetailShareSheet } from '../components/detail/EventDetailShareSheet';
 import { EventDetailTab, useEventDetailScreen } from '../hooks/useEventDetailScreen';
 import { images } from '@/src/assets/images';
 import { eventRepository } from '@/src/core/di/container';
 import {
+  eventGuestListGoingRows,
   eventGuestsGoing,
   eventParticipantNamesLine,
   guestsPendingCountFromEvent,
@@ -17,11 +18,11 @@ import {
   Button,
   FloatingCameraFab,
   FloatingReactions,
-  type SpawnFloatingReaction,
   ScreenLoading,
   ScreenNotFoundFallback,
   colors,
   showShortUserMessage,
+  type SpawnFloatingReaction,
 } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { useCallback } from 'react';
@@ -66,6 +67,7 @@ export const EventDetailScreenPage = ({
     isOrganizer,
     canHostEditChallenges,
     isGuestLiveActionsVisible,
+    isCameraFabVisible,
     isShareSheetOpen,
     isCreateChallengeSheetOpen,
     showChallengesPendingDot,
@@ -81,7 +83,6 @@ export const EventDetailScreenPage = ({
     onFabCameraPress,
     onChallengePress,
     onProfileAvatarPress,
-    onOpenMap,
     onParticipantsModalOpen,
     onSharePress,
     onShareSheetClose,
@@ -137,16 +138,14 @@ export const EventDetailScreenPage = ({
         liveReactionImages={EVENT_DETAIL_LIVE_REACTION_IMAGES}
         activeTab={activeTab}
         onTabPress={setActiveTab}
-        description={event.description}
         countdownEndsAt={countdownEndsAt}
         eventDateIso={event.date}
         addressCity={event.city}
         addressVenue={event.venue}
         mapQuery={event.location}
-        onOpenMap={onOpenMap}
         guestsAttendingCount={eventGuestsGoing(event).length}
         guestsPendingCount={guestsPendingCountFromEvent(event)}
-        goingGuests={eventGuestsGoing(event)}
+        goingGuests={eventGuestListGoingRows(event)}
         challenges={challenges}
         onChallengePress={onChallengePress}
         completedByChallengeId={completedByChallengeId}
@@ -175,7 +174,7 @@ export const EventDetailScreenPage = ({
           style={styles.createChallengeFab}
         />
       )}
-      {isGuestLiveActionsVisible ? <FloatingCameraFab onPress={onFabCameraPress} /> : null}
+      {isCameraFabVisible ? <FloatingCameraFab onPress={onFabCameraPress} /> : null}
       <EventDetailCreateChallengeSheet
         visible={isCreateChallengeSheetOpen}
         onClose={onCreateChallengeSheetClose}

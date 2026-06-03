@@ -53,6 +53,14 @@ export const images = {
     background: require('@/assets/images/home/background.png'),
     noEvents: require('@/assets/images/home/no-events-icon.png'),
   },
+  notifications: {
+    empty: require('@/assets/images/notifications/empty-notifications-icon.png'),
+  },
+  profile: {
+    username: require('@/assets/images/profile/username-icon.png'),
+    rateApp: require('@/assets/images/profile/rate-app-icon.png'),
+    termsConditions: require('@/assets/images/profile/term-conditions-icon.png'),
+  },
   eventDetail: {
     icons: {
       createChallenge: require('@/assets/images/event-detail/create-challenge-icon.png'),
@@ -69,7 +77,7 @@ export const images = {
     challenges: {
       createPhotoChallengeIcon: require('@/assets/images/event-detail/challenges/create-photo-challenge-icon.png'),
       createQuizChallengeIcon: require('@/assets/images/event-detail/challenges/create-quiz-challenge-icon.png'),
-      photoCardBg: require('@/assets/images/event-detail/challenges/reto-photo-card-bg.png'),
+      challengePhotoCardBg: require('@/assets/images/event-detail/challenges/challenge-photo-card-bg.png'),
       photoCtaButton: require('@/assets/images/event-detail/challenges/reto-photo-tomar-foto-button.png'),
       photoCameraHero: require('@/assets/images/event-detail/challenges/reto-photo-camera-hero.png'),
       triviaBubbles: require('@/assets/images/event-detail/challenges/reto-trivia-bubbles.png'),

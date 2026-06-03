@@ -17,13 +17,24 @@ export function mapChallengeApiTypeToKind(type: string | null | undefined): Even
 }
 
 function parseGuestAnswerPoints(
-  answer: EventChallengeApiItem['current_guest_answer'],
-): number | undefined {
-  if (!answer || answer.points == null || answer.points === '') {
-    return undefined;
+  answer: NonNullable<EventChallengeApiItem['current_guest_answer']>,
+): number {
+  if (answer.points == null || answer.points === '') {
+    return 0;
   }
   const n = typeof answer.points === 'number' ? answer.points : Number(answer.points);
-  return Number.isFinite(n) ? n : undefined;
+  return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
+}
+
+/** Points earned from POST answer or GET challenges when `current_guest_answer` is set. */
+export function parseChallengeAnswerEarnedPoints(
+  item: EventChallengeApiItem | null | undefined,
+): number {
+  const answer = item?.current_guest_answer;
+  if (!answer) {
+    return 0;
+  }
+  return parseGuestAnswerPoints(answer);
 }
 
 function pickResponsesCount(item: EventChallengeApiItem): number | undefined {
@@ -51,7 +62,10 @@ export function mapEventChallengeApiItemToPresentation(
     question: questionRaw || undefined,
     points: typeof item.points === 'number' ? item.points : undefined,
     responsesCount: pickResponsesCount(item),
-    remoteCompletedPoints: parseGuestAnswerPoints(item.current_guest_answer),
+    remoteCompletedPoints:
+      item.current_guest_answer != null
+        ? parseGuestAnswerPoints(item.current_guest_answer)
+        : undefined,
   };
 }
 

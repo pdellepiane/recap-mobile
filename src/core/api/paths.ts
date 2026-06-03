@@ -22,6 +22,9 @@ export const eventPaths = {
   ranking: (id: string | number) => `api/events/${encodeURIComponent(String(id))}/ranking`,
   /** GET /api/events/:id/challenges — event challenges for guests. */
   challenges: (id: string | number) => `api/events/${encodeURIComponent(String(id))}/challenges`,
+  /** POST /api/events/:id/challenges/:challengeId/answers — guest challenge submission. */
+  challengeAnswers: (eventId: string | number, challengeId: string | number) =>
+    `api/events/${encodeURIComponent(String(eventId))}/challenges/${encodeURIComponent(String(challengeId))}/answers`,
   /** GET /api/events/:id/challenges/pending — whether the user has incomplete challenges (Bearer). */
   challengesPending: (id: string | number) =>
     `api/events/${encodeURIComponent(String(id))}/challenges/pending`,

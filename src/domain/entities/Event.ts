@@ -26,7 +26,6 @@ export type Event = {
   city?: string;
   /** API `location` (nombre del lugar / dirección) — overview address card, línea 2. */
   venue?: string;
-  description: string;
   coverImageUrl?: string;
   hosts?: EventHost[];
   guests?: EventGuest[];

@@ -1,18 +1,18 @@
 import { usePhotoCreateDraft } from '../context/PhotoCreateDraftContext';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import type { TextInput } from 'react-native';
 
 type Params = {
   eventId: string;
 };
 
-export function useEventChallengePhotoCreateScreenPage({ eventId }: Params) {
-  const { goToEventChallengePhotoCreateChallenge } = useCoordinator();
+export function useEventChallengePhotoCreateScreenPage({ eventId: _eventId }: Params) {
+  const { goBack } = useCoordinator();
   const inputRef = useRef<TextInput>(null);
   const photoDraft = usePhotoCreateDraft();
 
-  const { composerOpen } = photoDraft;
+  const { composerOpen, isPublishing } = photoDraft;
 
   useEffect(() => {
     if (!composerOpen) {
@@ -24,19 +24,12 @@ export function useEventChallengePhotoCreateScreenPage({ eventId }: Params) {
     return () => cancelAnimationFrame(id);
   }, [composerOpen]);
 
-  const canCommitDraft = photoDraft.draft.trim().length > 0;
-
-  const onPressChallenge = useCallback(
-    (challengeId: string) => {
-      goToEventChallengePhotoCreateChallenge(eventId, challengeId);
-    },
-    [eventId, goToEventChallengePhotoCreateChallenge],
-  );
+  const canCommitDraft = photoDraft.draft.trim().length > 0 && !isPublishing;
 
   return {
     inputRef,
-    onPressChallenge,
     canCommitDraft,
+    goBack,
     ...photoDraft,
   };
 }

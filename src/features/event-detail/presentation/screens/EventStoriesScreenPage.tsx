@@ -1,5 +1,5 @@
-import { EventStoriesChrome } from '../components/EventStoriesChrome';
-import { EventStoriesFallback } from '../components/EventStoriesFallback';
+import { EventStoriesChrome } from '../components/stories/EventStoriesChrome';
+import { EventStoriesFallback } from '../components/stories/EventStoriesFallback';
 import { useEventStoriesScreen } from '../hooks/useEventStoriesScreen';
 import { appendRemoteImageEpoch, useRemoteImageCacheEpoch } from '@/src/ui';
 import { Image as ExpoImage } from 'expo-image';
@@ -20,6 +20,7 @@ export function EventStoriesScreenPage({ eventId }: Props) {
   const {
     insets,
     goBack,
+    isLoading,
     bundle,
     slideCount,
     currentIndex,
@@ -36,6 +37,10 @@ export function EventStoriesScreenPage({ eventId }: Props) {
     tapStripBottom,
     setVote,
   } = useEventStoriesScreen(eventId);
+
+  if (isLoading) {
+    return <View style={[styles.root, { width: screenW, height: screenH }]} />;
+  }
 
   if (!bundle || slideCount === 0) {
     return <EventStoriesFallback topInset={insets.top} onBack={goBack} />;

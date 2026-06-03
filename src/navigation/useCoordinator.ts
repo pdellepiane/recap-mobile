@@ -44,6 +44,10 @@ export const useCoordinator = () => {
         trackNav('navigate', routePaths.profile);
         router.navigate(routePaths.profile as Href);
       },
+      goToProfileEditName: () => {
+        trackNav('push', routePaths.profileEditName);
+        router.push(routePaths.profileEditName as Href);
+      },
       /** Presents an in-app browser as a root modal for a trusted HTTPS URL. */
       goToHomeWeb: (url: string) => {
         trackNav('push', routePaths.homeWeb(url), { url });

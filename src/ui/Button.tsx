@@ -23,7 +23,7 @@ type BaseButtonProps = {
   loadingText?: string;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
-  variant?: 'accent' | 'active' | 'ghost' | 'brand' | 'link';
+  variant?: 'accent' | 'active' | 'ghost' | 'brand' | 'link' | 'secondary';
   size?: 'sm' | 'md';
   accessibilityLabel?: string;
   rightIconSource?: ImageSourcePropType;
@@ -96,6 +96,7 @@ export function Button({
         !hasChildren && variant === 'ghost' && styles.buttonGhost,
         !hasChildren && variant === 'link' && styles.buttonLink,
         !hasChildren && variant === 'brand' && styles.buttonBrand,
+        !hasChildren && variant === 'secondary' && styles.buttonSecondary,
         hasChildren && styles.customRoot,
         pressed && styles.buttonPressed,
         isDisabled && styles.buttonDisabled,
@@ -127,6 +128,7 @@ export function Button({
               variant === 'ghost' && styles.buttonTextGhost,
               variant === 'link' && styles.buttonTextLink,
               variant === 'brand' && styles.buttonTextBrand,
+              variant === 'secondary' && styles.buttonTextSecondary,
               textStyle,
             ]}
           >
@@ -201,6 +203,10 @@ const styles = StyleSheet.create({
   buttonBrand: {
     backgroundColor: colors.brand[500],
   },
+  buttonSecondary: {
+    backgroundColor: colors.neutral.lightest,
+    borderRadius: 16,
+  },
   buttonPressed: {
     opacity: 0.9,
   },
@@ -225,6 +231,14 @@ const styles = StyleSheet.create({
   },
   buttonTextBrand: {
     color: colors.neutral.primary,
+  },
+  buttonTextSecondary: {
+    color: colors.background.primary,
+    fontFamily: fontFamilies.bold,
+    fontWeight: '700',
+    fontSize: 18,
+    lineHeight: -1,
+    letterSpacing: 0.4,
   },
   rightIcon: {
     width: 15,

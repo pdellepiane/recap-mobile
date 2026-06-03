@@ -75,3 +75,18 @@ export type EventChallengeCreateResponse = {
   errors: unknown;
   error: string | null;
 };
+
+/** POST /api/events/:id/challenges/:challengeId/answers */
+export type EventChallengeAnswerPostBody = {
+  event_challenge_option_id?: number;
+  photos?: string[];
+};
+
+export type EventChallengeAnswerPostResponse = {
+  /** Full challenge row; earned points live under `current_guest_answer.points`. */
+  data?: EventChallengeApiItem;
+  status: boolean;
+  errors?: unknown;
+  error?: string | null;
+  message?: string;
+};

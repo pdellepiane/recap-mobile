@@ -5,6 +5,8 @@ export type EventChallengeQuiz = {
   number: number;
   question: string;
   options: string[];
+  /** Parallel to `options`; required to POST guest answers. */
+  optionIds: number[];
   /** Index of the correct option (0-based). */
   correctIndex: number;
   points: number;

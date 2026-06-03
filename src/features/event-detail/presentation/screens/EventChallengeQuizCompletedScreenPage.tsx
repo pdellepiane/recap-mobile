@@ -1,4 +1,4 @@
-import { EventChallengeQuizCompletedBody } from '../components/EventChallengeQuizCompletedBody';
+import { EventChallengeQuizCompletedBody } from '../components/quiz/EventChallengeQuizCompletedBody';
 import { useTranslation } from '@/src/i18n';
 import { CloseButton, colors } from '@/src/ui';
 import { StyleSheet, View } from 'react-native';

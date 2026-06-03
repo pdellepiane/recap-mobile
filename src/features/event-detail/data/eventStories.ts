@@ -1,4 +1,4 @@
-/** WhatsApp-style stories: photos only; populate when a stories API exists. */
+/** WhatsApp-style stories from GET /api/events/:id/media (photo rows). */
 
 export type EventStorySlide = {
   id: string;
@@ -11,6 +11,16 @@ export type EventStoriesBundle = {
   slides: EventStorySlide[];
 };
 
-export function getEventStoriesBundle(_eventId: string): EventStoriesBundle | null {
-  return null;
+export function buildEventStoriesBundle(
+  slides: EventStorySlide[],
+  author: { name: string; avatarUrl?: string },
+): EventStoriesBundle | null {
+  if (slides.length === 0) {
+    return null;
+  }
+  return {
+    authorName: author.name,
+    authorAvatarUrl: author.avatarUrl ?? '',
+    slides,
+  };
 }

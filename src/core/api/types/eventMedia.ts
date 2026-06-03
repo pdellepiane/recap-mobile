@@ -19,7 +19,16 @@ export type EventMediaListResponse = {
   error: string | null;
 };
 
-/** POST /api/events/:id/media body. */
+/** POST /api/events/:id/media multipart fields. */
+export type EventMediaUploadParams = {
+  /** Local file URI (React Native / Expo asset). */
+  fileUri: string;
+  mimeType?: string;
+  fileName?: string;
+  event_challenge_answer_photo_id?: number;
+};
+
+/** @deprecated Use {@link EventMediaUploadParams} — API now expects multipart/form-data. */
 export type EventMediaPostBody = {
   type: string;
   path: string;
@@ -27,8 +36,16 @@ export type EventMediaPostBody = {
 };
 
 /** POST /api/events/:id/media response envelope. */
+export type EventMediaPostData = {
+  id?: number;
+  path?: string;
+  type?: string;
+  event_id?: number;
+};
+
 export type EventMediaPostResponse = {
   status: boolean;
+  data?: EventMediaPostData;
   errors?: unknown;
   error?: string | null;
   message?: string;

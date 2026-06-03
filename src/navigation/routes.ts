@@ -6,6 +6,7 @@ export const routePaths = {
   verifyCode: '/verify-code',
   home: '/home',
   profile: '/home/profile',
+  profileEditName: '/home/profile/edit-name',
   /** In-app WebView modal; `url` must be a full `https` URL (encoded). */
   homeWeb: (url: string) => `/in-app-web?url=${encodeURIComponent(url)}`,
   eventDetail: (eventId: string, tab?: EventDetailTab) =>

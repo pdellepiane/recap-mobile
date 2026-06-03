@@ -57,12 +57,10 @@ export function EventDetailCameraScreenPage({ eventId, eventTitle }: Props) {
     if (!selectedPhoto) {
       return;
     }
-    const ok = await uploadPhoto({
-      type: 'photo',
-      path: selectedPhoto.uri,
-      eventChallengeAnswerPhotoId: 0,
+    const upload = await uploadPhoto({
+      fileUri: selectedPhoto.uri,
     });
-    if (ok) {
+    if (upload.ok) {
       router.back();
     }
   }, [router, selectedPhoto, uploadPhoto]);

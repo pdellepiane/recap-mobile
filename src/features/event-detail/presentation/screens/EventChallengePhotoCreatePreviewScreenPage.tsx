@@ -1,6 +1,6 @@
-import { EventChallengeCreatePreviewFooter } from '../components/EventChallengeCreatePreviewFooter';
-import { EventChallengeCreatePreviewHeader } from '../components/EventChallengeCreatePreviewHeader';
-import { EventChallengePhotoCreatePreviewBody } from '../components/EventChallengePhotoCreatePreviewBody';
+import { EventChallengeCreatePreviewFooter } from '../components/shared/EventChallengeCreatePreviewFooter';
+import { EventChallengeCreatePreviewHeader } from '../components/shared/EventChallengeCreatePreviewHeader';
+import { EventChallengePhotoCreatePreviewBody } from '../components/photo/EventChallengePhotoCreatePreviewBody';
 import { useEventChallengePhotoCreatePreviewScreen } from '../hooks/useEventChallengePhotoCreatePreviewScreen';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';

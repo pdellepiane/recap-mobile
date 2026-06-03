@@ -60,6 +60,7 @@ export class FetchHttpClient implements HttpClient {
     if (init.auth === 'bearer') {
       const token = await this.options.getAccessToken?.();
       if (token) {
+        console.log('token', token);
         headers.Authorization = `Bearer ${token}`;
       }
     }
@@ -129,6 +130,23 @@ export class FetchHttpClient implements HttpClient {
       method: 'POST',
       url,
       requestBody: body,
+      auth: options.auth,
+    });
+  }
+
+  async postFormData<T>(path: string, body: FormData, options: FetchOpts = {}): Promise<T> {
+    const url = this.resolveUrl(path);
+    logHttp('→', 'POST', url, { requestBody: '[FormData]' });
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: await this.headersFor(options, false),
+      body,
+      signal: options.signal,
+    });
+    return this.parseResponse<T>(res, {
+      method: 'POST',
+      url,
+      requestBody: '[FormData]',
       auth: options.auth,
     });
   }

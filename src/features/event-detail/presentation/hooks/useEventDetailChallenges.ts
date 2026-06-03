@@ -151,6 +151,9 @@ export function useEventDetailChallenges({
       if (!event) {
         return;
       }
+      if (challenge.remoteCompletedPoints !== undefined) {
+        return;
+      }
       const isHost = isEventHostedFromHomeFeed(event.id);
       if (!isHost) {
         const trimmed = event.date?.trim() ?? '';
@@ -171,16 +174,21 @@ export function useEventDetailChallenges({
   const completedByChallengeIdForUi = useMemo(() => {
     const fromApi: Record<string, number> = {};
     for (const c of challenges) {
-      if (typeof c.remoteCompletedPoints === 'number') {
+      if (c.remoteCompletedPoints !== undefined) {
         fromApi[c.id] = c.remoteCompletedPoints;
       }
     }
-    return { ...fromApi, ...completedByChallengeId };
+    return { ...completedByChallengeId, ...fromApi };
   }, [challenges, completedByChallengeId]);
 
   const hasAnyCompletionForCurrentEvent = useMemo(() => {
-    const snapshot = getEventChallengesCompletionSnapshot(eventId);
-    const merged = { ...snapshot, ...completedByChallengeId };
+    const fromApi: Record<string, number> = {};
+    for (const c of challenges) {
+      if (c.remoteCompletedPoints !== undefined) {
+        fromApi[c.id] = c.remoteCompletedPoints;
+      }
+    }
+    const merged = { ...getEventChallengesCompletionSnapshot(eventId), ...completedByChallengeId, ...fromApi };
     const ids = new Set(challenges.map((r) => r.id));
     return Object.keys(merged).some((id) => ids.has(id));
   }, [eventId, challenges, completedByChallengeId]);

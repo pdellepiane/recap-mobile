@@ -16,35 +16,57 @@ export function getApiQuizOverride(challengeId: string): EventChallengeQuiz | un
 
 type ParsedOptions = {
   labels: string[];
+  optionIds: number[];
   correctIndex: number;
 };
+
+function parseOptionId(value: unknown, fallbackIndex: number): number {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const n = Number(value);
+    if (Number.isFinite(n)) {
+      return n;
+    }
+  }
+  return fallbackIndex + 1;
+}
 
 function labelsFromOptionsArray(v: unknown[]): ParsedOptions | null {
   if (v.length === 0) {
     return null;
   }
   if (typeof v[0] === 'string') {
-    return { labels: v.map((x) => String(x)), correctIndex: 0 };
+    return {
+      labels: v.map((x) => String(x)),
+      optionIds: v.map((_, i) => i + 1),
+      correctIndex: 0,
+    };
   }
   const labels: string[] = [];
+  const optionIds: number[] = [];
   let correctIndex = 0;
   v.forEach((opt: unknown, i: number) => {
     if (opt && typeof opt === 'object') {
       const o = opt as {
+        id?: number | string;
         text?: string;
         label?: string;
         option?: string;
         is_correct?: boolean;
       };
       labels.push(String(o.text ?? o.label ?? o.option ?? ''));
+      optionIds.push(parseOptionId(o.id, i));
       if (o.is_correct === true) {
         correctIndex = i;
       }
     } else {
       labels.push(String(opt));
+      optionIds.push(i + 1);
     }
   });
-  return { labels, correctIndex };
+  return { labels, optionIds, correctIndex };
 }
 
 /** API may send `options` as JSON string or as a parsed array (Laravel / mobile clients). */
@@ -78,12 +100,17 @@ function buildQuizFromApiItem(item: EventChallengeApiItem): EventChallengeQuiz |
     parsed && parsed.labels.length > 0
       ? parsed.labels
       : [1, 2, 3, 4].map((n) => i18n.t('quiz.fallbackOption', { n }));
+  const optionIds =
+    parsed && parsed.optionIds.length === labels.length
+      ? parsed.optionIds
+      : labels.map((_, i) => i + 1);
   const position = typeof item.position === 'number' && item.position > 0 ? item.position : 1;
   return {
     challengeId: String(item.id),
     number: position,
     question: item.question?.trim() || item.title?.trim() || i18n.t('quiz.fallbackQuestionTitle'),
     options: labels,
+    optionIds,
     correctIndex: parsed?.correctIndex ?? 0,
     points: typeof item.points === 'number' ? item.points : 10,
   };

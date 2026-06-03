@@ -1,4 +1,4 @@
-import { EventChallengePhotoCompletedBody } from '../components/EventChallengePhotoCompletedBody';
+import { EventChallengePhotoCompletedBody } from '../components/photo/EventChallengePhotoCompletedBody';
 import { useEventChallengePhotoCompletedScreen } from '../hooks/useEventChallengePhotoCompletedScreen';
 import { useTranslation } from '@/src/i18n';
 import { CloseButton, colors } from '@/src/ui';

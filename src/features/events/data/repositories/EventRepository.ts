@@ -1,13 +1,16 @@
-import { normalizeChallengesFromApi } from '../eventChallengesMap';
+import { normalizeChallengesFromApi, parseChallengeAnswerEarnedPoints } from '../eventChallengesMap';
 import { seedEventChallengeQuizzesFromApi } from '../eventChallengesQuizSeed';
 import { mapEventDetailDataToDomain, mapHomeEventApiItemToDomain } from '../eventDomainMap';
-import { mapEventMediaApiToAlbumPhotos, normalizeMediaLikesCount } from '../eventMediaMap';
+import { mapEventMediaApiToAlbumPhotos, mapEventMediaApiToStorySlides, normalizeMediaLikesCount } from '../eventMediaMap';
+import { buildEventMediaFormData } from '../eventMediaUpload';
 import { mapRankingApiItemsToRows } from '../eventRankingMap';
 import { getCachedHomeEvent } from '../homeEventCache';
 import { eventPaths, homePaths } from '@/src/core/api/paths';
 import type {
   EventChallengeCreateResponse,
   EventChallengePostBody,
+  EventChallengeAnswerPostBody,
+  EventChallengeAnswerPostResponse,
   EventChallengesListResponse,
   EventChallengesPendingResponse,
   EventChallengePhotoSuggestionsResponse,
@@ -15,8 +18,8 @@ import type {
   EventDetailApiResponse,
   EventMediaLikeResponse,
   EventMediaListResponse,
-  EventMediaPostBody,
   EventMediaPostResponse,
+  EventMediaUploadParams,
   EventRankingListResponse,
   EventReactionKind,
   EventReactionPostResponse,
@@ -31,6 +34,7 @@ import type { HttpClient } from '@/src/core/http/HttpClient';
 import { isAbortError } from '@/src/core/http/isAbortError';
 import type { Event as DomainEvent } from '@/src/domain/entities';
 import type { AlbumPhoto } from '@/src/features/event-detail/data/eventAlbum';
+import type { EventStorySlide } from '@/src/features/event-detail/data/eventStories';
 import {
   cacheEventChallengesFromRemote,
   getEventChallenges,
@@ -159,6 +163,22 @@ export class EventRepository {
     }
   }
 
+  /** GET /api/events/:id/media — story slides (photos, oldest first). */
+  async fetchEventStorySlides(eventId: string, opts?: FetchOpts): Promise<EventStorySlide[]> {
+    try {
+      const res = await this.api.get<EventMediaListResponse>(eventPaths.media(eventId), bearer(opts));
+      if (!res.status || !Array.isArray(res.data)) {
+        return [];
+      }
+      return mapEventMediaApiToStorySlides(res.data);
+    } catch (e) {
+      if (isAbortError(e)) {
+        throw e;
+      }
+      return [];
+    }
+  }
+
   /** POST /api/events/:id/media/:mediaId/likes */
   async postEventMediaLike(
     eventId: string,
@@ -182,15 +202,45 @@ export class EventRepository {
     }
   }
 
-  /** POST /api/events/:id/media. */
-  async uploadEventMedia(eventId: string, body: EventMediaPostBody): Promise<boolean> {
+  /** POST /api/events/:id/media (multipart/form-data). */
+  async uploadEventMedia(
+    eventId: string,
+    params: EventMediaUploadParams,
+  ): Promise<{ ok: boolean; path?: string }> {
     try {
-      const res = await this.api.post<EventMediaPostResponse>(eventPaths.media(eventId), body, {
-        auth: 'bearer',
-      });
-      return Boolean(res.status);
+      const formData = buildEventMediaFormData(params);
+      const res = await this.api.postFormData<EventMediaPostResponse>(
+        eventPaths.media(eventId),
+        formData,
+        { auth: 'bearer' },
+      );
+      const path = res.data?.path?.trim();
+      return { ok: Boolean(res.status), path: path || undefined };
     } catch {
-      return false;
+      return { ok: false };
+    }
+  }
+
+  /** POST /api/events/:id/challenges/:challengeId/answers — guest question or photo answer. */
+  async submitEventChallengeAnswer(
+    eventId: string,
+    challengeId: string,
+    body: EventChallengeAnswerPostBody,
+  ): Promise<{ points: number } | null> {
+    try {
+      const res = await this.api.post<EventChallengeAnswerPostResponse>(
+        eventPaths.challengeAnswers(eventId, challengeId),
+        body,
+        { auth: 'bearer' },
+      );
+      if (!res.status) {
+        return null;
+      }
+      await this.fetchEventChallenges(eventId);
+      emitEventChallengesListRefresh(eventId);
+      return { points: parseChallengeAnswerEarnedPoints(res.data) };
+    } catch {
+      return null;
     }
   }
 

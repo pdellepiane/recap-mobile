@@ -1,4 +1,4 @@
-import { EventChallengeQuizCreatePreviewScreenPage } from '@/src/features/event-detail/presentation/screens/EventChallengeQuizCreatePreviewScreenPage';
+import { EventChallengeQuizCreateQuestionScreenPage } from '@/src/features/event-detail/presentation/screens/EventChallengeQuizCreateQuestionScreenPage';
 import { useLocalSearchParams } from 'expo-router';
 
 function firstString(v: string | string[] | undefined): string | undefined {
@@ -15,5 +15,5 @@ export default function ChallengeQuizCreateQuestionRoute() {
   }>();
   const eventId = firstString(id) ?? '';
   const qid = firstString(questionId) ?? '';
-  return <EventChallengeQuizCreatePreviewScreenPage eventId={eventId} questionId={qid} />;
+  return <EventChallengeQuizCreateQuestionScreenPage eventId={eventId} questionId={qid} />;
 }

@@ -20,7 +20,7 @@ const MONTHS_ES = [
   'DIC',
 ] as const;
 
-const DATE_BADGE_FALLBACK = { day: '--', month: '---' } as const;
+const DATE_BADGE_FALLBACK = { day: 'TBD', month: '' } as const;
 
 /** Parses ISO datetimes or `YYYY-MM-DD` into day + short Spanish month for the date badge. */
 export function eventDateBadgeParts(isoDate: string | null | undefined): { day: string; month: string } {

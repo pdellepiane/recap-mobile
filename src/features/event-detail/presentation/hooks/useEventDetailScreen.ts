@@ -4,7 +4,6 @@ import {
   isNonOrganizerDuringStartPlus24hWindow,
   organizerGuestListCounts,
 } from '../../data/eventDetailDerived';
-import { getEventStoriesBundle } from '../../data/eventStories';
 import { useEventDetailRoute } from '../context/EventDetailRouteContext';
 import { EventDetailTab } from './eventDetailTabs';
 import { useEventDetailAlbum } from './useEventDetailAlbum';
@@ -12,10 +11,10 @@ import { useEventDetailChallenges } from './useEventDetailChallenges';
 import { useEventDetailRanking } from './useEventDetailRanking';
 import { useEventDetailTabsAccess } from './useEventDetailTabsAccess';
 import analytics from '@/src/core/analytics';
-import { useAbortController } from '@/src/core/hooks/useAbortController';
-import { isAbortError } from '@/src/core/http/isAbortError';
 import { EventType } from '@/src/core/api';
 import { eventRepository } from '@/src/core/di/container';
+import { useAbortController } from '@/src/core/hooks/useAbortController';
+import { isAbortError } from '@/src/core/http/isAbortError';
 import type { Event } from '@/src/domain/entities';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import {
@@ -64,10 +63,12 @@ export type EventDetailScreenData = {
   /** Overview: countdown hasta el inicio — true mientras `now <` instante de inicio (`event.date` ISO). */
   isBeforeStartCountdownVisible: boolean;
   /**
-   * Invitado en ventana [inicio, inicio+24h]: FAB de cámara (álbum) + barra de reacciones con partículas
+   * Invitado en ventana [inicio, inicio+24h]: barra de reacciones con partículas
    * ({@link isNonOrganizerDuringStartPlus24hWindow}). Anfitrión: siempre false.
    */
   isGuestLiveActionsVisible: boolean;
+  /** Evento {@link EventType.EventLive}: FAB de cámara (álbum) para invitado y anfitrión. */
+  isCameraFabVisible: boolean;
   isPublicGuestListEnabled: boolean;
   isShareSheetOpen: boolean;
   isCreateChallengeSheetOpen: boolean;
@@ -88,7 +89,6 @@ export type EventDetailScreenHandlers = {
   onFabCameraPress: () => void;
   onChallengePress: ReturnType<typeof useEventDetailChallenges>['onChallengePress'];
   onProfileAvatarPress: () => void;
-  onOpenMap: () => void;
   onParticipantsModalOpen: () => void;
   onSharePress: () => void;
   onShareSheetClose: () => void;
@@ -117,7 +117,6 @@ export function useEventDetailScreen({
   // --- Setup
   const {
     goBack,
-    goToEventMap,
     goToEventStories,
     goToEventDetailCamera,
     goToEventChallengeQuizCreate,
@@ -157,19 +156,15 @@ export function useEventDetailScreen({
     reloadEventDetail,
   });
 
-  const {
-    challenges,
-    completedByChallengeIdForUi,
-    onChallengePress,
-    refetchChallenges,
-  } = useEventDetailChallenges({
-    eventId,
-    event,
-    activeTab,
-    guestEventDayOrPastTabBlocked,
-    completedChallengeId,
-    completedPoints,
-  });
+  const { challenges, completedByChallengeIdForUi, onChallengePress, refetchChallenges } =
+    useEventDetailChallenges({
+      eventId,
+      event,
+      activeTab,
+      guestEventDayOrPastTabBlocked,
+      completedChallengeId,
+      completedPoints,
+    });
 
   const { rankingRows, refetchRanking } = useEventDetailRanking({
     eventId,
@@ -189,8 +184,11 @@ export function useEventDetailScreen({
   });
 
   const pendingDotGenerationRef = useRef(0);
-  const { beginRequest: beginPendingRequest, endRequest: endPendingRequest, abortAll: abortPending } =
-    useAbortController();
+  const {
+    beginRequest: beginPendingRequest,
+    endRequest: endPendingRequest,
+    abortAll: abortPending,
+  } = useAbortController();
 
   const refreshChallengesPendingDot = useCallback(async () => {
     const generation = ++pendingDotGenerationRef.current;
@@ -297,6 +295,14 @@ export function useEventDetailScreen({
     () => isNonOrganizerDuringStartPlus24hWindow(event, isOrganizer, detailNow),
     [event, isOrganizer, detailNow],
   );
+
+  const isCameraFabVisible = useMemo(() => {
+    const d = event?.date?.trim() ?? '';
+    if (!d || Number.isNaN(Date.parse(d))) {
+      return false;
+    }
+    return getEventType(d, detailNow) === EventType.EventLive;
+  }, [event?.date, detailNow]);
 
   const hostsLine = useMemo(() => {
     if (!event || !session) {
@@ -406,17 +412,8 @@ export function useEventDetailScreen({
   ]);
 
   const onProfileAvatarPress = useCallback(() => {
-    if (getEventStoriesBundle(eventId) == null) {
-      return;
-    }
     goToEventStories(eventId);
   }, [eventId, goToEventStories]);
-
-  const onOpenMap = useCallback(() => {
-    if (event) {
-      goToEventMap(event.id, event.location);
-    }
-  }, [event, goToEventMap]);
 
   const onSharePress = useCallback(() => {
     void analytics.trackAction('open_share_sheet', {
@@ -497,6 +494,7 @@ export function useEventDetailScreen({
     isOrganizer,
     canHostEditChallenges,
     isGuestLiveActionsVisible,
+    isCameraFabVisible,
     activeTab,
     detailVisibleTabs,
     completedByChallengeId: completedByChallengeIdForUi,
@@ -522,7 +520,6 @@ export function useEventDetailScreen({
     onFabCameraPress,
     onChallengePress,
     onProfileAvatarPress,
-    onOpenMap,
     onParticipantsModalOpen,
     onSharePress,
     onShareSheetClose,

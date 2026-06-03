@@ -1,8 +1,15 @@
-import { getEventStoriesBundle } from '../../data/eventStories';
+import { buildEventStoriesBundle, type EventStoriesBundle } from '../../data/eventStories';
+import { hostsLineForDetailView } from '../../data/eventDetailDerived';
+import { useEventDetailRoute } from '../context/EventDetailRouteContext';
 import { useEventStoriesViewer } from './useEventStoriesViewer';
 import { useSwipeDownToClose } from './useSwipeDownToClose';
+import { eventRepository } from '@/src/core/di/container';
+import { useAbortController } from '@/src/core/hooks/useAbortController';
+import { isAbortError } from '@/src/core/http/isAbortError';
+import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
+import { isEventHostedFromHomeFeed } from '@/src/features/events/data/homeEventCache';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Vote = 'like' | 'dislike';
@@ -13,9 +20,59 @@ type Vote = 'like' | 'dislike';
 export function useEventStoriesScreen(eventId: string) {
   const insets = useSafeAreaInsets();
   const { goBack } = useCoordinator();
-  const bundle = useMemo(() => getEventStoriesBundle(eventId), [eventId]);
+  const { event } = useEventDetailRoute();
+  const { session } = useAuth();
+  const { beginRequest, endRequest, abortAll } = useAbortController();
+  const [isLoading, setIsLoading] = useState(true);
+  const [bundle, setBundle] = useState<EventStoriesBundle | null>(null);
   const slideCount = bundle?.slides.length ?? 0;
   const [votes, setVotes] = useState<Partial<Record<number, Vote>>>({});
+
+  useEffect(() => {
+    if (!eventId) {
+      setIsLoading(false);
+      setBundle(null);
+      return undefined;
+    }
+    const controller = beginRequest();
+    void (async () => {
+      setIsLoading(true);
+      try {
+        const slides = await eventRepository.fetchEventStorySlides(eventId, {
+          signal: controller.signal,
+        });
+        if (controller.signal.aborted) {
+          return;
+        }
+        const isOrganizer = Boolean(event && isEventHostedFromHomeFeed(event.id));
+        const authorName =
+          event && session
+            ? hostsLineForDetailView(event, {
+                isOrganizer,
+                sessionUserName: session.user.name,
+              })
+            : '';
+        setBundle(
+          buildEventStoriesBundle(slides, {
+            name: authorName,
+            avatarUrl: event?.coverImageUrl,
+          }),
+        );
+      } catch (e) {
+        if (!isAbortError(e) && !controller.signal.aborted) {
+          setBundle(null);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
+        endRequest(controller);
+      }
+    })();
+    return () => {
+      abortAll();
+    };
+  }, [abortAll, beginRequest, endRequest, event, eventId, session]);
 
   const onFinish = useCallback(() => {
     goBack();
@@ -42,6 +99,7 @@ export function useEventStoriesScreen(eventId: string) {
   return {
     insets,
     goBack,
+    isLoading,
     bundle,
     slideCount,
     currentIndex,

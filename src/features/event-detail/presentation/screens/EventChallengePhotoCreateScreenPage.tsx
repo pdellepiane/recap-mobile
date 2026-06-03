@@ -1,7 +1,7 @@
-import { EventChallengePhotoCreateAddedSection } from '../components/EventChallengePhotoCreateAddedSection';
-import { EventChallengePhotoCreateComposerIdle } from '../components/EventChallengePhotoCreateComposerIdle';
-import { EventChallengePhotoCreateComposerOpen } from '../components/EventChallengePhotoCreateComposerOpen';
-import { EventChallengePhotoCreateSuggestionsSection } from '../components/EventChallengePhotoCreateSuggestionsSection';
+import { EventChallengePhotoCreateAddedSection } from '../components/photo/EventChallengePhotoCreateAddedSection';
+import { EventChallengePhotoCreateComposerIdle } from '../components/photo/EventChallengePhotoCreateComposerIdle';
+import { EventChallengePhotoCreateComposerOpen } from '../components/photo/EventChallengePhotoCreateComposerOpen';
+import { EventChallengePhotoCreateSuggestionsSection } from '../components/photo/EventChallengePhotoCreateSuggestionsSection';
 import { useEventChallengePhotoCreateScreenPage } from '../hooks/useEventChallengePhotoCreateScreenPage';
 import { useTranslation } from '@/src/i18n';
 import { CloseButton, colors } from '@/src/ui';
@@ -17,7 +17,6 @@ export function EventChallengePhotoCreateScreenPage({ eventId }: Props) {
   const { t } = useTranslation();
   const {
     inputRef,
-    onPressChallenge,
     canCommitDraft,
     composerOpen,
     draft,
@@ -58,10 +57,7 @@ export function EventChallengePhotoCreateScreenPage({ eventId }: Props) {
           <EventChallengePhotoCreateComposerIdle onPress={openComposer} />
         )}
 
-        <EventChallengePhotoCreateAddedSection
-          challenges={addedChallenges}
-          onPressChallenge={onPressChallenge}
-        />
+        <EventChallengePhotoCreateAddedSection challenges={addedChallenges} />
 
         <EventChallengePhotoCreateSuggestionsSection
           suggestions={availableSuggestions}

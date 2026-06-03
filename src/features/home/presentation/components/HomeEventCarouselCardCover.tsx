@@ -47,7 +47,7 @@ export function HomeEventCarouselCardCover({
       />
       <View style={styles.dateBadge}>
         <Text style={styles.dateBadgeDay}>{day}</Text>
-        <Text style={styles.dateBadgeMonth}>{month}</Text>
+        {month ? <Text style={styles.dateBadgeMonth}>{month}</Text> : null}
       </View>
       {coverLabel && (
         <View style={styles.coverFooter}>

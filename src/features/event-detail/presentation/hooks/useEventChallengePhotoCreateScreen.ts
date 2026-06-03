@@ -73,6 +73,8 @@ export function useEventChallengePhotoCreateScreen({ eventId }: Params) {
   const addedChallengesRef = useRef(addedChallenges);
   addedChallengesRef.current = addedChallenges;
 
+  const remoteChallengeCountRef = useRef(0);
+
   useFocusEffect(
     useCallback(() => {
       if (!eventId) {
@@ -90,6 +92,7 @@ export function useEventChallengePhotoCreateScreen({ eventId }: Params) {
           if (controller.signal.aborted) {
             return;
           }
+          remoteChallengeCountRef.current = existing.length;
           const used = usedChallengePromptKeySet(existing);
           for (const row of addedChallengesRef.current) {
             const k = normalizeChallengePromptText(row.title);
@@ -122,26 +125,59 @@ export function useEventChallengePhotoCreateScreen({ eventId }: Params) {
     Keyboard.dismiss();
   }, []);
 
+  const [isPublishing, setIsPublishing] = useState(false);
+
+  const publishPhotoChallenge = useCallback(
+    async (title: string, consumedSuggestion?: PhotoCreateChallengeSuggestion) => {
+      const trimmed = title.trim();
+      if (!trimmed || !eventId || isPublishing) {
+        return;
+      }
+
+      const challenge = buildAddedChallenge(trimmed, consumedSuggestion);
+      const position =
+        remoteChallengeCountRef.current + addedChallengesRef.current.length + 1;
+      const body = buildPhotoChallengeBody(challenge, position);
+      if (!body) {
+        showShortUserMessage(t('eventDetail.createPhotoCreateInvalid'));
+        return;
+      }
+
+      setIsPublishing(true);
+      try {
+        const ok = await eventRepository.createEventChallenge(eventId, body);
+        if (!ok) {
+          showShortUserMessage(t('eventDetail.createPhotoCreateError'));
+          return;
+        }
+        remoteChallengeCountRef.current += 1;
+        setAddedChallenges((prev) => [challenge, ...prev]);
+        const usedKey = normalizeChallengePromptText(trimmed);
+        setAvailableSuggestions((prev) =>
+          prev.filter(
+            (item) =>
+              normalizeChallengePromptText(item.title) !== usedKey &&
+              item.id !== consumedSuggestion?.id,
+          ),
+        );
+        resetComposerIdle();
+        showShortUserMessage(t('eventDetail.createPhotoCreateSuccess'));
+      } finally {
+        setIsPublishing(false);
+      }
+    },
+    [eventId, isPublishing, resetComposerIdle, t],
+  );
+
   const commitDraftChallenge = useCallback(() => {
-    const text = draft.trim();
-    if (!text) {
-      return;
-    }
-    setAddedChallenges((prev) => [buildAddedChallenge(text), ...prev]);
-    resetComposerIdle();
-  }, [draft, resetComposerIdle]);
+    void publishPhotoChallenge(draft);
+  }, [draft, publishPhotoChallenge]);
 
   const addChallengeFromSuggestion = useCallback(
     (suggestion: PhotoCreateChallengeSuggestion) => {
-      const trimmed = suggestion.title.trim();
-      if (!trimmed) {
-        return;
-      }
-      setAddedChallenges((prev) => [buildAddedChallenge(trimmed, suggestion), ...prev]);
-      setAvailableSuggestions((prev) => prev.filter((item) => item.id !== suggestion.id));
-      resetComposerIdle();
+      void publishPhotoChallenge(suggestion.title, suggestion);
     },
-    [resetComposerIdle],
+    [publishPhotoChallenge],
   );
 
   /** Drop a draft photo challenge only. Call {@link restoreConsumedPhotoSuggestion} when discarding a row that came from suggestions. */
@@ -196,6 +232,7 @@ export function useEventChallengePhotoCreateScreen({ eventId }: Params) {
     setDraft,
     addedChallenges,
     availableSuggestions,
+    isPublishing,
     openComposer,
     resetComposerIdle,
     commitDraftChallenge,
