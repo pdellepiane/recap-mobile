@@ -23,7 +23,10 @@
         "appleId": "buildappspe@gmail.com",
         "ascAppId": "6771149882"
       },
-      "android": {}
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "internal"
+      }
     }
   }
 }
