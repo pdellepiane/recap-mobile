@@ -8,6 +8,9 @@ node_modules/
 dist/
 web-build/
 build-*.tar.gz
+build-*.ipa
+build-*.apk
+build-*.aab
 expo-env.d.ts
 
 # Native
@@ -18,7 +21,8 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
-
+google-play-service-account.json
+scripts/
 # Metro
 .metro-health-check*
 
