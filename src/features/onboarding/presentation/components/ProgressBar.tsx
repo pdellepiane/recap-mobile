@@ -1,5 +1,10 @@
 import type { OnboardingSlide } from '../data';
+import {
+  scaledOnboardingSize,
+  useOnboardingScale,
+} from '../utils/onboardingLayout';
 import { colors } from '@/src/ui/colors';
+import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 type ProgressBarProps = {
@@ -9,13 +14,41 @@ type ProgressBarProps = {
 };
 
 export function ProgressBar({ slides, activeIndex, topInset }: ProgressBarProps) {
+  const scale = useOnboardingScale();
+
+  const layout = useMemo(
+    () => ({
+      paddingTop: topInset + scaledOnboardingSize(24, scale),
+      paddingBottom: scaledOnboardingSize(24, scale),
+      gap: scaledOnboardingSize(8, scale),
+      barWidth: scaledOnboardingSize(104, scale),
+      barHeight: scaledOnboardingSize(8, scale),
+      borderRadius: scaledOnboardingSize(8, scale),
+    }),
+    [scale, topInset],
+  );
+
   return (
-    <View style={[styles.progressContainer, { paddingTop: topInset + 24 }]}>
+    <View
+      style={[
+        styles.progressContainer,
+        {
+          paddingTop: layout.paddingTop,
+          paddingBottom: layout.paddingBottom,
+          gap: layout.gap,
+        },
+      ]}
+    >
       {slides.map((_, index) => (
         <View
           key={index}
           style={[
             styles.progressBar,
+            {
+              width: layout.barWidth,
+              height: layout.barHeight,
+              borderRadius: layout.borderRadius,
+            },
             index === activeIndex ? styles.progressBarActive : styles.progressBarInactive,
           ]}
         />
@@ -28,14 +61,8 @@ const styles = StyleSheet.create({
   progressContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 8,
-    paddingBottom: 24,
   },
-  progressBar: {
-    width: 104,
-    height: 8,
-    borderRadius: 8,
-  },
+  progressBar: {},
   progressBarActive: {
     backgroundColor: colors.background.primary,
   },

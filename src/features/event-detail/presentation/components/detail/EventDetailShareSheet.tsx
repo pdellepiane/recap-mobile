@@ -2,6 +2,7 @@ import { EventDetailShareUrlRow } from './EventDetailShareUrlRow';
 import { useTranslation } from '@/src/i18n';
 import { Button, CloseButton, SlideUpBottomModal, colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo } from 'react';
 import { StyleSheet, Text } from 'react-native';
 
 type Props = {
@@ -11,16 +12,16 @@ type Props = {
   onShare: () => void;
 };
 
-export function EventDetailShareSheet({ visible, shareUrl, onClose, onShare }: Props) {
+export const EventDetailShareSheet = memo(function EventDetailShareSheet({
+  visible,
+  shareUrl,
+  onClose,
+  onShare,
+}: Props) {
   const { t } = useTranslation();
 
   return (
-    <SlideUpBottomModal
-      visible={visible}
-      onRequestClose={onClose}
-      contentContainerStyle={styles.overlayPadding}
-      sheetStyle={styles.sheet}
-    >
+    <SlideUpBottomModal visible={visible} onRequestClose={onClose}>
       <CloseButton
         onPress={onClose}
         style={styles.closeBtn}
@@ -39,20 +40,9 @@ export function EventDetailShareSheet({ visible, shareUrl, onClose, onShare }: P
       />
     </SlideUpBottomModal>
   );
-}
+});
 
 const styles = StyleSheet.create({
-  overlayPadding: {
-    paddingHorizontal: 22,
-    paddingBottom: 52,
-  },
-  sheet: {
-    borderRadius: 26,
-    backgroundColor: colors.background.elevated,
-    paddingHorizontal: 24,
-    paddingTop: 28,
-    paddingBottom: 26,
-  },
   closeBtn: {
     position: 'absolute',
     top: 16,
@@ -61,9 +51,9 @@ const styles = StyleSheet.create({
   title: {
     color: colors.neutral.primary,
     fontSize: 28,
-    fontWeight: '500',
     lineHeight: 36,
     fontFamily: fontFamilies.medium,
+    fontWeight: '500',
     marginTop: 50,
     marginBottom: 12,
   },

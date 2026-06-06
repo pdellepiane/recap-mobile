@@ -2,14 +2,13 @@ import { images } from '@/src/assets/images';
 import { colors } from './colors';
 import { radii } from './radii';
 import {
+  getUserToastSnapshot,
   subscribeUserToast,
-  type UserToastPayload,
   type UserToastVariant,
 } from './userToast';
 import { fontFamilies } from './typography';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { Image, Platform, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeInDown, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function toastPalette(variant: UserToastVariant) {
@@ -28,13 +27,15 @@ function toastPalette(variant: UserToastVariant) {
 }
 
 /**
- * Global toast overlay — mount once in the root layout.
+ * Global toast overlay — mount inside the event stack layout (above modals).
  */
 export function UserToastHost() {
   const insets = useSafeAreaInsets();
-  const [toast, setToast] = useState<UserToastPayload | null>(null);
-
-  useEffect(() => subscribeUserToast(setToast), []);
+  const toast = useSyncExternalStore(
+    subscribeUserToast,
+    getUserToastSnapshot,
+    getUserToastSnapshot,
+  );
 
   if (!toast) {
     return null;
@@ -48,11 +49,7 @@ export function UserToastHost() {
       style={[styles.host, { paddingBottom: Math.max(insets.bottom, 16) + 12 }]}
       pointerEvents="box-none"
     >
-      <Animated.View
-        entering={FadeInDown.duration(320).springify().damping(18)}
-        exiting={FadeOutUp.duration(220)}
-        style={[styles.toast, { backgroundColor: palette.surface }]}
-      >
+      <View style={[styles.toast, { backgroundColor: palette.surface }]}>
         {showSuccessIcon ? (
           <View style={[styles.iconWrap, { backgroundColor: palette.iconWrap }]}>
             <Image
@@ -66,7 +63,7 @@ export function UserToastHost() {
         <Text style={[styles.message, { color: palette.message }]} numberOfLines={3}>
           {toast.message}
         </Text>
-      </Animated.View>
+      </View>
     </View>
   );
 }

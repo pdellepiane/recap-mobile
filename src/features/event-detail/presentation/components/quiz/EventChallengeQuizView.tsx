@@ -1,49 +1,45 @@
-import { EventChallengeHeaderView } from '../shared/EventChallengeHeaderView';
+import { EventChallengeFlowScrollLayout } from '../shared/EventChallengeFlowScrollLayout';
 import { EventChallengeQuizBodyView } from './EventChallengeQuizBodyView';
 import { EventChallengeQuizFooterView } from './EventChallengeQuizFooterView';
-import { colors } from '@/src/ui';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
-  quiz: { number: number; question: string; options: string[] };
+  kicker: string;
+  question: string;
+  answerOptions: string[];
   selectedIndex: number | null;
   canFinish: boolean;
   isSubmitting: boolean;
   onToggleOption: (index: number) => void;
-  onFinalize: () => void;
+  onFinish: () => void;
 };
 
 export function EventChallengeQuizView({
-  quiz,
+  kicker,
+  question,
+  answerOptions,
   selectedIndex,
   canFinish,
   isSubmitting,
   onToggleOption,
-  onFinalize,
+  onFinish,
 }: Props) {
   return (
-    <View style={styles.root}>
-      <EventChallengeHeaderView />
-
+    <EventChallengeFlowScrollLayout
+      footer={
+        <EventChallengeQuizFooterView
+          canConfirm={canFinish}
+          loading={isSubmitting}
+          onConfirm={onFinish}
+        />
+      }
+    >
       <EventChallengeQuizBodyView
-        quiz={quiz}
+        kicker={kicker}
+        question={question}
+        answerOptions={answerOptions}
         selectedIndex={selectedIndex}
         onToggleOption={onToggleOption}
       />
-
-      <EventChallengeQuizFooterView
-        canFinish={canFinish}
-        loading={isSubmitting}
-        onPress={onFinalize}
-      />
-    </View>
+    </EventChallengeFlowScrollLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-    paddingHorizontal: 20,
-  },
-});

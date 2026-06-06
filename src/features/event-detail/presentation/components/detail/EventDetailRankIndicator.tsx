@@ -1,6 +1,7 @@
 import type { RankingMedal, RankingRow } from '../../../data/eventRanking';
 import { images } from '@/src/assets/images';
 import { colors } from '@/src/ui';
+import { memo } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 const MEDAL_SIZE = 40;
@@ -11,7 +12,11 @@ const MEDAL_TINT: Record<RankingMedal, string> = {
   bronze: colors.events.rankingBronze,
 };
 
-export function EventDetailRankIndicator({ row }: { row: RankingRow }) {
+export const EventDetailRankIndicator = memo(function EventDetailRankIndicator({
+  row,
+}: {
+  row: RankingRow;
+}) {
   if (row.medal) {
     return (
       <View style={styles.medalBadgeWrap}>
@@ -31,7 +36,7 @@ export function EventDetailRankIndicator({ row }: { row: RankingRow }) {
       <Text style={styles.rankPlainText}>{String(row.rank)}</Text>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   medalBadgeWrap: {

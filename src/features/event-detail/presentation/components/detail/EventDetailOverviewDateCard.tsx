@@ -3,16 +3,24 @@ import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo, useMemo } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   eventDateIso?: string | null;
 };
 
-export function EventDetailOverviewDateCard({ eventDateIso }: Props) {
+export const EventDetailOverviewDateCard = memo(function EventDetailOverviewDateCard({
+  eventDateIso,
+}: Props) {
   const { i18n } = useTranslation();
-  const { dateLine, timeLine } = formatEventDetailOverviewDateLines(eventDateIso, i18n.language);
-  const a11y = timeLine ? `${dateLine}, ${timeLine}` : dateLine;
+  const { dateLine, timeLine, a11y } = useMemo(() => {
+    const lines = formatEventDetailOverviewDateLines(eventDateIso, i18n.language);
+    return {
+      ...lines,
+      a11y: lines.timeLine ? `${lines.dateLine}, ${lines.timeLine}` : lines.dateLine,
+    };
+  }, [eventDateIso, i18n.language]);
 
   return (
     <View style={styles.infoCard} accessibilityLabel={a11y}>
@@ -29,7 +37,7 @@ export function EventDetailOverviewDateCard({ eventDateIso }: Props) {
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   infoCard: {

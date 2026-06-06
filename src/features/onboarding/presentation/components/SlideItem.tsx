@@ -1,10 +1,12 @@
 import type { OnboardingSlide } from '../data';
+import { scaledOnboardingSize, useOnboardingScale } from '../utils/onboardingLayout';
 import { DecorativeImages } from './DecorativeImages';
 import { OverlayImages } from './OverlayImages';
 import { SlideMainImage } from './SlideMainImage';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui/colors';
 import { fontFamilies } from '@/src/ui/typography';
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 type SlideItemProps = {
@@ -14,19 +16,70 @@ type SlideItemProps = {
 
 export function SlideItem({ slide, width }: SlideItemProps) {
   const { t } = useTranslation();
+  const scale = useOnboardingScale();
   const title = t(slide.titleKey);
   const isFirstSlide = slide.id === '1';
   const isSecondSlide = slide.id === '2';
   const isThirdSlide = slide.id === '3';
 
+  const layout = useMemo(
+    () => ({
+      slidePaddingTop: scaledOnboardingSize(120, scale),
+      slidePaddingBottom: scaledOnboardingSize(176, scale),
+      titleFontSize: scaledOnboardingSize(36, scale),
+      titleLineHeight: scaledOnboardingSize(44, scale),
+      titleMarginHorizontal: scaledOnboardingSize(16, scale),
+      titleMaxWidth: scaledOnboardingSize(300, scale),
+      firstSlideMaxHeight: scaledOnboardingSize(440, scale),
+      firstSlideMarginTop: scaledOnboardingSize(6, scale),
+      firstSlideMarginBottom: scaledOnboardingSize(28, scale),
+      secondSlideMinHeight: scaledOnboardingSize(400, scale),
+      thirdSlideMinHeight: scaledOnboardingSize(470, scale),
+      thirdSlideMarginTop: scaledOnboardingSize(8, scale),
+      thirdSlideMainHeight: scaledOnboardingSize(500, scale),
+      secondSlideTitleMarginTop: scaledOnboardingSize(6, scale),
+      secondSlideTitleMarginBottom: scaledOnboardingSize(16, scale),
+      thirdSlideTitleTop: scaledOnboardingSize(40, scale),
+      thirdSlideTitleMarginBottom: scaledOnboardingSize(8, scale),
+      firstSlideTitleMarginTop: scaledOnboardingSize(-50, scale),
+      firstSlideTitleMarginBottom: scaledOnboardingSize(32, scale),
+    }),
+    [scale],
+  );
+
   return (
-    <View style={[styles.slide, { width, backgroundColor: slide.backgroundColor }]}>
+    <View
+      style={[
+        styles.slide,
+        {
+          width,
+          backgroundColor: slide.backgroundColor,
+          paddingTop: layout.slidePaddingTop,
+          paddingBottom: isFirstSlide
+            ? scaledOnboardingSize(200, scale)
+            : layout.slidePaddingBottom,
+          justifyContent: isFirstSlide ? 'flex-start' : 'center',
+        },
+      ]}
+    >
       {slide.titlePosition === 'above' && (
         <Text
           style={[
             styles.title,
-            isSecondSlide && styles.secondSlideTitle,
-            isThirdSlide && styles.thirdSlideTitle,
+            {
+              fontSize: layout.titleFontSize,
+              lineHeight: layout.titleLineHeight,
+              marginHorizontal: layout.titleMarginHorizontal,
+            },
+            isSecondSlide && {
+              marginTop: layout.secondSlideTitleMarginTop,
+              marginBottom: layout.secondSlideTitleMarginBottom,
+            },
+            isThirdSlide && {
+              maxWidth: layout.titleMaxWidth,
+              top: layout.thirdSlideTitleTop,
+              marginBottom: layout.thirdSlideTitleMarginBottom,
+            },
           ]}
         >
           {title}
@@ -35,18 +88,43 @@ export function SlideItem({ slide, width }: SlideItemProps) {
       <View
         style={[
           styles.imageContainer,
-          isFirstSlide && styles.firstSlideImageContainer,
-          isSecondSlide && styles.secondSlideImageContainer,
-          isThirdSlide && styles.thirdSlideImageContainer,
+          isFirstSlide && {
+            flex: 0,
+            maxHeight: layout.firstSlideMaxHeight,
+            marginTop: layout.firstSlideMarginTop,
+            marginBottom: layout.firstSlideMarginBottom,
+            alignItems: 'flex-start',
+          },
+          isSecondSlide && {
+            flex: 0,
+            minHeight: layout.secondSlideMinHeight,
+            alignItems: 'center',
+          },
+          isThirdSlide && {
+            flex: 0,
+            minHeight: layout.thirdSlideMinHeight,
+            marginTop: layout.thirdSlideMarginTop,
+            alignItems: 'center',
+          },
         ]}
       >
         {slide.decorativeImages && <DecorativeImages images={slide.decorativeImages} />}
         <View
           style={[
             styles.mainImageWrapper,
-            isFirstSlide && styles.firstSlideMainImageWrapper,
-            isSecondSlide && styles.secondSlideMainImageWrapper,
-            isThirdSlide && styles.thirdSlideMainImageWrapper,
+            isFirstSlide && { flex: 0, height: layout.firstSlideMaxHeight },
+            isSecondSlide && {
+              flex: 0,
+              width: '100%',
+              height: layout.secondSlideMinHeight,
+              overflow: 'visible',
+            },
+            isThirdSlide && {
+              flex: 0,
+              width: '100%',
+              height: layout.thirdSlideMainHeight,
+              overflow: 'visible',
+            },
           ]}
         >
           {slide.overlayImages && (
@@ -66,7 +144,25 @@ export function SlideItem({ slide, width }: SlideItemProps) {
         </View>
       </View>
       {slide.titlePosition === 'below' && (
-        <Text style={[styles.title, isFirstSlide && styles.firstSlideTitle]}>{title}</Text>
+        <Text
+          style={[
+            styles.title,
+            styles.titleBelow,
+            {
+              fontSize: layout.titleFontSize,
+              lineHeight: layout.titleLineHeight,
+              marginHorizontal: layout.titleMarginHorizontal,
+            },
+            isFirstSlide && {
+              fontFamily: fontFamilies.medium,
+              maxWidth: layout.titleMaxWidth,
+              marginTop: layout.firstSlideTitleMarginTop,
+              marginBottom: layout.firstSlideTitleMarginBottom,
+            },
+          ]}
+        >
+          {title}
+        </Text>
       )}
     </View>
   );
@@ -75,8 +171,6 @@ export function SlideItem({ slide, width }: SlideItemProps) {
 const styles = StyleSheet.create({
   slide: {
     flex: 1,
-    paddingTop: 120,
-    paddingBottom: 176,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -87,68 +181,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  firstSlideImageContainer: {
-    maxHeight: 440,
-    alignItems: 'flex-start',
-    marginTop: 6,
-    marginBottom: 28,
-  },
-  secondSlideImageContainer: {
-    flex: 0,
-    minHeight: 400,
-    alignItems: 'center',
-    marginTop: 0,
-    marginBottom: 0,
-  },
-  thirdSlideImageContainer: {
-    flex: 0,
-    minHeight: 470,
-    alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 0,
-  },
   mainImageWrapper: {
     flex: 1,
     width: '100%',
     justifyContent: 'center',
     position: 'relative',
   },
-  firstSlideMainImageWrapper: {
-    height: 440,
-  },
-  secondSlideMainImageWrapper: {
-    flex: 0,
-    width: '100%',
-    height: 400,
-    overflow: 'visible',
-  },
-  thirdSlideMainImageWrapper: {
-    flex: 0,
-    width: '100%',
-    height: 500,
-    overflow: 'visible',
-  },
   title: {
     textAlign: 'center',
     color: colors.background.primary,
-    marginHorizontal: 16,
-    fontSize: 36,
-    lineHeight: 44,
-  },
-  firstSlideTitle: {
-    fontFamily: fontFamilies.medium,
-    maxWidth: 300,
-    marginBottom: 8,
-  },
-  secondSlideTitle: {
     fontFamily: fontFamilies.regular,
-    marginTop: 6,
-    marginBottom: 16,
   },
-  thirdSlideTitle: {
-    fontFamily: fontFamilies.regular,
-    maxWidth: 300,
-    top: 40,
-    marginBottom: 8,
+  titleBelow: {
+    flexShrink: 0,
+    zIndex: 2,
   },
 });

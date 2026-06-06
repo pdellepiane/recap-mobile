@@ -4,6 +4,7 @@ import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo, useMemo } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 const CHALLENGE_ACCENT_LIME = colors.states.active;
@@ -28,7 +29,7 @@ type Props = {
   zeroPoints: boolean;
 };
 
-export function EventChallengeCardBody({
+export const EventChallengeCardBody = memo(function EventChallengeCardBody({
   challenge,
   isQuiz,
   isCompleted,
@@ -36,10 +37,14 @@ export function EventChallengeCardBody({
   zeroPoints,
 }: Props) {
   const { t } = useTranslation();
-  const responsesLabel =
-    challenge.responsesCount != null
-      ? t('challenges.responseCount', { count: challenge.responsesCount })
-      : null;
+  const responsesLabel = useMemo(
+    () =>
+      challenge.responsesCount != null
+        ? t('challenges.responseCount', { count: challenge.responsesCount })
+        : null,
+    [challenge.responsesCount, t],
+  );
+  const promptText = useMemo(() => cardPromptLine(challenge), [challenge]);
 
   return (
     <View style={[styles.body, isCompleted && styles.bodyCompleted]}>
@@ -71,19 +76,19 @@ export function EventChallengeCardBody({
               ) : null}
             </View>
             <Text style={styles.promptText} numberOfLines={4} ellipsizeMode="tail">
-              {cardPromptLine(challenge)}
+              {promptText}
             </Text>
           </View>
         </View>
       )}
       {isCompleted ? (
         <Text style={styles.promptText} numberOfLines={2} ellipsizeMode="tail">
-          {cardPromptLine(challenge)}
+          {promptText}
         </Text>
       ) : null}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   body: {

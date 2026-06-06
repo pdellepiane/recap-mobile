@@ -2,6 +2,7 @@ import { useTranslation } from '@/src/i18n';
 import { Button, colors, HostInitialsAvatar } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { LinearGradient } from 'expo-linear-gradient';
+import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 const GRADIENT_LEFT = 'rgba(95, 43, 216, 1)';
@@ -21,7 +22,7 @@ export type EventDetailParticipantsConfirmedPillProps = {
   onPress?: () => void;
 };
 
-export function EventDetailParticipantsConfirmedPill({
+export const EventDetailParticipantsConfirmedPill = memo(function EventDetailParticipantsConfirmedPill({
   participantNames,
   confirmedCount,
   totalInvitedCount,
@@ -68,7 +69,7 @@ export function EventDetailParticipantsConfirmedPill({
       </LinearGradient>
     </Button>
   );
-}
+});
 
 const styles = StyleSheet.create({
   gradientRing: {

@@ -1,6 +1,11 @@
 import type { EventDetailParticipantRow } from './participantRow';
+import { EventType } from '@/src/core/api';
 import type { Event, EventGuest } from '@/src/domain/entities';
-import { isDuringEventStartPlus24hWindow } from '@/src/features/home/presentation/components/utils/eventCalendar';
+import {
+  isBeforeEventStartInstant,
+  isDuringEventStartPlus24hWindow,
+} from '@/src/features/home/presentation/components/utils/eventCalendar';
+import { getEventType } from '@/src/features/home/presentation/utils/eventDisplay';
 
 export type EventGuestListRow = {
   id: string;
@@ -46,6 +51,46 @@ export function countdownEndsAtForEvent(event: Event | null): Date {
  * Invitado: FAB de álbum y {@link isDuringEventStartPlus24hWindow} durante la ventana en vivo.
  * Anfitrión: siempre false (esas piezas no aplican).
  */
+/** Overview: countdown hasta el inicio — true mientras `now <` instante de inicio. */
+export function isEventDetailBeforeStartCountdownVisible(
+  eventDateIso: string | null | undefined,
+  now: Date,
+): boolean {
+  const d = eventDateIso?.trim() ?? '';
+  if (!d) {
+    return false;
+  }
+  return isBeforeEventStartInstant(d, now);
+}
+
+/** Evento {@link EventType.EventLive}: FAB de cámara (álbum). */
+export function isEventDetailCameraFabVisible(
+  eventDateIso: string | null | undefined,
+  now: Date,
+): boolean {
+  const d = eventDateIso?.trim() ?? '';
+  if (!d || Number.isNaN(Date.parse(d))) {
+    return false;
+  }
+  return getEventType(d, now) === EventType.EventLive;
+}
+
+/** Anfitrión y {@link EventType.EventToStart}: pill invitados + botón compartir. */
+export function isEventDetailOrganizerScheduledVisible(
+  eventDateIso: string | null | undefined,
+  isOrganizer: boolean,
+  now: Date,
+): boolean {
+  if (!isOrganizer) {
+    return false;
+  }
+  const trimmed = eventDateIso?.trim() ?? '';
+  if (!trimmed || Number.isNaN(Date.parse(trimmed))) {
+    return false;
+  }
+  return getEventType(trimmed, now) === EventType.EventToStart;
+}
+
 export function isNonOrganizerDuringStartPlus24hWindow(
   event: Event | null | undefined,
   isOrganizer: boolean,

@@ -8,6 +8,8 @@ export type FloatingCameraFabProps = {
   onPress: () => void;
   /** Defaults to {@link common.openCamera}. */
   accessibilityLabel?: string;
+  /** When false, the parent screen already applied bottom safe area. */
+  respectBottomSafeArea?: boolean;
 };
 
 /**
@@ -17,11 +19,12 @@ export type FloatingCameraFabProps = {
 export function FloatingCameraFab({
   onPress,
   accessibilityLabel: accessibilityLabelProp,
+  respectBottomSafeArea = true,
 }: FloatingCameraFabProps) {
   const { t } = useTranslation();
   const accessibilityLabel = accessibilityLabelProp ?? t('common.openCamera');
   const insets = useSafeAreaInsets();
-  const bottom = Math.max(insets.bottom, 16) + 8;
+  const bottom = respectBottomSafeArea ? Math.max(insets.bottom, 16) + 8 : 24;
 
   return (
     <View style={styles.overlay} pointerEvents="box-none">

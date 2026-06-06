@@ -1,4 +1,10 @@
 import type { OverlayImage } from '../data';
+import {
+  scaleOnboardingImageStyle,
+  scaledOnboardingSize,
+  useOnboardingScale,
+} from '../utils/onboardingLayout';
+import { useMemo } from 'react';
 import { Image, StyleSheet } from 'react-native';
 
 type OverlayImagesProps = {
@@ -14,6 +20,56 @@ export function OverlayImages({
   isSecondSlide,
   isThirdSlide,
 }: OverlayImagesProps) {
+  const scale = useOnboardingScale();
+
+  const slideStyles = useMemo(
+    () => ({
+      firstSlideOverlayTopLeft: {
+        top: scaledOnboardingSize(0, scale),
+        left: scaledOnboardingSize(80, scale),
+      },
+      firstSlideOverlayLeft: {
+        left: 0,
+        bottom: scaledOnboardingSize(50, scale),
+      },
+      secondSlideOverlayTopLeft: {
+        minHeight: scaledOnboardingSize(160, scale),
+        minWidth: scaledOnboardingSize(160, scale),
+        marginLeft: scaledOnboardingSize(-30, scale),
+        marginTop: scaledOnboardingSize(-40, scale),
+      },
+      secondSlideOverlayCard: {
+        minHeight: scaledOnboardingSize(250, scale),
+        minWidth: scaledOnboardingSize(250, scale),
+        marginBottom: scaledOnboardingSize(-100, scale),
+        marginLeft: scaledOnboardingSize(8, scale),
+      },
+      secondSlideOverlayBottomRight: {
+        minHeight: scaledOnboardingSize(130, scale),
+        minWidth: scaledOnboardingSize(130, scale),
+        marginBottom: scaledOnboardingSize(-120, scale),
+      },
+      thirdSlideOverlayTop: {
+        minWidth: scaledOnboardingSize(100, scale),
+        minHeight: scaledOnboardingSize(100, scale),
+        marginTop: scaledOnboardingSize(-20, scale),
+      },
+      thirdSlideOverlayLeft: {
+        minWidth: scaledOnboardingSize(150, scale),
+        minHeight: scaledOnboardingSize(150, scale),
+        marginTop: scaledOnboardingSize(-60, scale),
+        marginLeft: scaledOnboardingSize(-5, scale),
+      },
+      thirdSlideOverlayBottomLeft: {
+        minHeight: scaledOnboardingSize(300, scale),
+        minWidth: scaledOnboardingSize(300, scale),
+        marginLeft: scaledOnboardingSize(-35, scale),
+        marginBottom: scaledOnboardingSize(-60, scale),
+      },
+    }),
+    [scale],
+  );
+
   return (
     <>
       {overlays.map((overlay, i) => (
@@ -24,15 +80,15 @@ export function OverlayImages({
             styles.overlayImage,
             overlay.position === 'topLeft' && styles.overlayTopLeft,
             overlay.position === 'left' && styles.overlayLeft,
-            isFirstSlide && overlay.position === 'topLeft' && styles.firstSlideOverlayTopLeft,
-            isFirstSlide && overlay.position === 'left' && styles.firstSlideOverlayLeft,
-            isSecondSlide && i === 0 && styles.secondSlideOverlayTopLeft,
-            isSecondSlide && i === 1 && styles.secondSlideOverlayCard,
-            isSecondSlide && i === 2 && styles.secondSlideOverlayBottomRight,
-            isThirdSlide && i === 0 && styles.thirdSlideOverlayTop,
-            isThirdSlide && i === 1 && styles.thirdSlideOverlayLeft,
-            isThirdSlide && i === 2 && styles.thirdSlideOverlayBottomLeft,
-            overlay.style,
+            isFirstSlide && overlay.position === 'topLeft' && slideStyles.firstSlideOverlayTopLeft,
+            isFirstSlide && overlay.position === 'left' && slideStyles.firstSlideOverlayLeft,
+            isSecondSlide && i === 0 && slideStyles.secondSlideOverlayTopLeft,
+            isSecondSlide && i === 1 && slideStyles.secondSlideOverlayCard,
+            isSecondSlide && i === 2 && slideStyles.secondSlideOverlayBottomRight,
+            isThirdSlide && i === 0 && slideStyles.thirdSlideOverlayTop,
+            isThirdSlide && i === 1 && slideStyles.thirdSlideOverlayLeft,
+            isThirdSlide && i === 2 && slideStyles.thirdSlideOverlayBottomLeft,
+            scaleOnboardingImageStyle(overlay.style, scale),
           ]}
           resizeMode="contain"
         />
@@ -53,55 +109,5 @@ const styles = StyleSheet.create({
   overlayLeft: {
     left: 0,
     bottom: 0,
-  },
-  firstSlideOverlayTopLeft: {
-    top: 0,
-    left: 80,
-    zIndex: 2,
-  },
-  firstSlideOverlayLeft: {
-    left: 0,
-    bottom: 50,
-    zIndex: 2,
-  },
-  secondSlideOverlayTopLeft: {
-    zIndex: 2,
-    minHeight: 160,
-    minWidth: 160,
-    marginLeft: -30,
-    marginTop: -40,
-  },
-  secondSlideOverlayCard: {
-    zIndex: 3,
-    minHeight: 250,
-    minWidth: 250,
-    marginBottom: -100,
-    marginLeft: 8,
-  },
-  secondSlideOverlayBottomRight: {
-    zIndex: 2,
-    minHeight: 130,
-    minWidth: 130,
-    marginBottom: -120,
-  },
-  thirdSlideOverlayTop: {
-    zIndex: 3,
-    minWidth: 100,
-    minHeight: 100,
-    marginTop: -20,
-  },
-  thirdSlideOverlayLeft: {
-    zIndex: 3,
-    minWidth: 150,
-    minHeight: 150,
-    marginTop: -60,
-    marginLeft: -5,
-  },
-  thirdSlideOverlayBottomLeft: {
-    zIndex: 3,
-    minHeight: 300,
-    minWidth: 300,
-    marginLeft: -35,
-    marginBottom: -60,
   },
 });

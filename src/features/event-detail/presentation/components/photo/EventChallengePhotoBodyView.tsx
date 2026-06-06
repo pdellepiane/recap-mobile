@@ -1,36 +1,24 @@
 import { images } from '@/src/assets/images';
-import { useTranslation } from '@/src/i18n';
-import { Button, colors } from '@/src/ui';
+import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import type { ReactNode } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 const CARD_H = 511;
 const ICON_TOP_W = 170;
 const ICON_TOP_H = 120;
-const CAMERA_ABOVE_CARD = 80;
+const CAMERA_ICON_OVERLAP = 80;
 
 type Props = {
   kicker: string;
-  instructionParagraphs: string[];
-  onOpenCamera: () => void;
+  title: string;
+  openCameraButton?: ReactNode;
 };
 
-export function EventChallengePhotoBodyView({
-  kicker,
-  instructionParagraphs,
-  onOpenCamera,
-}: Props) {
-  const { t } = useTranslation();
-
+export function EventChallengePhotoBodyView({ kicker, title, openCameraButton }: Props) {
   return (
-    <View style={[styles.cardSection]}>
-      <View style={styles.cardCluster}>
-        <Image
-          source={images.eventDetail.challenges.photoCameraHero}
-          style={styles.takePhotoIcon}
-          resizeMode="contain"
-          accessibilityIgnoresInvertColors
-        />
+    <View style={styles.cardSection}>
+      <View style={styles.cardWrap}>
         <View style={styles.card}>
           <Image
             source={images.eventDetail.challenges.challengePhotoCardBg}
@@ -41,30 +29,16 @@ export function EventChallengePhotoBodyView({
 
           <View style={styles.cardInner}>
             <Text style={styles.kicker}>{kicker}</Text>
-            {instructionParagraphs.map((line, i) => (
-              <Text
-                key={`${String(i)}-${line}`}
-                style={[
-                  styles.challengeTitle,
-                  i < instructionParagraphs.length - 1
-                    ? styles.instructionParaSpacing
-                    : styles.instructionParaLast,
-                ]}
-              >
-                {line}
-              </Text>
-            ))}
-            <Button
-              title={t('common.takePhoto')}
-              onPress={onOpenCamera}
-              accessibilityLabel={t('common.takePhoto')}
-              style={styles.cta}
-              variant="secondary"
-              rightIconSource={images.common.camera.icon}
-              rightIconStyle={styles.ctaCameraIcon}
-            />
+            <Text style={styles.challengeTitle}>{title}</Text>
+            {openCameraButton}
           </View>
         </View>
+        <Image
+          source={images.eventDetail.challenges.photoCameraHero}
+          style={styles.takePhotoIcon}
+          resizeMode="contain"
+          accessibilityIgnoresInvertColors
+        />
       </View>
     </View>
   );
@@ -75,8 +49,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  cardCluster: {
-    paddingTop: CAMERA_ABOVE_CARD,
+  cardWrap: {
+    width: '100%',
   },
   card: {
     width: '100%',
@@ -116,27 +90,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     marginBottom: 10,
   },
-  instructionParaSpacing: {
-    marginBottom: 10,
-  },
-  instructionParaLast: {
-    marginBottom: 16,
-  },
-  cta: {
-    alignSelf: 'center',
-    marginTop: 150,
-    minWidth: 200,
-  },
-  ctaCameraIcon: {
-    width: 20,
-    height: 20,
-    tintColor: colors.background.primary,
-  },
   takePhotoIcon: {
     position: 'absolute',
     width: ICON_TOP_W,
     height: ICON_TOP_H,
-    top: 0,
+    top: -CAMERA_ICON_OVERLAP,
     paddingLeft: 25,
     alignSelf: 'center',
     zIndex: 2,

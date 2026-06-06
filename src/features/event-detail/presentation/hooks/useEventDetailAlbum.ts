@@ -39,9 +39,11 @@ export function useEventDetailAlbum({
   const likeGenerationRef = useRef(0);
   const { beginRequest, endRequest, abortAll } = useAbortController();
   const [albumPhotos, setAlbumPhotos] = useState<AlbumPhoto[]>([]);
+  const [arePhotosLoaded, setArePhotosLoaded] = useState(false);
 
   useEffect(() => {
     setAlbumPhotos([]);
+    setArePhotosLoaded(false);
   }, [eventId]);
 
   useFocusEffect(
@@ -80,6 +82,7 @@ export function useEventDetailAlbum({
         return undefined;
       }
       const controller = beginRequest();
+      setArePhotosLoaded(false);
       void (async () => {
         try {
           const photos = await eventRepository.fetchEventMedia(eventId, {
@@ -93,6 +96,9 @@ export function useEventDetailAlbum({
             setAlbumPhotos([]);
           }
         } finally {
+          if (!controller.signal.aborted) {
+            setArePhotosLoaded(true);
+          }
           endRequest(controller);
         }
       })();
@@ -108,6 +114,7 @@ export function useEventDetailAlbum({
     }
     const id = event.id;
     const controller = beginRequest();
+    setArePhotosLoaded(false);
     void (async () => {
       try {
         const photos = await eventRepository.fetchEventMedia(id, { signal: controller.signal });
@@ -119,6 +126,9 @@ export function useEventDetailAlbum({
           setAlbumPhotos([]);
         }
       } finally {
+        if (!controller.signal.aborted) {
+          setArePhotosLoaded(true);
+        }
         endRequest(controller);
       }
     })();
@@ -130,6 +140,7 @@ export function useEventDetailAlbum({
   const refetchAlbum = useCallback(async () => {
     const generation = ++refetchGenerationRef.current;
     const controller = beginRequest();
+    setArePhotosLoaded(false);
     try {
       const nextAlbum = await eventRepository.fetchEventMedia(eventId, {
         signal: controller.signal,
@@ -143,6 +154,9 @@ export function useEventDetailAlbum({
         setAlbumPhotos([]);
       }
     } finally {
+      if (mountedRef.current && generation === refetchGenerationRef.current) {
+        setArePhotosLoaded(true);
+      }
       endRequest(controller);
     }
   }, [beginRequest, endRequest, eventId, mountedRef]);
@@ -172,5 +186,5 @@ export function useEventDetailAlbum({
     [eventId, mountedRef, t],
   );
 
-  return { albumPhotos, refetchAlbum, onAlbumPhotoLike };
+  return { albumPhotos, arePhotosLoaded, refetchAlbum, onAlbumPhotoLike };
 }

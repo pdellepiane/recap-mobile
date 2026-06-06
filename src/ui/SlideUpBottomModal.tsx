@@ -4,11 +4,11 @@ import { useEffect, useRef } from 'react';
 import {
   Animated,
   Modal,
-  useWindowDimensions,
   Pressable,
   StyleSheet,
-  type StyleProp,
+  useWindowDimensions,
   View,
+  type StyleProp,
   type ViewStyle,
 } from 'react-native';
 
@@ -90,11 +90,18 @@ const styles = StyleSheet.create({
   overlayContainer: {
     flex: 1,
     justifyContent: 'flex-end',
+    paddingHorizontal: 18,
+    paddingBottom: 18,
   },
   dim: {
     ...StyleSheet.absoluteFillObject,
   },
   sheet: {
+    borderRadius: 32,
+    backgroundColor: colors.background.elevated,
+    paddingHorizontal: 22,
+    paddingTop: 28,
+    paddingBottom: 26,
     overflow: 'hidden',
   },
 });

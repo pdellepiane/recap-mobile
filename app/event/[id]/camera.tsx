@@ -1,4 +1,5 @@
 import { EventDetailCameraScreenPage } from '@/src/features/event-detail/presentation/screens/EventDetailCameraScreenPage';
+import { UserToastOverlay } from '@/src/ui';
 import { useLocalSearchParams } from 'expo-router';
 
 function firstString(v: string | string[] | undefined): string | undefined {
@@ -14,5 +15,9 @@ export default function EventDetailCameraRoute() {
     title?: string | string[];
   }>();
 
-  return <EventDetailCameraScreenPage eventId={id ?? ''} eventTitle={firstString(title)} />;
+  return (
+    <UserToastOverlay>
+      <EventDetailCameraScreenPage eventId={id ?? ''} eventTitle={firstString(title)} />
+    </UserToastOverlay>
+  );
 }

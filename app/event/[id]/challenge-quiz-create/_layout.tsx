@@ -1,4 +1,5 @@
 import { QuizCreateDraftProvider } from '@/src/features/event-detail/presentation/context/QuizCreateDraftContext';
+import { UserToastOverlay } from '@/src/ui';
 import { Stack, useLocalSearchParams } from 'expo-router';
 
 function firstString(v: string | string[] | undefined): string | undefined {
@@ -18,10 +19,12 @@ export default function ChallengeQuizCreateLayout() {
 
   return (
     <QuizCreateDraftProvider eventId={eventId} editRemoteChallengeId={editRemoteChallengeId}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="question" />
-      </Stack>
+      <UserToastOverlay>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="question" />
+        </Stack>
+      </UserToastOverlay>
     </QuizCreateDraftProvider>
   );
 }

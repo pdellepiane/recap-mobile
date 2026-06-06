@@ -23,7 +23,10 @@ const MONTHS_ES = [
 const DATE_BADGE_FALLBACK = { day: 'TBD', month: '' } as const;
 
 /** Parses ISO datetimes or `YYYY-MM-DD` into day + short Spanish month for the date badge. */
-export function eventDateBadgeParts(isoDate: string | null | undefined): { day: string; month: string } {
+export function eventDateBadgeParts(isoDate: string | null | undefined): {
+  day: string;
+  month: string;
+} {
   const raw = isoDate?.trim() ?? '';
   if (!raw) {
     return DATE_BADGE_FALLBACK;
@@ -58,10 +61,13 @@ export function formatCarouselGuestCountLabel(guestCount: number): string {
  * instante de inicio → {@link EventType.EventToStartToday}; otro futuro (aún `now < start`) →
  * {@link EventType.EventToStart}; después → finished.
  */
-export function getEventType(isoDate: string | null | undefined, now: Date = new Date()): EventType {
+export function getEventType(
+  isoDate: string | null | undefined,
+  now: Date = new Date(),
+): EventType {
   const raw = isoDate?.trim() ?? '';
   if (!raw) {
-    return EventType.EventFinished;
+    return EventType.EventWithoutDate;
   }
   if (isDuringEventStartPlus24hWindow(raw, now)) {
     return EventType.EventLive;

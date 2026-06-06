@@ -2,15 +2,19 @@ import { EventChallengeQuizOptionRow } from './EventChallengeQuizOptionRow';
 import { StyleSheet, View } from 'react-native';
 
 type Props = {
-  options: string[];
+  answerOptions: string[];
   selectedIndex: number | null;
   onToggleOption: (index: number) => void;
 };
 
-export function EventChallengeQuizOptionsList({ options, selectedIndex, onToggleOption }: Props) {
+export function EventChallengeQuizOptionsList({
+  answerOptions,
+  selectedIndex,
+  onToggleOption,
+}: Props) {
   return (
     <View style={styles.options}>
-      {options.map((label, idx) => (
+      {answerOptions.map((label, idx) => (
         <EventChallengeQuizOptionRow
           key={`${String(idx)}-${label}`}
           label={label}

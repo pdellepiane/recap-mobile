@@ -1,5 +1,6 @@
 import type { RankingRow } from '../../../data/eventRanking';
 import { colors } from '@/src/ui';
+import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 const AVATAR = 44;
@@ -15,7 +16,11 @@ function initialsFromName(name: string): string {
   return `${parts[0]!.charAt(0)}${parts[1]!.charAt(0)}`.toUpperCase();
 }
 
-export function EventDetailRankingAvatar({ row }: { row: RankingRow }) {
+export const EventDetailRankingAvatar = memo(function EventDetailRankingAvatar({
+  row,
+}: {
+  row: RankingRow;
+}) {
   const letters = row.initials ?? initialsFromName(row.name);
 
   return (
@@ -23,7 +28,7 @@ export function EventDetailRankingAvatar({ row }: { row: RankingRow }) {
       <Text style={styles.avatarInitialsText}>{letters}</Text>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   avatar: {

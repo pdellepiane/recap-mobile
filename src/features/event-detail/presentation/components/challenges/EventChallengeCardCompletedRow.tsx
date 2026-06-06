@@ -2,6 +2,7 @@ import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Ionicons } from '@expo/vector-icons';
+import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 const CHALLENGE_ACCENT_LIME = colors.states.active;
@@ -12,7 +13,11 @@ type Props = {
   zeroPoints: boolean;
 };
 
-export function EventChallengeCardCompletedRow({ isQuiz, pointsShown, zeroPoints }: Props) {
+export const EventChallengeCardCompletedRow = memo(function EventChallengeCardCompletedRow({
+  isQuiz,
+  pointsShown,
+  zeroPoints,
+}: Props) {
   const { t } = useTranslation();
   return (
     <View style={styles.row} pointerEvents="none">
@@ -25,7 +30,7 @@ export function EventChallengeCardCompletedRow({ isQuiz, pointsShown, zeroPoints
       </Text>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   row: {

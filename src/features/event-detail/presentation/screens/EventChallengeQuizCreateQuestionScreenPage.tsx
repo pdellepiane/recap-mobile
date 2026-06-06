@@ -1,8 +1,4 @@
-import { EventChallengeQuizCreateAnswerEditModal } from '../components/quiz/EventChallengeQuizCreateAnswerEditModal';
-import { EventChallengeQuizCreateAnswerInputRow } from '../components/quiz/EventChallengeQuizCreateAnswerInputRow';
-import { EventChallengeQuizQuestionCardFrame } from '../components/quiz/EventChallengeQuizQuestionCardFrame';
-import { EventChallengeCreateHeaderView } from '../components/shared/EventChallengeCreateHeaderView';
-import { EventChallengeCreatePreviewFooter } from '../components/shared/EventChallengeCreatePreviewFooter';
+import { EventChallengeQuizCreateQuestionView } from '../components/quiz/EventChallengeQuizCreateQuestionView';
 import { useEventChallengeQuizCreateQuestionScreen } from '../hooks/useEventChallengeQuizCreateQuestionScreen';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
@@ -23,14 +19,14 @@ export function EventChallengeQuizCreateQuestionScreenPage({
   const { t } = useTranslation();
   const {
     question,
-    goBack,
     editingOption,
-    openSlot,
-    closeModal,
+    onCloseModal,
+    onAnswerPress,
     onTrash,
     onFinish,
-    saveAnswerEdit,
+    onSaveAnswerEdit,
     modalInitialCorrect,
+    canFinish,
     isEditMode,
     editHydrating,
     isSubmitting,
@@ -56,59 +52,30 @@ export function EventChallengeQuizCreateQuestionScreenPage({
   ];
 
   return (
-    <View style={styles.root}>
-      <EventChallengeCreateHeaderView
-        onBack={goBack}
-        onTrash={onTrash}
-        backAccessibilityLabel={t('common.back')}
-        trashAccessibilityLabel={t('eventDetail.createQuizDeleteQuestionA11y')}
-      />
-
-      <View style={styles.body}>
-        <EventChallengeQuizQuestionCardFrame
-          kicker={
-            isEditMode
-              ? t('eventDetail.createQuizEditChallengeKicker')
-              : t('eventDetail.createQuizNewChallengeKicker')
-          }
-          question={question.text}
-        >
-          <View style={styles.slotList}>
-            {question.answerOptions.map((opt, index) => (
-              <EventChallengeQuizCreateAnswerInputRow
-                key={opt.id}
-                label={slotLabels[index] ?? slotLabels[0]}
-                value={opt.text}
-                isCorrect={Boolean(
-                  question.correctOptionId === opt.id && opt.text.trim().length > 0,
-                )}
-                onPress={() => openSlot(opt)}
-              />
-            ))}
-          </View>
-        </EventChallengeQuizQuestionCardFrame>
-      </View>
-
-      <EventChallengeCreatePreviewFooter
-        onConfirm={onFinish}
-        finishButtonTitle={
-          isEditMode
-            ? t('eventDetail.createQuizUpdateChallenge')
-            : t('eventDetail.createQuizFinishChallenge')
-        }
-      />
-
-      {editingOption ? (
-        <EventChallengeQuizCreateAnswerEditModal
-          key={editingOption.id}
-          visible
-          initialText={editingOption.text}
-          initialCorrect={modalInitialCorrect}
-          onClose={closeModal}
-          onSave={saveAnswerEdit}
-        />
-      ) : null}
-    </View>
+    <EventChallengeQuizCreateQuestionView
+      kicker={
+        isEditMode
+          ? t('eventDetail.createQuizEditChallengeKicker')
+          : t('eventDetail.createQuizNewChallengeKicker')
+      }
+      question={question.text}
+      answerOptions={question.answerOptions}
+      correctOptionId={question.correctOptionId}
+      slotLabels={slotLabels}
+      canFinish={canFinish}
+      finishButtonTitle={
+        isEditMode
+          ? t('eventDetail.createQuizUpdateChallenge')
+          : t('eventDetail.createQuizFinishChallenge')
+      }
+      editingOption={editingOption}
+      modalInitialCorrect={modalInitialCorrect}
+      onAnswerPress={onAnswerPress}
+      onTrash={onTrash}
+      onFinish={onFinish}
+      onCloseModal={onCloseModal}
+      onSaveAnswerEdit={onSaveAnswerEdit}
+    />
   );
 }
 
@@ -118,16 +85,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.primary,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  root: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-    paddingHorizontal: 20,
-  },
-  body: {
-    flex: 1,
-  },
-  slotList: {
-    marginTop: 4,
   },
 });

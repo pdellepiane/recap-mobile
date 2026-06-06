@@ -1,10 +1,14 @@
+import {
+  scaledChallengeSize,
+  useChallengeFlowScale,
+} from '../../utils/challengeFlowLayout';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Ionicons } from '@expo/vector-icons';
+import { useMemo } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 const LIME = colors.accent[500];
-const SIDE_GUTTER = 28;
 
 type Props = {
   label: string;
@@ -24,6 +28,22 @@ export function EventChallengeQuizCreateAnswerInputRow({
   isCorrect = false,
   onPress,
 }: Props) {
+  const scale = useChallengeFlowScale();
+  const layout = useMemo(
+    () => ({
+      minHeight: Math.max(44, scaledChallengeSize(52, scale)),
+      paddingVertical: scaledChallengeSize(14, scale),
+      paddingHorizontal: scaledChallengeSize(12, scale),
+      marginBottom: scaledChallengeSize(10, scale),
+      sideGutter: scaledChallengeSize(28, scale),
+      fontSize: scaledChallengeSize(15, scale),
+      lineHeight: scaledChallengeSize(22, scale),
+      iconSize: scaledChallengeSize(24, scale),
+      checkSize: scaledChallengeSize(22, scale),
+    }),
+    [scale],
+  );
+
   const hasValue = value.trim().length > 0;
   const display = hasValue ? value.trim() : label;
 
@@ -32,6 +52,12 @@ export function EventChallengeQuizCreateAnswerInputRow({
       onPress={onPress}
       style={({ pressed }) => [
         styles.row,
+        {
+          minHeight: layout.minHeight,
+          paddingVertical: layout.paddingVertical,
+          paddingHorizontal: layout.paddingHorizontal,
+          marginBottom: layout.marginBottom,
+        },
         hasValue ? styles.rowFilled : styles.rowEmpty,
         pressed && styles.pressed,
       ]}
@@ -39,18 +65,25 @@ export function EventChallengeQuizCreateAnswerInputRow({
       accessibilityLabel={hasValue ? display : label}
       accessibilityState={{ selected: Boolean(hasValue && isCorrect) }}
     >
-      <View style={styles.sideSlot} />
+      <View style={[styles.sideSlot, { width: layout.sideGutter }]} />
       <Text
-        style={[styles.rowText, hasValue ? styles.rowTextFilled : styles.rowTextPlaceholder]}
+        style={[
+          styles.rowText,
+          {
+            fontSize: layout.fontSize,
+            lineHeight: layout.lineHeight,
+          },
+          hasValue ? styles.rowTextFilled : styles.rowTextPlaceholder,
+        ]}
         numberOfLines={2}
       >
         {display}
       </Text>
-      <View style={styles.sideSlot}>
+      <View style={[styles.sideSlot, { width: layout.sideGutter }]}>
         {!hasValue ? (
-          <Ionicons name="add" size={24} color={LIME} />
+          <Ionicons name="add" size={layout.iconSize} color={LIME} />
         ) : isCorrect ? (
-          <Ionicons name="checkmark" size={22} color={colors.neutral.primary} />
+          <Ionicons name="checkmark" size={layout.checkSize} color={colors.neutral.primary} />
         ) : null}
       </View>
     </Pressable>
@@ -61,13 +94,9 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 52,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
     borderRadius: 14,
     borderWidth: 1,
     backgroundColor: '#323232',
-    marginBottom: 10,
   },
   rowEmpty: {
     ...Platform.select({
@@ -88,15 +117,12 @@ const styles = StyleSheet.create({
     opacity: 0.88,
   },
   sideSlot: {
-    width: SIDE_GUTTER,
     alignItems: 'center',
     justifyContent: 'center',
   },
   rowText: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 15,
-    lineHeight: 22,
     fontFamily: fontFamilies.signikaSemiBold,
     fontWeight: '600',
   },

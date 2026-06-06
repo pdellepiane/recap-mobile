@@ -1,4 +1,3 @@
-import { canUserEditQuizChallenge } from '../../data/eventChallengeQuizEdit';
 import {
   EventChallengeKind,
   getEventChallenges,
@@ -11,14 +10,11 @@ import {
 import { subscribeEventChallengesListRefresh } from '../../data/eventChallengesListRefresh';
 import { EventDetailTab } from './eventDetailTabs';
 import { eventRepository } from '@/src/core/di/container';
-import type { Event } from '@/src/domain/entities';
-import { isEventHostedFromHomeFeed } from '@/src/features/events/data/homeEventCache';
-import { isBeforeEventCalendarDay } from '@/src/features/home/presentation/components/utils/eventCalendar';
-import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
-import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useAbortController } from '@/src/core/hooks/useAbortController';
 import { useMountedRef } from '@/src/core/hooks/useMountedRef';
 import { isAbortError } from '@/src/core/http/isAbortError';
+import type { Event } from '@/src/domain/entities';
+import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type Params = {
@@ -28,6 +24,7 @@ type Params = {
   guestEventDayOrPastTabBlocked: boolean;
   completedChallengeId?: string;
   completedPoints?: number;
+  isOrganizer: boolean;
 };
 
 export function useEventDetailChallenges({
@@ -37,14 +34,19 @@ export function useEventDetailChallenges({
   guestEventDayOrPastTabBlocked,
   completedChallengeId,
   completedPoints,
+  isOrganizer,
 }: Params) {
-  const { goToEventChallengeQuiz, goToEventChallengePhoto, goToEventChallengeQuizEdit } =
-    useCoordinator();
-  const { session } = useAuth();
+  const {
+    goToEventChallengeQuiz,
+    goToEventChallengePhoto,
+    goToEventChallengeQuizEdit,
+    goToEventChallengePhotoEdit,
+  } = useCoordinator();
   const mountedRef = useMountedRef();
   const refetchGenerationRef = useRef(0);
   const { beginRequest, endRequest, abortAll } = useAbortController();
   const [challenges, setChallenges] = useState<EventChallenge[]>([]);
+  const [isChallengesLoaded, setIsChallengesLoaded] = useState(false);
   const [completedByChallengeId, setCompletedByChallengeId] = useState<Record<string, number>>({});
 
   /**
@@ -56,10 +58,12 @@ export function useEventDetailChallenges({
     }
     if (guestEventDayOrPastTabBlocked) {
       setChallenges([]);
+      setIsChallengesLoaded(true);
       return;
     }
     setChallenges(getEventChallenges(eventId));
     const controller = beginRequest();
+    setIsChallengesLoaded(false);
     void (async () => {
       try {
         const rows = await eventRepository.fetchEventChallenges(eventId, {
@@ -73,6 +77,9 @@ export function useEventDetailChallenges({
           setChallenges(getEventChallenges(eventId));
         }
       } finally {
+        if (!controller.signal.aborted) {
+          setIsChallengesLoaded(true);
+        }
         endRequest(controller);
       }
     })();
@@ -129,10 +136,12 @@ export function useEventDetailChallenges({
     if (guestEventDayOrPastTabBlocked) {
       if (mountedRef.current && generation === refetchGenerationRef.current) {
         setChallenges([]);
+        setIsChallengesLoaded(true);
       }
       endRequest(controller);
       return;
     }
+    setIsChallengesLoaded(false);
     try {
       const nextChallenges = await eventRepository.fetchEventChallenges(eventId, {
         signal: controller.signal,
@@ -146,41 +155,48 @@ export function useEventDetailChallenges({
         setChallenges(getEventChallenges(eventId));
       }
     } finally {
+      if (mountedRef.current && generation === refetchGenerationRef.current) {
+        setIsChallengesLoaded(true);
+      }
       endRequest(controller);
     }
   }, [beginRequest, endRequest, eventId, guestEventDayOrPastTabBlocked, mountedRef]);
 
   const onChallengePress = useCallback(
-    async (challenge: EventChallenge) => {
+    (challenge: EventChallenge) => {
       if (!event) {
         return;
       }
-      const isHost = isEventHostedFromHomeFeed(event.id);
-      if (
-        isHost &&
-        canUserEditQuizChallenge(challenge, session?.user.id) &&
-        challenge.kind === EventChallengeKind.Quiz
-      ) {
-        goToEventChallengeQuizEdit(event.id, challenge.id);
-        return;
-      }
-      if (challenge.remoteCompletedPoints !== undefined) {
-        return;
-      }
-      if (!isHost) {
-        const trimmed = event.date?.trim() ?? '';
-        const hasValidDate = trimmed.length > 0 && !Number.isNaN(Date.parse(trimmed));
-        if (!hasValidDate || isBeforeEventCalendarDay(trimmed)) {
+      if (!isOrganizer) {
+        if (challenge.kind === EventChallengeKind.Quiz) {
+          goToEventChallengeQuizEdit(event.id, challenge.id);
           return;
         }
+        goToEventChallengePhotoEdit(event.id, challenge.id, challenge.number);
+        return;
       }
+      // if (challenge.remoteCompletedPoints !== undefined) {
+      //   return;
+      // }
+      // const trimmed = event.date?.trim() ?? '';
+      // const hasValidDate = trimmed.length > 0 && !Number.isNaN(Date.parse(trimmed));
+      // if (!hasValidDate || isBeforeEventCalendarDay(trimmed)) {
+      //   return;
+      // }
       if (challenge.kind === EventChallengeKind.Quiz) {
         goToEventChallengeQuiz(event.id, challenge.id, challenge.number);
         return;
       }
       goToEventChallengePhoto(event.id, challenge.id, challenge.number);
     },
-    [event, goToEventChallengeQuiz, goToEventChallengePhoto, goToEventChallengeQuizEdit, session?.user.id],
+    [
+      event,
+      isOrganizer,
+      goToEventChallengeQuiz,
+      goToEventChallengePhoto,
+      goToEventChallengeQuizEdit,
+      goToEventChallengePhotoEdit,
+    ],
   );
 
   const completedByChallengeIdForUi = useMemo(() => {
@@ -200,13 +216,18 @@ export function useEventDetailChallenges({
         fromApi[c.id] = c.remoteCompletedPoints;
       }
     }
-    const merged = { ...getEventChallengesCompletionSnapshot(eventId), ...completedByChallengeId, ...fromApi };
+    const merged = {
+      ...getEventChallengesCompletionSnapshot(eventId),
+      ...completedByChallengeId,
+      ...fromApi,
+    };
     const ids = new Set(challenges.map((r) => r.id));
     return Object.keys(merged).some((id) => ids.has(id));
   }, [eventId, challenges, completedByChallengeId]);
 
   return {
     challenges,
+    isChallengesLoaded,
     completedByChallengeIdForUi,
     onChallengePress,
     refetchChallenges,

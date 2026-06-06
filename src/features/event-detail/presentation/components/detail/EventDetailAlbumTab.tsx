@@ -3,6 +3,7 @@ import { EventDetailAlbumTile } from './EventDetailAlbumTile';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo, useMemo } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 const SCROLL_PADDING_X = 20;
@@ -10,6 +11,7 @@ const COL_GAP = 8;
 
 type Props = {
   photos: AlbumPhoto[];
+  arePhotosLoaded?: boolean;
   onAlbumPhotoLike?: (photoId: string) => void;
 };
 
@@ -35,46 +37,50 @@ function splitIntoColumns(items: AlbumPhoto[]): [AlbumPhoto[], AlbumPhoto[]] {
 /**
  * Album tab: title + two-column grid with author and likes on each photo.
  */
-export function EventDetailAlbumTab({ photos, onAlbumPhotoLike }: Props) {
+export const EventDetailAlbumTab = memo(function EventDetailAlbumTab({
+  photos,
+  arePhotosLoaded = false,
+  onAlbumPhotoLike,
+}: Props) {
   const { t } = useTranslation();
   const { width: winW } = useWindowDimensions();
-  const contentW = winW - SCROLL_PADDING_X * 2;
-  const colW = (contentW - COL_GAP) / 2;
-  const [left, right] = splitIntoColumns(photos);
+  const colW = useMemo(() => {
+    const contentW = winW - SCROLL_PADDING_X * 2;
+    return (contentW - COL_GAP) / 2;
+  }, [winW]);
+  const [left, right] = useMemo(() => splitIntoColumns(photos), [photos]);
+  const showHostEmpty = useMemo(
+    () => arePhotosLoaded && photos.length === 0,
+    [arePhotosLoaded, photos.length],
+  );
+  const leftColStyle = useMemo(() => ({ width: colW }), [colW]);
+  const rightColStyle = useMemo(() => ({ width: colW, marginLeft: COL_GAP }), [colW]);
 
   return (
     <View>
       <Text style={styles.sectionTitle}>{t('eventDetail.albumTitle')}</Text>
 
-      {photos.length === 0 ? (
+      {showHostEmpty ? (
         <Text style={styles.empty}>{t('eventDetail.albumEmpty')}</Text>
       ) : (
         <View style={styles.masonryRow}>
-          <View style={{ width: colW }}>
+          <View style={leftColStyle}>
             {left.map((p) => (
               <EventDetailAlbumTile
                 key={p.id}
                 photo={p}
                 width={colW}
-                onLikePress={
-                  onAlbumPhotoLike && !p.id.startsWith('local-')
-                    ? () => onAlbumPhotoLike(p.id)
-                    : undefined
-                }
+                onAlbumPhotoLike={onAlbumPhotoLike}
               />
             ))}
           </View>
-          <View style={{ width: colW, marginLeft: COL_GAP }}>
+          <View style={rightColStyle}>
             {right.map((p) => (
               <EventDetailAlbumTile
                 key={p.id}
                 photo={p}
                 width={colW}
-                onLikePress={
-                  onAlbumPhotoLike && !p.id.startsWith('local-')
-                    ? () => onAlbumPhotoLike(p.id)
-                    : undefined
-                }
+                onAlbumPhotoLike={onAlbumPhotoLike}
               />
             ))}
           </View>
@@ -82,7 +88,7 @@ export function EventDetailAlbumTab({ photos, onAlbumPhotoLike }: Props) {
       )}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   sectionTitle: {

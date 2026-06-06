@@ -18,6 +18,8 @@ export type EventChallenge = {
   responsesCount?: number;
   /** Host user id that created the challenge (`event_host_id` from API). */
   creatorHostId?: number;
+  /** ISO timestamp from API `created_at`. */
+  createdAt?: string;
   /** When GET challenges includes `current_guest_answer`, guest-earned points from that answer. */
   remoteCompletedPoints?: number;
 };

@@ -2,23 +2,15 @@ import {
   EVENT_DETAIL_REACTION_BY_SLOT_INDEX,
   type EventDetailReactionPressPayload,
 } from '../../../data/eventReactions';
+import { EventDetailReactionButton } from './EventDetailReactionButton';
 import { useTranslation } from '@/src/i18n';
 import { Button, colors, useRemoteImageCacheEpoch, withRemoteImageCacheEpoch } from '@/src/ui';
 import { Image as ExpoImage } from 'expo-image';
-import { useRef } from 'react';
+import { memo, useCallback, useMemo, useRef } from 'react';
 import type { ImageSourcePropType } from 'react-native';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 const AVATAR = 100;
-const EMOJI = 64;
-const REACTION_IMG = 53;
-
-const REACTION_A11Y_KEYS = [
-  'eventDetail.reactionParty',
-  'eventDetail.reactionSad',
-  'eventDetail.reactionLaugh',
-  'eventDetail.reactionHearts',
-] as const;
 
 type Props = {
   profileImage: ImageSourcePropType;
@@ -38,7 +30,7 @@ type Props = {
 /**
  * “Live execution” detail row: reactions in circles + center avatar with lime border.
  */
-export function EventDetailLiveAvatarRow({
+export const EventDetailLiveAvatarRow = memo(function EventDetailLiveAvatarRow({
   profileImage,
   reactionSources,
   onReactionPress,
@@ -46,29 +38,36 @@ export function EventDetailLiveAvatarRow({
 }: Props) {
   const { t } = useTranslation();
   const mediaCacheEpoch = useRemoteImageCacheEpoch();
-  const cachedProfileImage = withRemoteImageCacheEpoch(profileImage, mediaCacheEpoch);
-  const [r0, r1, r2, r3] = reactionSources;
+  const cachedProfileImage = useMemo(
+    () => withRemoteImageCacheEpoch(profileImage, mediaCacheEpoch),
+    [mediaCacheEpoch, profileImage],
+  );
   const itemRefs = useRef<(View | null)[]>([]);
 
-  const handlePress = (index: number, source: ImageSourcePropType) => {
-    if (!onReactionPress) {
-      return;
-    }
-    const reaction = EVENT_DETAIL_REACTION_BY_SLOT_INDEX[index];
-    if (!reaction) {
-      return;
-    }
-    itemRefs.current[index]?.measureInWindow((x, y, w, h) => {
-      onReactionPress({ reaction, source, center: { x: x + w / 2, y: y + h / 2 } });
-    });
-  };
+  const handlePress = useCallback(
+    (index: number, source: ImageSourcePropType) => {
+      if (!onReactionPress) {
+        return;
+      }
+      const reaction = EVENT_DETAIL_REACTION_BY_SLOT_INDEX[index];
+      if (!reaction) {
+        return;
+      }
+      itemRefs.current[index]?.measureInWindow((x, y, w, h) => {
+        onReactionPress({ reaction, source, center: { x: x + w / 2, y: y + h / 2 } });
+      });
+    },
+    [onReactionPress],
+  );
 
-  const cells = [
-    { source: r0, index: 0 },
-    { source: r1, index: 1 },
-    { source: r2, index: 2 },
-    { source: r3, index: 3 },
-  ] as const;
+  const cells = useMemo(
+    () =>
+      reactionSources.map((source, index) => ({
+        source,
+        index,
+      })),
+    [reactionSources],
+  );
 
   const avatarBtn = (
     <Button onPress={onProfileAvatarPress} accessibilityLabel={t('eventDetail.viewStories')}>
@@ -89,39 +88,31 @@ export function EventDetailLiveAvatarRow({
   return (
     <View style={styles.row}>
       {cells.slice(0, 2).map(({ source, index }) => (
-        <Button
+        <EventDetailReactionButton
           key={index}
-          accessibilityLabel={t('common.reactionA11y', {
-            label: t(REACTION_A11Y_KEYS[index] ?? 'eventDetail.reactionParty'),
-          })}
-          onPress={() => handlePress(index, source)}
-          style={styles.reactionHit}
+          index={index}
+          source={source}
+          onPress={handlePress}
           contentRef={(el) => {
             itemRefs.current[index] = el;
           }}
-        >
-          <Image source={source} style={styles.reactionImg} resizeMode="contain" />
-        </Button>
+        />
       ))}
       {avatarBtn}
       {cells.slice(2, 4).map(({ source, index }) => (
-        <Button
+        <EventDetailReactionButton
           key={index}
-          accessibilityLabel={t('common.reactionA11y', {
-            label: t(REACTION_A11Y_KEYS[index] ?? 'eventDetail.reactionParty'),
-          })}
-          onPress={() => handlePress(index, source)}
-          style={styles.reactionHit}
+          index={index}
+          source={source}
+          onPress={handlePress}
           contentRef={(el) => {
             itemRefs.current[index] = el;
           }}
-        >
-          <Image source={source} style={styles.reactionImg} resizeMode="contain" />
-        </Button>
+        />
       ))}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   row: {
@@ -132,16 +123,6 @@ const styles = StyleSheet.create({
     marginTop: -AVATAR / 2,
     marginBottom: 12,
     paddingHorizontal: 4,
-  },
-  reactionHit: {
-    width: EMOJI,
-    height: EMOJI,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  reactionImg: {
-    width: REACTION_IMG,
-    height: REACTION_IMG,
   },
   avatar: {
     width: AVATAR,

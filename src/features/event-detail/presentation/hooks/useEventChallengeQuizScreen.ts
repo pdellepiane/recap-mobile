@@ -45,12 +45,8 @@ export function useEventChallengeQuizScreen({ eventId, challengeId }: Params) {
   }, [existingAnswerPoints]);
 
   const canFinish =
-    existingAnswerPoints === undefined &&
-    quiz !== null &&
-    selectedIndex !== null &&
-    !isSubmitting;
-  const isCorrect =
-    quiz !== null && selectedIndex !== null && pointsEarned > 0;
+    existingAnswerPoints === undefined && quiz !== null && selectedIndex !== null && !isSubmitting;
+  const isCorrect = quiz !== null && selectedIndex !== null && pointsEarned > 0;
   const selectedLabel =
     quiz !== null && selectedIndex !== null ? (quiz.options[selectedIndex] ?? '') : '';
   const correctLabel = quiz?.options[quiz.correctIndex] ?? '';
@@ -66,7 +62,7 @@ export function useEventChallengeQuizScreen({ eventId, challengeId }: Params) {
     recordEventChallengeCompletion(eventId, challengeId, pointsEarned);
   }, [challengeId, eventId, pointsEarned]);
 
-  const closeResult = useCallback(() => {
+  const onCloseResult = useCallback(() => {
     if (eventId) {
       markCompletion();
       emitEventChallengesListRefresh(eventId);
@@ -74,7 +70,7 @@ export function useEventChallengeQuizScreen({ eventId, challengeId }: Params) {
     goBack();
   }, [eventId, goBack, markCompletion]);
 
-  const openRanking = useCallback(() => {
+  const onOpenRanking = useCallback(() => {
     if (eventId) {
       markCompletion();
       emitEventChallengesListRefresh(eventId);
@@ -83,14 +79,17 @@ export function useEventChallengeQuizScreen({ eventId, challengeId }: Params) {
     goBack();
   }, [eventId, goBack, markCompletion]);
 
-  const toggleOption = useCallback((idx: number) => {
-    if (isSubmitting || existingAnswerPoints !== undefined) {
-      return;
-    }
-    setSelectedIndex((prev) => (prev === idx ? null : idx));
-  }, [existingAnswerPoints, isSubmitting]);
+  const onToggleOption = useCallback(
+    (idx: number) => {
+      if (isSubmitting || existingAnswerPoints !== undefined) {
+        return;
+      }
+      setSelectedIndex((prev) => (prev === idx ? null : idx));
+    },
+    [existingAnswerPoints, isSubmitting],
+  );
 
-  const finalize = useCallback(async () => {
+  const onFinish = useCallback(async () => {
     if (existingAnswerPoints !== undefined || !quiz || selectedIndex === null || isSubmitting) {
       return;
     }
@@ -132,9 +131,9 @@ export function useEventChallengeQuizScreen({ eventId, challengeId }: Params) {
     pointsEarned,
     resultCircleMarginTop,
     contentTopInset,
-    closeResult,
-    openRanking,
-    toggleOption,
-    finalize,
+    onCloseResult,
+    onOpenRanking,
+    onToggleOption,
+    onFinish,
   };
-};
+}

@@ -2,6 +2,7 @@ import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo, useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
@@ -14,16 +15,38 @@ type Props = {
   onOpenMap: () => void;
 };
 
-export function EventDetailOverviewAddressCard({ city, venue, mapQuery, onOpenMap }: Props) {
+export const EventDetailOverviewAddressCard = memo(function EventDetailOverviewAddressCard({
+  city,
+  venue,
+  mapQuery,
+  onOpenMap,
+}: Props) {
   const { t } = useTranslation();
-  const cityT = city?.trim() ?? '';
-  const venueT = venue?.trim() ?? '';
-  const merged = mapQuery?.trim() ?? '';
-  const line1 = cityT.length > 0 ? cityT : venueT.length > 0 ? venueT : merged;
-  const line2Raw = cityT.length > 0 && venueT.length > 0 && venueT !== cityT ? venueT : '';
-  const canOpenMap = merged.length > 0;
-
-  const a11y = line2Raw.length > 0 ? `${line1}, ${line2Raw}` : line1.length > 0 ? line1 : merged;
+  const { line1, line2Raw, canOpenMap, a11y } = useMemo(() => {
+    const cityT = city?.trim() ?? '';
+    const venueT = venue?.trim() ?? '';
+    const merged = mapQuery?.trim() ?? '';
+    const primary = cityT.length > 0 ? cityT : venueT.length > 0 ? venueT : merged;
+    const secondary =
+      cityT.length > 0 && venueT.length > 0 && venueT !== cityT ? venueT : '';
+    const openMap = merged.length > 0;
+    const label =
+      secondary.length > 0
+        ? `${primary}, ${secondary}`
+        : primary.length > 0
+          ? primary
+          : merged;
+    return {
+      line1: primary,
+      line2Raw: secondary,
+      canOpenMap: openMap,
+      a11y: label,
+    };
+  }, [city, mapQuery, venue]);
+  const accessibilityLabel = useMemo(
+    () => `${a11y}. ${t('common.openInMaps')}`,
+    [a11y, t],
+  );
 
   return (
     <Pressable
@@ -31,7 +54,7 @@ export function EventDetailOverviewAddressCard({ city, venue, mapQuery, onOpenMa
       onPress={onOpenMap}
       style={({ pressed }) => [styles.infoCard, pressed && canOpenMap ? styles.pressed : null]}
       accessibilityRole="button"
-      accessibilityLabel={`${a11y}. ${t('common.openInMaps')}`}
+      accessibilityLabel={accessibilityLabel}
     >
       <View style={styles.iconWell}>
         <Image
@@ -46,7 +69,7 @@ export function EventDetailOverviewAddressCard({ city, venue, mapQuery, onOpenMa
       </View>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   infoCard: {

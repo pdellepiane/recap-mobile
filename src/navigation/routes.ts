@@ -48,8 +48,17 @@ export const routePaths = {
       : base;
   },
   eventChallengePhotoCreate: (eventId: string) => `/event/${eventId}/challenge-photo-create`,
-  eventChallengePhotoCreateChallenge: (eventId: string, challengeId: string) =>
-    `/event/${eventId}/challenge-photo-create/challenge?challengeId=${encodeURIComponent(challengeId)}`,
+  eventChallengePhotoEditChallenge: (
+    eventId: string,
+    challengeId: string,
+    remoteChallengeId?: string,
+    challengeNumber?: number,
+  ) => {
+    const base = `/event/${eventId}/challenge-photo-create/challenge?challengeId=${encodeURIComponent(challengeId)}&challengeNumber=${encodeURIComponent(String(challengeNumber))}`;
+    return remoteChallengeId
+      ? `${base}&remoteChallengeId=${encodeURIComponent(remoteChallengeId)}`
+      : base;
+  },
   eventChallengePhoto: (eventId: string, challengeId: string, challengeNumber: number) =>
     `/event/${eventId}/challenge-photo?challengeId=${encodeURIComponent(challengeId)}&challengeNumber=${encodeURIComponent(String(challengeNumber))}`,
   eventChallengePhotoCamera: (eventId: string, challengeId: string, challengeNumber: number) =>

@@ -2,7 +2,7 @@ import type { EventDetailGuestsPayload } from './eventGuestsPayload';
 
 /**
  * Event lifecycle / presentation discriminator. **Backend** (GET /api/home/banners `banner_type`):
- * {@link EventType.EventToStart}, {@link EventType.EventLive}, {@link EventType.EventFinished},
+ * {@link EventType.EventToStart}, {@link EventType.EventLive}, {@link EventType.EventFinished}, {@link EventType.EventWithoutDate},
  * {@link EventType.NoEvent}. **Client-only** (never sent by API): {@link EventType.EventToStartToday}.
  */
 export enum EventType {
@@ -11,6 +11,7 @@ export enum EventType {
   EventToStartToday = 'event_to_start_today',
   EventLive = 'event_live',
   EventFinished = 'event_finished',
+  EventWithoutDate = 'event_without_date',
   NoEvent = 'no_event',
 }
 

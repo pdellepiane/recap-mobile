@@ -1,9 +1,9 @@
-import { EventChallengeCreatePreviewFooter } from '../components/shared/EventChallengeCreatePreviewFooter';
-import { EventChallengeCreateHeaderView } from '../components/shared/EventChallengeCreateHeaderView';
-import { EventChallengePhotoCreatePreviewBody } from '../components/photo/EventChallengePhotoCreatePreviewBody';
-import { useEventChallengePhotoCreatePreviewScreen } from '../hooks/useEventChallengePhotoCreatePreviewScreen';
-import { useTranslation } from '@/src/i18n';
+import { EventChallengePhotoBodyView } from '../components/photo/EventChallengePhotoBodyView';
+import { EventChallengeHeaderView } from '../components/shared/EventChallengeHeaderView';
+import { usePhotoCreateDraft } from '../context/PhotoCreateDraftContext';
 import { colors } from '@/src/ui';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
 type Props = {
@@ -11,10 +11,13 @@ type Props = {
 };
 
 export function EventChallengePhotoCreatePreviewScreenPage({ challengeId }: Props) {
+  const { addedChallenges } = usePhotoCreateDraft();
   const { t } = useTranslation();
-  const { challenge, onTrash, onConfirm, goBack } = useEventChallengePhotoCreatePreviewScreen({
-    challengeId,
-  });
+
+  const challenge = useMemo(
+    () => addedChallenges.find((c) => c.id === challengeId),
+    [addedChallenges, challengeId],
+  );
 
   if (!challenge) {
     return null;
@@ -22,16 +25,10 @@ export function EventChallengePhotoCreatePreviewScreenPage({ challengeId }: Prop
 
   return (
     <View style={styles.root}>
-      <EventChallengeCreateHeaderView
-        onBack={goBack}
-        onTrash={onTrash}
-        backAccessibilityLabel={t('common.back')}
-        trashAccessibilityLabel={t('eventDetail.createPhotoPreviewTrashA11y')}
-      />
-      <EventChallengePhotoCreatePreviewBody title={challenge.title} />
-      <EventChallengeCreatePreviewFooter
-        onConfirm={onConfirm}
-        finishButtonTitle={t('eventDetail.createPhotoPreviewConfirm')}
+      <EventChallengeHeaderView />
+      <EventChallengePhotoBodyView
+        kicker={t('eventDetail.createPhotoPreviewKicker')}
+        title={challenge.title}
       />
     </View>
   );
@@ -41,5 +38,6 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: colors.background.primary,
+    paddingHorizontal: 20,
   },
 });

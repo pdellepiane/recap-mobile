@@ -1,16 +1,16 @@
 import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
-import { colors, showShortUserMessage } from '@/src/ui';
+import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import * as Clipboard from 'expo-clipboard';
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   shareUrl: string;
 };
 
-export function EventDetailShareUrlRow({ shareUrl }: Props) {
+export const EventDetailShareUrlRow = memo(function EventDetailShareUrlRow({ shareUrl }: Props) {
   const { t } = useTranslation();
 
   const onCopyPress = useCallback(async () => {
@@ -19,8 +19,7 @@ export function EventDetailShareUrlRow({ shareUrl }: Props) {
       return;
     }
     await Clipboard.setStringAsync(trimmed);
-    showShortUserMessage(t('common.linkCopied'));
-  }, [shareUrl, t]);
+  }, [shareUrl]);
 
   return (
     <View style={styles.urlRow}>
@@ -30,6 +29,7 @@ export function EventDetailShareUrlRow({ shareUrl }: Props) {
       <Pressable
         onPress={onCopyPress}
         hitSlop={12}
+        style={({ pressed }) => [styles.copyButton, pressed && styles.copyButtonPressed]}
         accessibilityRole="button"
         accessibilityLabel={t('common.copyLinkToClipboard')}
       >
@@ -37,7 +37,7 @@ export function EventDetailShareUrlRow({ shareUrl }: Props) {
       </Pressable>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   urlRow: {
@@ -62,5 +62,13 @@ const styles = StyleSheet.create({
   copyIcon: {
     width: 14,
     height: 14,
+  },
+  copyButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 4,
+  },
+  copyButtonPressed: {
+    opacity: 0.55,
   },
 });

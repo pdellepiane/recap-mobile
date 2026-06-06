@@ -3,6 +3,7 @@ import { EventDetailLiveAvatarRow } from './EventDetailLiveAvatarRow';
 import { EventDetailParticipantsConfirmedPill } from './EventDetailParticipantsConfirmedPill';
 import { images } from '@/src/assets/images';
 import { EventType } from '@/src/core/api';
+import { isEventDetailOrganizerScheduledVisible } from '@/src/features/event-detail/data/eventDetailDerived';
 import { getEventType } from '@/src/features/home/presentation/utils/eventDisplay';
 import { useTranslation } from '@/src/i18n';
 import {
@@ -14,13 +15,12 @@ import {
 } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image as ExpoImage } from 'expo-image';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import type { ImageSourcePropType } from 'react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   insetsTop: number;
-  eventId: string;
   coverImageUrl?: string;
   /** API `datetime` ISO; drives hero status row (live / scheduled / …). */
   eventDateIso?: string;
@@ -34,8 +34,8 @@ type Props = {
     ImageSourcePropType,
     ImageSourcePropType,
   ];
-  /** Anfitrión programado (día futuro): pill de invitados; si no, fila de reacciones (como invitado). */
-  showOrganizerGuestsPill?: boolean;
+  /** Organizer (event in “My events”): pill de invitados cuando está programado. */
+  isOrganizer?: boolean;
   /** Comma / " y " separated display names for the facepile (invited participants). */
   participantNamesLine?: string;
   confirmedGuestsCount?: number;
@@ -47,9 +47,8 @@ const HERO_H = 260;
 
 type HeroStatus = { dot: string; label: string };
 
-export function EventDetailHero({
+export const EventDetailHero = memo(function EventDetailHero({
   insetsTop,
-  eventId,
   coverImageUrl,
   eventDateIso,
   title,
@@ -57,19 +56,32 @@ export function EventDetailHero({
   onReactionPress,
   onProfileAvatarPress,
   liveReactionImages,
-  showOrganizerGuestsPill = false,
+  isOrganizer = false,
   participantNamesLine = '',
   confirmedGuestsCount = 0,
   totalInvitedGuestsCount = 0,
   onOpenGuestsModal,
 }: Props) {
   const { t } = useTranslation();
+  const showOrganizerGuestsPill = useMemo(
+    () => isEventDetailOrganizerScheduledVisible(eventDateIso, isOrganizer, new Date()),
+    [eventDateIso, isOrganizer],
+  );
   const mediaCacheEpoch = useRemoteImageCacheEpoch();
-  const heroSource: ImageSourcePropType | undefined = coverImageUrl
-    ? { uri: coverImageUrl }
-    : undefined;
-  const cachedHeroSource = withRemoteImageCacheEpoch(heroSource, mediaCacheEpoch);
-  const participantNames = parseHostsFromLine(participantNamesLine);
+  const cachedHeroSource = useMemo(() => {
+    const heroSource: ImageSourcePropType | undefined = coverImageUrl
+      ? { uri: coverImageUrl }
+      : undefined;
+    return withRemoteImageCacheEpoch(heroSource, mediaCacheEpoch);
+  }, [coverImageUrl, mediaCacheEpoch]);
+  const participantNames = useMemo(
+    () => parseHostsFromLine(participantNamesLine),
+    [participantNamesLine],
+  );
+  const heroTopRowStyle = useMemo(
+    () => [styles.heroTopRow, { paddingTop: insetsTop + 8 }],
+    [insetsTop],
+  );
 
   const liveRowProfileImage = useMemo((): ImageSourcePropType => {
     if (coverImageUrl) {
@@ -112,7 +124,7 @@ export function EventDetailHero({
           <View style={[styles.heroImg, styles.heroPlaceholder]} />
         )}
         <View style={styles.heroOverlay} pointerEvents="none" />
-        <View style={[styles.heroTopRow, { paddingTop: insetsTop + 8 }]}>
+        <View style={heroTopRowStyle}>
           <Button
             onPress={onBackPress}
             style={styles.backCircle}
@@ -155,7 +167,7 @@ export function EventDetailHero({
       <Text style={styles.eventTitle}>{title}</Text>
     </>
   );
-}
+});
 
 const styles = StyleSheet.create({
   heroWrap: {

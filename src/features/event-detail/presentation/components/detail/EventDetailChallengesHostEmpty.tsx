@@ -2,12 +2,13 @@ import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { colors, radii } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 /**
  * Host-only empty state: icon + “0 Retos” / “No tienes retos creados”.
  */
-export function EventDetailChallengesHostEmpty() {
+export const EventDetailChallengesHostEmpty = memo(function EventDetailChallengesHostEmpty() {
   const { t } = useTranslation();
   return (
     <View style={styles.row} accessibilityLabel={t('eventDetail.hostEmptyA11y')}>
@@ -25,7 +26,7 @@ export function EventDetailChallengesHostEmpty() {
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   row: {

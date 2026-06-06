@@ -2,6 +2,7 @@ import type { EventGuestListRow } from '../../../data/eventDetailDerived';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
@@ -9,7 +10,9 @@ type Props = {
   goingGuests?: EventGuestListRow[];
 };
 
-export function EventDetailOverviewGuestListSection({ goingGuests }: Props) {
+export const EventDetailOverviewGuestListSection = memo(function EventDetailOverviewGuestListSection({
+  goingGuests,
+}: Props) {
   const { t } = useTranslation();
   if (!goingGuests?.length) {
     return null;
@@ -28,7 +31,7 @@ export function EventDetailOverviewGuestListSection({ goingGuests }: Props) {
       ))}
     </>
   );
-}
+});
 
 const styles = StyleSheet.create({
   sectionHeading: {

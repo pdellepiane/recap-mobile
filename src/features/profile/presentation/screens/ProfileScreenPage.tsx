@@ -6,7 +6,7 @@ import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { colors, Form, Spinner } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
-import { StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet, Text } from 'react-native';
 
 export const ProfileScreenPage = () => {
   const { t } = useTranslation();
@@ -31,7 +31,10 @@ export const ProfileScreenPage = () => {
 
   return (
     <Form>
-      <>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+      >
         <ProfileMenuHeader
           displayName={displayName}
           initials={initials}
@@ -63,7 +66,7 @@ export const ProfileScreenPage = () => {
         />
 
         <ProfileMenuFooter version={version} isSigningOut={isSigningOut} onLogout={handleLogout} />
-      </>
+      </ScrollView>
     </Form>
   );
 };
@@ -81,5 +84,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.neutral.secondary,
     marginTop: 10,
+  },
+  contentContainer: {
+    paddingBottom: 30,
   },
 });

@@ -1,4 +1,3 @@
-import { NOTIFICATION_LIST_HORIZONTAL_PADDING } from '../../data/notificationNavigation';
 import { NotificationsEmptyState } from '../components/NotificationsEmptyState';
 import { NotificationsList } from '../components/NotificationsList';
 import { useNotificationsScreen } from '../hooks/useNotificationsScreen';
@@ -9,17 +8,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export function NotificationsScreenPage() {
   const { t } = useTranslation();
-  const { items, onNotificationPress } = useNotificationsScreen();
+  const { items, isRefreshing, onNotificationPress, onRefresh } = useNotificationsScreen();
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
-        <ScreenTitle style={styles.title}>{t('tabs.notifications')}</ScreenTitle>
+        <ScreenTitle>{t('tabs.notifications')}</ScreenTitle>
       </View>
       {items.length === 0 ? (
         <NotificationsEmptyState />
       ) : (
-        <NotificationsList items={items} onItemPress={onNotificationPress} />
+        <NotificationsList
+          items={items}
+          onItemPress={onNotificationPress}
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+        />
       )}
     </SafeAreaView>
   );
@@ -31,10 +35,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.primary,
   },
   header: {
-    paddingHorizontal: NOTIFICATION_LIST_HORIZONTAL_PADDING,
-    paddingTop: 8,
-  },
-  title: {
-    marginBottom: 8,
+    paddingHorizontal: 20,
+    paddingTop: 16,
   },
 });

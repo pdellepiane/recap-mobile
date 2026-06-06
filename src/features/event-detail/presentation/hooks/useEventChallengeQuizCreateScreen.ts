@@ -1,13 +1,7 @@
 import { EventChallengePostBody } from '@/src/core/api/types';
 import { eventRepository } from '@/src/core/di/container';
 import { isAbortError } from '@/src/core/http/isAbortError';
-import {
-  buildQuizEditSnapshotFromApiItem,
-  quizDraftQuestionFromRemoteChallenge,
-  quizOptionsChangedForEdit,
-  type QuizEditSnapshot,
-} from '@/src/features/event-detail/data/eventChallengeQuizEdit';
-import { getCachedEventChallengeApiItem } from '@/src/features/events/data/eventChallengeApiItemCache';
+import { quizDraftQuestionFromRemoteChallenge } from '@/src/features/event-detail/data/eventChallengeQuizEdit';
 import {
   EventChallengeKind,
   getEventChallenges,
@@ -15,16 +9,17 @@ import {
 } from '@/src/features/event-detail/data/eventChallenges';
 import { subscribeEventChallengesListRefresh } from '@/src/features/event-detail/data/eventChallengesListRefresh';
 import {
+  firstRouteParam,
+  resolveEditRemoteChallengeId,
+} from '@/src/features/event-detail/presentation/utils/quizCreateRouteParams';
+import { getCachedEventChallengeApiItem } from '@/src/features/events/data/eventChallengeApiItemCache';
+import {
   normalizeChallengePromptText,
   usedChallengePromptKeySet,
 } from '@/src/features/events/data/eventChallengesMap';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import {
-  firstRouteParam,
-  resolveEditRemoteChallengeId,
-} from '@/src/features/event-detail/presentation/utils/quizCreateRouteParams';
-import { showShortUserMessage } from '@/src/ui';
+import { showShortUserMessage, showSuccessToastAfterNavigation } from '@/src/ui';
 import { useFocusEffect } from '@react-navigation/native';
 import { useGlobalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -40,7 +35,6 @@ type QuizEditMeta = {
   position: number;
   points: number;
   isActive: boolean;
-  snapshot: QuizEditSnapshot;
 };
 
 const OPTION_SLOTS = 4;
@@ -69,12 +63,21 @@ export function isPublishedQuizQuestion(q: QuizCreateAddedQuestion): boolean {
   return Boolean(q.remoteChallengeId) || q.id.startsWith('edit-');
 }
 
+function challengeCreatedAtMs(createdAt: string | undefined): number {
+  const trimmed = createdAt?.trim();
+  if (!trimmed) {
+    return 0;
+  }
+  const ms = Date.parse(trimmed);
+  return Number.isFinite(ms) ? ms : 0;
+}
+
 function remoteQuizQuestionsFromEventChallenges(
   challenges: EventChallenge[],
 ): QuizCreateAddedQuestion[] {
   return challenges
     .filter((c) => c.kind === EventChallengeKind.Quiz)
-    .sort((a, b) => a.number - b.number)
+    .sort((a, b) => challengeCreatedAtMs(b.createdAt) - challengeCreatedAtMs(a.createdAt))
     .map((c) => quizDraftQuestionFromRemoteChallenge(c.id))
     .filter((q): q is QuizCreateAddedQuestion => q != null);
 }
@@ -212,7 +215,7 @@ export function useEventChallengeQuizCreateScreen({ eventId, editRemoteChallenge
     const localDrafts = pendingLocalQuestions.filter(
       (q) => !remoteKeys.has(normalizeChallengePromptText(q.text)),
     );
-    return [...remoteQuizQuestions, ...localDrafts];
+    return [...localDrafts, ...remoteQuizQuestions];
   }, [addedQuestions, isEditMode, pendingLocalQuestions, remoteQuizQuestions]);
 
   const syncRemoteQuizQuestions = useCallback((challenges: EventChallenge[]) => {
@@ -249,7 +252,6 @@ export function useEventChallengeQuizCreateScreen({ eventId, editRemoteChallenge
         position: typeof item.position === 'number' && item.position > 0 ? item.position : 1,
         points: typeof item.points === 'number' ? item.points : 10,
         isActive: item.is_active !== false,
-        snapshot: buildQuizEditSnapshotFromApiItem(item),
       });
       setEditHydrating(false);
     })();
@@ -403,7 +405,6 @@ export function useEventChallengeQuizCreateScreen({ eventId, editRemoteChallenge
           showShortUserMessage(t('eventDetail.createQuizCreateInvalid'));
           return;
         }
-        const answersMayClear = quizOptionsChangedForEdit(editMeta.snapshot, q);
         const ok = await eventRepository.updateEventChallenge(
           eventId,
           editMeta.remoteChallengeId,
@@ -414,11 +415,7 @@ export function useEventChallengeQuizCreateScreen({ eventId, editRemoteChallenge
           return;
         }
         goBack();
-        showShortUserMessage(
-          answersMayClear
-            ? t('eventDetail.createQuizUpdateSuccessAnswersCleared')
-            : t('eventDetail.createQuizUpdateSuccess'),
-        );
+        showSuccessToastAfterNavigation(t('eventDetail.createQuizUpdateSuccess'));
         return;
       }
       const payloads = pendingLocalQuestions
@@ -434,7 +431,7 @@ export function useEventChallengeQuizCreateScreen({ eventId, editRemoteChallenge
         return;
       }
       goBack();
-      showShortUserMessage(t('eventDetail.createQuizCreateSuccess'));
+      showSuccessToastAfterNavigation(t('eventDetail.createQuizCreateSuccess'));
       void eventRepository.fetchEventChallenges(eventId).then((refreshed) => {
         setAddedQuestions((prev) => prev.filter((q) => isPublishedQuizQuestion(q)));
         syncRemoteQuizQuestions(refreshed);

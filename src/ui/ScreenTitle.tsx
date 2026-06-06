@@ -17,5 +17,7 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontFamily: fontFamilies.semiBold,
     marginBottom: 24,
+    fontWeight: '600',
+    lineHeight: 44,
   },
 });

@@ -1,20 +1,21 @@
 import { EventDetailTab } from '../../hooks/useEventDetailScreen';
-import { images } from '@/src/assets/images';
-import { AlbumPhoto } from '@/src/features/event-detail/data/eventAlbum';
-import { EventChallenge } from '@/src/features/event-detail/data/eventChallenges';
-import { RankingRow } from '@/src/features/event-detail/data/eventRanking';
-import type { EventDetailReactionPressPayload } from '@/src/features/event-detail/data/eventReactions';
-import type { EventGuestListRow } from '@/src/features/event-detail/data/eventDetailDerived';
 import { EventDetailAlbumTab } from './EventDetailAlbumTab';
 import { EventDetailChallengesTab } from './EventDetailChallengesTab';
 import { EventDetailHero } from './EventDetailHero';
+import { useEventDetailLiveReactionPress } from './EventDetailLiveReactionContext';
+import { EventDetailOrganizerShareButton } from './EventDetailOrganizerShareButton';
 import { EventDetailOverviewTab } from './EventDetailOverviewTab';
 import { EventDetailRankingTab } from './EventDetailRankingTab';
 import { EventDetailTabs } from './EventDetailTabs';
+import { AlbumPhoto } from '@/src/features/event-detail/data/eventAlbum';
+import { EventChallenge } from '@/src/features/event-detail/data/eventChallenges';
+import type { EventGuestListRow } from '@/src/features/event-detail/data/eventDetailDerived';
+import { RankingRow } from '@/src/features/event-detail/data/eventRanking';
 import { useTranslation } from '@/src/i18n';
-import { Button, colors } from '@/src/ui';
+import { AppRefreshControl, colors } from '@/src/ui';
+import { memo, useMemo } from 'react';
 import type { ImageSourcePropType } from 'react-native';
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export type Props = {
   insetsTop: number;
@@ -24,7 +25,6 @@ export type Props = {
   coverImageUrl?: string;
   title: string;
   onBackPress: () => void;
-  onReactionPress?: (payload: EventDetailReactionPressPayload) => void;
   onProfileAvatarPress: () => void;
   liveReactionImages: readonly [
     ImageSourcePropType,
@@ -43,15 +43,16 @@ export type Props = {
   guestsPendingCount?: number;
   goingGuests?: EventGuestListRow[];
   challenges: EventChallenge[];
+  isChallengesLoaded: boolean;
   onChallengePress: (challenge: EventChallenge) => void | Promise<void>;
   completedByChallengeId: Record<string, number>;
   rankingRows: RankingRow[];
   albumPhotos: AlbumPhoto[];
+  arePhotosLoaded: boolean;
   /** When set, only these tabs are shown (e.g. Detalle + Álbum for hosted events on a future calendar day). */
   visibleTabs?: readonly EventDetailTab[];
   /** Host names line from API / derived organizer copy. */
   hostsLine: string;
-  isBeforeStartCountdownVisible: boolean;
   /** Organizer (event in “My events”): distinct copy and empty states in Challenges. */
   isOrganizer?: boolean;
   participantNamesLine?: string;
@@ -59,8 +60,6 @@ export type Props = {
   totalInvitedGuestsCount?: number;
   onOpenParticipantsModal?: () => void;
   onShareEventPress?: () => void;
-  /** Anfitrión en estado programado (día futuro): mostrar botón compartir. */
-  showOrganizerActions?: boolean;
   refreshing?: boolean;
   onRefresh?: () => void;
   onAlbumPhotoLike?: (photoId: string) => void;
@@ -70,14 +69,13 @@ export type Props = {
 /**
  * Scrollable body: hero, tab strip, and active tab panel for the event detail screen.
  */
-export function EventDetailScrollBody({
+export const EventDetailScrollBody = memo(function EventDetailScrollBody({
   insetsTop,
   scrollBottomPadding,
   eventId,
   coverImageUrl,
   title,
   onBackPress,
-  onReactionPress,
   onProfileAvatarPress,
   liveReactionImages,
   activeTab,
@@ -91,26 +89,35 @@ export function EventDetailScrollBody({
   guestsPendingCount,
   goingGuests,
   challenges,
+  isChallengesLoaded,
   onChallengePress,
   completedByChallengeId,
   rankingRows,
   albumPhotos,
+  arePhotosLoaded,
   visibleTabs,
   hostsLine,
-  isBeforeStartCountdownVisible,
   isOrganizer = false,
   participantNamesLine,
   confirmedGuestsCount,
   totalInvitedGuestsCount,
   onOpenParticipantsModal,
   onShareEventPress,
-  showOrganizerActions = false,
   refreshing = false,
   onRefresh,
   onAlbumPhotoLike,
   showChallengesPendingDot = false,
 }: Props) {
   const { t } = useTranslation();
+  const onReactionPress = useEventDetailLiveReactionPress();
+  const refreshControl = useMemo(
+    () =>
+      onRefresh ? (
+        <AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      ) : undefined,
+    [onRefresh, refreshing],
+  );
+  const bottomSpacerStyle = useMemo(() => ({ height: scrollBottomPadding }), [scrollBottomPadding]);
 
   return (
     <ScrollView
@@ -120,20 +127,10 @@ export function EventDetailScrollBody({
       bounces
       alwaysBounceVertical
       overScrollMode="always"
-      refreshControl={
-        onRefresh ? (
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[colors.states.active]}
-            tintColor={colors.states.active}
-          />
-        ) : undefined
-      }
+      refreshControl={refreshControl}
     >
       <EventDetailHero
         insetsTop={insetsTop}
-        eventId={eventId}
         coverImageUrl={coverImageUrl}
         eventDateIso={eventDateIso}
         title={title}
@@ -141,24 +138,20 @@ export function EventDetailScrollBody({
         onReactionPress={onReactionPress}
         onProfileAvatarPress={onProfileAvatarPress}
         liveReactionImages={liveReactionImages}
+        isOrganizer={isOrganizer}
         participantNamesLine={participantNamesLine}
         confirmedGuestsCount={confirmedGuestsCount}
         totalInvitedGuestsCount={totalInvitedGuestsCount}
         onOpenGuestsModal={onOpenParticipantsModal}
-        showOrganizerGuestsPill={showOrganizerActions}
       />
 
-      {showOrganizerActions && (
-        <Button
-          title={t('eventDetail.shareEvent')}
-          onPress={onShareEventPress ?? (() => {})}
-          variant="brand"
-          size="sm"
-          accessibilityLabel={t('eventDetail.shareEvent')}
-          rightIconSource={images.common.share}
-          style={styles.shareBtn}
+      {onShareEventPress ? (
+        <EventDetailOrganizerShareButton
+          eventDateIso={eventDateIso}
+          isOrganizer={isOrganizer}
+          onPress={onShareEventPress}
         />
-      )}
+      ) : null}
 
       <EventDetailTabs
         activeTab={activeTab}
@@ -175,7 +168,6 @@ export function EventDetailScrollBody({
           addressVenue={addressVenue}
           mapQuery={mapQuery}
           hostsLine={hostsLine}
-          isBeforeStartCountdownVisible={isBeforeStartCountdownVisible}
           guestsAttendingCount={guestsAttendingCount}
           guestsPendingCount={guestsPendingCount}
           goingGuests={goingGuests}
@@ -183,24 +175,34 @@ export function EventDetailScrollBody({
       ) : activeTab === EventDetailTab.Challenges ? (
         <EventDetailChallengesTab
           challenges={challenges}
+          isChallengesLoaded={isChallengesLoaded}
           onChallengePress={onChallengePress}
           completedByChallengeId={completedByChallengeId}
           isOrganizer={isOrganizer}
+          eventDateIso={eventDateIso}
         />
       ) : activeTab === EventDetailTab.Ranking ? (
-        <EventDetailRankingTab rows={rankingRows} isOrganizer={isOrganizer} />
+        <EventDetailRankingTab
+          rows={rankingRows}
+          eventDateIso={eventDateIso}
+          isOrganizer={isOrganizer}
+        />
       ) : activeTab === EventDetailTab.Album ? (
-        <EventDetailAlbumTab photos={albumPhotos} onAlbumPhotoLike={onAlbumPhotoLike} />
+        <EventDetailAlbumTab
+          photos={albumPhotos}
+          arePhotosLoaded={arePhotosLoaded}
+          onAlbumPhotoLike={onAlbumPhotoLike}
+        />
       ) : (
         <View style={styles.tabPlaceholder}>
           <Text style={styles.tabPlaceholderText}>{t('eventDetail.tabPlaceholder')}</Text>
         </View>
       )}
 
-      <View style={{ height: scrollBottomPadding }} />
+      <View style={bottomSpacerStyle} />
     </ScrollView>
   );
-}
+});
 
 const styles = StyleSheet.create({
   scroll: {
@@ -214,9 +216,6 @@ const styles = StyleSheet.create({
   hostActionsWrap: {
     marginTop: -8,
     marginBottom: 18,
-  },
-  shareBtn: {
-    marginBottom: 24,
   },
   tabPlaceholder: {
     minHeight: 120,

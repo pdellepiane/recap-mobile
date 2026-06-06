@@ -6,6 +6,8 @@ export { EventChallengeQuizCreateAnswerEditModal } from './EventChallengeQuizCre
 export { EventChallengeQuizCreateAnswerInputRow } from './EventChallengeQuizCreateAnswerInputRow';
 export { EventChallengeQuizCreateComposerIdle } from './EventChallengeQuizCreateComposerIdle';
 export { EventChallengeQuizCreateComposerOpen } from './EventChallengeQuizCreateComposerOpen';
+export { EventChallengeQuizCreateOptionsList } from './EventChallengeQuizCreateOptionsList';
+export { EventChallengeQuizCreateQuestionView } from './EventChallengeQuizCreateQuestionView';
 export { EventChallengeQuizCreateSuggestionCard } from './EventChallengeQuizCreateSuggestionCard';
 export { EventChallengeQuizCreateSuggestionsSection } from './EventChallengeQuizCreateSuggestionsSection';
 export { EventChallengeQuizFinishButton } from './EventChallengeQuizFinishButton';

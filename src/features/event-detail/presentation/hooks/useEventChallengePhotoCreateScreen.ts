@@ -1,19 +1,33 @@
 import type { EventChallengePostBody } from '@/src/core/api/types';
 import { eventRepository } from '@/src/core/di/container';
+import { isAbortError } from '@/src/core/http/isAbortError';
+import {
+  photoDraftFromRemoteChallenge,
+  resolveEditRemotePhotoChallengeId,
+} from '@/src/features/event-detail/data/eventChallengePhotoEdit';
+import { getCachedEventChallengeApiItem } from '@/src/features/events/data/eventChallengeApiItemCache';
 import {
   normalizeChallengePromptText,
   usedChallengePromptKeySet,
 } from '@/src/features/events/data/eventChallengesMap';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { showShortUserMessage } from '@/src/ui';
-import { isAbortError } from '@/src/core/http/isAbortError';
+import { showShortUserMessage, showSuccessToast, showSuccessToastAfterNavigation } from '@/src/ui';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useRef, useState } from 'react';
+import { useGlobalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard } from 'react-native';
 
 type Params = {
   eventId: string;
+  editRemoteChallengeId?: string;
+};
+
+type PhotoEditMeta = {
+  remoteChallengeId: string;
+  position: number;
+  points: number;
+  isActive: boolean;
 };
 
 export type PhotoCreateChallengeSuggestion = {
@@ -25,7 +39,15 @@ export type PhotoCreateAddedChallenge = {
   id: string;
   title: string;
   consumedSuggestion?: PhotoCreateChallengeSuggestion;
+  remoteChallengeId?: string;
 };
+
+function firstRouteParam(v: string | string[] | undefined): string | undefined {
+  if (v === undefined) {
+    return undefined;
+  }
+  return Array.isArray(v) ? v[0] : v;
+}
 
 function newChallengeId(): string {
   return `photo-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -45,6 +67,7 @@ function buildAddedChallenge(
 function buildPhotoChallengeBody(
   challenge: PhotoCreateAddedChallenge,
   position: number,
+  overrides?: { points?: number; is_active?: boolean },
 ): EventChallengePostBody | null {
   const title = challenge.title.trim();
   if (!title) {
@@ -54,30 +77,84 @@ function buildPhotoChallengeBody(
     type: 'picture',
     title,
     question: title,
-    points: 5,
+    points: overrides?.points ?? 5,
     position,
-    is_active: true,
+    is_active: overrides?.is_active ?? true,
   };
 }
 
-export function useEventChallengePhotoCreateScreen({ eventId }: Params) {
+export function useEventChallengePhotoCreateScreen({ eventId, editRemoteChallengeId }: Params) {
   const { t } = useTranslation();
   const { goBack } = useCoordinator();
+  const routeParams = useGlobalSearchParams<{
+    remoteChallengeId?: string | string[];
+    challengeId?: string | string[];
+  }>();
+  const resolvedEditRemoteChallengeId = useMemo(
+    () =>
+      resolveEditRemotePhotoChallengeId({
+        remoteChallengeId:
+          editRemoteChallengeId ?? firstRouteParam(routeParams.remoteChallengeId),
+        challengeId: firstRouteParam(routeParams.challengeId),
+      }),
+    [editRemoteChallengeId, routeParams.challengeId, routeParams.remoteChallengeId],
+  );
+  const isEditMode = Boolean(resolvedEditRemoteChallengeId);
   const [composerOpen, setComposerOpen] = useState(false);
   const [draft, setDraft] = useState('');
   const [addedChallenges, setAddedChallenges] = useState<PhotoCreateAddedChallenge[]>([]);
   const [availableSuggestions, setAvailableSuggestions] = useState<
     PhotoCreateChallengeSuggestion[]
   >([]);
+  const [editMeta, setEditMeta] = useState<PhotoEditMeta | null>(null);
+  const [editHydrating, setEditHydrating] = useState(isEditMode);
 
   const addedChallengesRef = useRef(addedChallenges);
   addedChallengesRef.current = addedChallenges;
 
   const remoteChallengeCountRef = useRef(0);
 
+  useEffect(() => {
+    const remoteId = resolvedEditRemoteChallengeId;
+    if (!eventId || !remoteId) {
+      setEditHydrating(false);
+      return;
+    }
+    let cancelled = false;
+    setEditHydrating(true);
+    void (async () => {
+      let item = getCachedEventChallengeApiItem(remoteId);
+      if (!item) {
+        await eventRepository.fetchEventChallenges(eventId);
+        item = getCachedEventChallengeApiItem(remoteId);
+      }
+      if (cancelled) {
+        return;
+      }
+      const draftChallenge = item ? photoDraftFromRemoteChallenge(remoteId, item) : null;
+      if (!item || !draftChallenge) {
+        setEditHydrating(false);
+        showShortUserMessage(t('eventDetail.createPhotoUpdateLoadError'));
+        goBack();
+        return;
+      }
+      setAddedChallenges([draftChallenge]);
+      setEditMeta({
+        remoteChallengeId: remoteId,
+        position: typeof item.position === 'number' && item.position > 0 ? item.position : 1,
+        points: typeof item.points === 'number' ? item.points : 5,
+        isActive: item.is_active !== false,
+      });
+      setEditHydrating(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [resolvedEditRemoteChallengeId, eventId, goBack, t]);
+
   useFocusEffect(
     useCallback(() => {
-      if (!eventId) {
+      if (!eventId || isEditMode) {
         return undefined;
       }
       const controller = new AbortController();
@@ -161,7 +238,7 @@ export function useEventChallengePhotoCreateScreen({ eventId }: Params) {
           ),
         );
         resetComposerIdle();
-        showShortUserMessage(t('eventDetail.createPhotoCreateSuccess'));
+        showSuccessToast(t('eventDetail.createPhotoCreateSuccess'));
       } finally {
         setIsPublishing(false);
       }
@@ -200,11 +277,38 @@ export function useEventChallengePhotoCreateScreen({ eventId }: Params) {
 
   const confirmSingleChallenge = useCallback(
     async (challengeId: string) => {
-      if (!eventId) {
+      if (!eventId || isPublishing) {
         return;
       }
       const challenge = addedChallenges.find((c) => c.id === challengeId);
       if (!challenge) {
+        return;
+      }
+      if (isEditMode && editMeta) {
+        const body = buildPhotoChallengeBody(challenge, editMeta.position, {
+          points: editMeta.points,
+          is_active: editMeta.isActive,
+        });
+        if (!body) {
+          showShortUserMessage(t('eventDetail.createPhotoCreateInvalid'));
+          return;
+        }
+        setIsPublishing(true);
+        try {
+          const ok = await eventRepository.updateEventChallenge(
+            eventId,
+            editMeta.remoteChallengeId,
+            body,
+          );
+          if (!ok) {
+            showShortUserMessage(t('eventDetail.createPhotoUpdateError'));
+            return;
+          }
+          goBack();
+          showSuccessToastAfterNavigation(t('eventDetail.createPhotoUpdateSuccess'));
+        } finally {
+          setIsPublishing(false);
+        }
         return;
       }
       const position = addedChallenges.findIndex((c) => c.id === challengeId) + 1;
@@ -213,20 +317,36 @@ export function useEventChallengePhotoCreateScreen({ eventId }: Params) {
         showShortUserMessage(t('eventDetail.createPhotoCreateInvalid'));
         return;
       }
-      const ok = await eventRepository.createEventChallenge(eventId, body);
-      if (!ok) {
-        showShortUserMessage(t('eventDetail.createPhotoCreateError'));
-        return;
+      setIsPublishing(true);
+      try {
+        const ok = await eventRepository.createEventChallenge(eventId, body);
+        if (!ok) {
+          showShortUserMessage(t('eventDetail.createPhotoCreateError'));
+          return;
+        }
+        removeChallengeFromDraftAfterPublish(challengeId);
+        goBack();
+        showSuccessToastAfterNavigation(t('eventDetail.createPhotoCreateSuccess'));
+      } finally {
+        setIsPublishing(false);
       }
-      showShortUserMessage(t('eventDetail.createPhotoCreateSuccess'));
-      removeChallengeFromDraftAfterPublish(challengeId);
-      goBack();
     },
-    [addedChallenges, eventId, goBack, removeChallengeFromDraftAfterPublish, t],
+    [
+      addedChallenges,
+      editMeta,
+      eventId,
+      goBack,
+      isEditMode,
+      isPublishing,
+      removeChallengeFromDraftAfterPublish,
+      t,
+    ],
   );
 
   return {
     eventId,
+    isEditMode,
+    editHydrating,
     composerOpen,
     draft,
     setDraft,

@@ -40,11 +40,11 @@ export function useEventChallengeQuizCreateQuestionScreen({
 
   const [editingOption, setEditingOption] = useState<QuizCreateQuestionOption | null>(null);
 
-  const openSlot = useCallback((opt: QuizCreateQuestionOption) => {
+  const onAnswerPress = useCallback((opt: QuizCreateQuestionOption) => {
     setEditingOption(opt);
   }, []);
 
-  const closeModal = useCallback(() => {
+  const onCloseModal = useCallback(() => {
     setEditingOption(null);
   }, []);
 
@@ -69,7 +69,7 @@ export function useEventChallengeQuizCreateQuestionScreen({
     await submit();
   }, [canFinish, editHydrating, isSubmitting, submit]);
 
-  const saveAnswerEdit = useCallback(
+  const onSaveAnswerEdit = useCallback(
     (text: string, isCorrect: boolean) => {
       if (!question || !editingOption) {
         return;
@@ -101,12 +101,12 @@ export function useEventChallengeQuizCreateQuestionScreen({
     question,
     goBack,
     editingOption,
-    openSlot,
-    closeModal,
+    onAnswerPress,
+    onCloseModal,
     onTrash: isEditModeUi ? undefined : onTrash,
     canFinish,
     onFinish,
-    saveAnswerEdit,
+    onSaveAnswerEdit,
     modalInitialCorrect,
     isEditMode: isEditModeUi,
     editHydrating,

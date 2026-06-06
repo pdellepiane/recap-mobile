@@ -28,15 +28,6 @@ export function useEventChallengePhotoScreen({ eventId, challengeId, challengeNu
     };
   }, [eventId, challengeId, challengeNumber, t]);
 
-  const instructionParagraphs = useMemo(
-    () =>
-      title
-        .split(/\n+/)
-        .map((s) => s.trim())
-        .filter(Boolean),
-    [title],
-  );
-
   const handleOpenCamera = () => {
     if (isAlreadyAnswered) {
       return;
@@ -46,7 +37,7 @@ export function useEventChallengePhotoScreen({ eventId, challengeId, challengeNu
 
   return {
     kicker,
-    instructionParagraphs,
+    title,
     handleOpenCamera,
     isAlreadyAnswered,
   };

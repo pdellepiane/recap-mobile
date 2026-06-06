@@ -1,7 +1,10 @@
 import {
   countdownEndsAtForEvent,
+  eventGuestListGoingRows,
+  eventParticipantNamesLine,
+  eventGuestsGoing,
+  guestsPendingCountFromEvent,
   hostsLineForDetailView,
-  isNonOrganizerDuringStartPlus24hWindow,
   organizerGuestListCounts,
 } from '../../data/eventDetailDerived';
 import { useEventDetailRoute } from '../context/EventDetailRouteContext';
@@ -11,18 +14,12 @@ import { useEventDetailChallenges } from './useEventDetailChallenges';
 import { useEventDetailRanking } from './useEventDetailRanking';
 import { useEventDetailTabsAccess } from './useEventDetailTabsAccess';
 import analytics from '@/src/core/analytics';
-import { EventType } from '@/src/core/api';
 import { eventRepository } from '@/src/core/di/container';
 import { useAbortController } from '@/src/core/hooks/useAbortController';
 import { isAbortError } from '@/src/core/http/isAbortError';
 import type { Event } from '@/src/domain/entities';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
-import {
-  EVENT_ALBUM_UPLOAD_WINDOW_AFTER_START_MS,
-  isBeforeEventStartInstant,
-  isDuringEventStartPlus24hWindow,
-} from '@/src/features/home/presentation/components/utils/eventCalendar';
-import { getEventType } from '@/src/features/home/presentation/utils/eventDisplay';
+import { isDuringEventStartPlus24hWindow } from '@/src/features/home/presentation/components/utils/eventCalendar';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useInvalidateRemoteImageCache } from '@/src/ui';
@@ -57,18 +54,15 @@ export type EventDetailScreenData = {
   detailVisibleTabs: readonly EventDetailTab[];
   completedByChallengeId: Record<string, number>;
   challenges: ReturnType<typeof useEventDetailChallenges>['challenges'];
+  isChallengesLoaded: ReturnType<typeof useEventDetailChallenges>['isChallengesLoaded'];
   rankingRows: ReturnType<typeof useEventDetailRanking>['rankingRows'];
   albumPhotos: ReturnType<typeof useEventDetailAlbum>['albumPhotos'];
+  arePhotosLoaded: ReturnType<typeof useEventDetailAlbum>['arePhotosLoaded'];
   countdownEndsAt: Date;
-  /** Overview: countdown hasta el inicio — true mientras `now <` instante de inicio (`event.date` ISO). */
-  isBeforeStartCountdownVisible: boolean;
-  /**
-   * Invitado en ventana [inicio, inicio+24h]: barra de reacciones con partículas
-   * ({@link isNonOrganizerDuringStartPlus24hWindow}). Anfitrión: siempre false.
-   */
-  isGuestLiveActionsVisible: boolean;
-  /** Evento {@link EventType.EventLive}: FAB de cámara (álbum) para invitado y anfitrión. */
-  isCameraFabVisible: boolean;
+  goingGuests: ReturnType<typeof eventGuestListGoingRows>;
+  guestsAttendingCount: number;
+  guestsPendingCount: number | undefined;
+  participantNamesLine: string;
   isPublicGuestListEnabled: boolean;
   isShareSheetOpen: boolean;
   isCreateChallengeSheetOpen: boolean;
@@ -77,8 +71,6 @@ export type EventDetailScreenData = {
   /** Overview hosts line (anfitrión / invitado copy from `eventDetailDerived`). */
   hostsLine: string;
   organizerGuestList: { listConfirmed: number; listTotalInvited: number };
-  /** Anfitrión y {@link EventType.EventToStart}: botón compartir en scroll. */
-  showOrganizerActions: boolean;
 };
 
 export type EventDetailScreenHandlers = {
@@ -86,6 +78,8 @@ export type EventDetailScreenHandlers = {
   setIsPublicGuestListEnabled: Dispatch<SetStateAction<boolean>>;
   onBackPress: () => void;
   onPullRefresh: () => Promise<void>;
+  /** Stable wrapper for RefreshControl (`void` pull refresh). */
+  onDetailRefresh: () => void;
   onFabCameraPress: () => void;
   onChallengePress: ReturnType<typeof useEventDetailChallenges>['onChallengePress'];
   onProfileAvatarPress: () => void;
@@ -93,6 +87,8 @@ export type EventDetailScreenHandlers = {
   onSharePress: () => void;
   onShareSheetClose: () => void;
   onShareConfirm: () => Promise<void>;
+  /** Stable wrapper for share sheet confirm. */
+  onShareConfirmPress: () => void;
   onCreateChallengeSheetOpen: () => void;
   onCreateChallengeSheetClose: () => void;
   onCreateQuizChallengeSelect: () => void;
@@ -156,7 +152,7 @@ export function useEventDetailScreen({
     reloadEventDetail,
   });
 
-  const { challenges, completedByChallengeIdForUi, onChallengePress, refetchChallenges } =
+  const { challenges, isChallengesLoaded, completedByChallengeIdForUi, onChallengePress, refetchChallenges } =
     useEventDetailChallenges({
       eventId,
       event,
@@ -164,6 +160,7 @@ export function useEventDetailScreen({
       guestEventDayOrPastTabBlocked,
       completedChallengeId,
       completedPoints,
+      isOrganizer,
     });
 
   const { rankingRows, refetchRanking } = useEventDetailRanking({
@@ -173,7 +170,7 @@ export function useEventDetailScreen({
     guestEventDayOrPastTabBlocked,
   });
 
-  const { albumPhotos, refetchAlbum, onAlbumPhotoLike } = useEventDetailAlbum({
+  const { albumPhotos, arePhotosLoaded, refetchAlbum, onAlbumPhotoLike } = useEventDetailAlbum({
     eventId,
     event,
     activeTab,
@@ -255,54 +252,10 @@ export function useEventDetailScreen({
   // --- Derived data
   const countdownEndsAt = useMemo(() => countdownEndsAtForEvent(event), [event]);
 
-  /** Ticks until inicio + 24h para countdown, FAB álbum y reacciones (invitado). */
-  const [detailWallClockMs, setDetailWallClockMs] = useState(() => Date.now());
-
-  useEffect(() => {
-    const d = event?.date?.trim();
-    if (!d) {
-      return undefined;
-    }
-    const startMs = Date.parse(d);
-    if (Number.isNaN(startMs)) {
-      return undefined;
-    }
-    const windowEndMs = startMs + EVENT_ALBUM_UPLOAD_WINDOW_AFTER_START_MS;
-    if (Date.now() > windowEndMs) {
-      return undefined;
-    }
-    const id = setInterval(() => {
-      const t = Date.now();
-      setDetailWallClockMs(t);
-      if (t > windowEndMs) {
-        clearInterval(id);
-      }
-    }, 1000);
-    return () => clearInterval(id);
-  }, [event?.date]);
-
-  const detailNow = useMemo(() => new Date(detailWallClockMs), [detailWallClockMs]);
-
-  const isBeforeStartCountdownVisible = useMemo(() => {
-    const d = event?.date?.trim() ?? '';
-    if (!d) {
-      return false;
-    }
-    return isBeforeEventStartInstant(d, detailNow);
-  }, [event?.date, detailNow]);
-
-  const isGuestLiveActionsVisible = useMemo(
-    () => isNonOrganizerDuringStartPlus24hWindow(event, isOrganizer, detailNow),
-    [event, isOrganizer, detailNow],
-  );
-
-  const isCameraFabVisible = useMemo(() => {
-    const d = event?.date?.trim() ?? '';
-    if (!d || Number.isNaN(Date.parse(d))) {
-      return false;
-    }
-    return getEventType(d, detailNow) === EventType.EventLive;
-  }, [event?.date, detailNow]);
+  const goingGuests = useMemo(() => eventGuestListGoingRows(event), [event]);
+  const guestsAttendingCount = useMemo(() => eventGuestsGoing(event).length, [event]);
+  const guestsPendingCount = useMemo(() => guestsPendingCountFromEvent(event), [event]);
+  const participantNamesLine = useMemo(() => eventParticipantNamesLine(event), [event]);
 
   const hostsLine = useMemo(() => {
     if (!event || !session) {
@@ -318,17 +271,6 @@ export function useEventDetailScreen({
     () => (event ? organizerGuestListCounts(event) : { listConfirmed: 0, listTotalInvited: 0 }),
     [event],
   );
-
-  const showOrganizerActions = useMemo(() => {
-    if (!isOrganizer) {
-      return false;
-    }
-    const trimmed = event?.date?.trim() ?? '';
-    if (!trimmed || Number.isNaN(Date.parse(trimmed))) {
-      return false;
-    }
-    return getEventType(trimmed, detailNow) === EventType.EventToStart;
-  }, [event?.date, isOrganizer, detailNow]);
 
   // --- Handlers
   const onBackPress = useCallback(() => {
@@ -451,6 +393,14 @@ export function useEventDetailScreen({
     }
   }, [event]);
 
+  const onDetailRefresh = useCallback(() => {
+    void onPullRefresh();
+  }, [onPullRefresh]);
+
+  const onShareConfirmPress = useCallback(() => {
+    void onShareConfirm();
+  }, [onShareConfirm]);
+
   const onCreateChallengeSheetOpen = useCallback(() => {
     void analytics.trackAction('open_create_challenge_sheet', {
       what: 'event_detail_create_challenge_sheet',
@@ -493,23 +443,25 @@ export function useEventDetailScreen({
     isDetailRefreshing,
     isOrganizer,
     canHostEditChallenges,
-    isGuestLiveActionsVisible,
-    isCameraFabVisible,
     activeTab,
     detailVisibleTabs,
     completedByChallengeId: completedByChallengeIdForUi,
     challenges,
+    isChallengesLoaded,
     rankingRows,
     albumPhotos,
+    arePhotosLoaded,
     countdownEndsAt,
-    isBeforeStartCountdownVisible,
+    goingGuests,
+    guestsAttendingCount,
+    guestsPendingCount,
+    participantNamesLine,
     isPublicGuestListEnabled,
     isShareSheetOpen,
     isCreateChallengeSheetOpen,
     showChallengesPendingDot: challengesPendingDot,
     hostsLine,
     organizerGuestList,
-    showOrganizerActions,
   };
 
   const handlers: EventDetailScreenHandlers = {
@@ -517,6 +469,7 @@ export function useEventDetailScreen({
     setIsPublicGuestListEnabled,
     onBackPress,
     onPullRefresh,
+    onDetailRefresh,
     onFabCameraPress,
     onChallengePress,
     onProfileAvatarPress,
@@ -524,6 +477,7 @@ export function useEventDetailScreen({
     onSharePress,
     onShareSheetClose,
     onShareConfirm,
+    onShareConfirmPress,
     onCreateChallengeSheetOpen,
     onCreateChallengeSheetClose,
     onCreateQuizChallengeSelect,

@@ -2,6 +2,7 @@ import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
   guestsPendingCount?: number;
 };
 
-export function EventDetailOverviewGuestsSummaryCard({
+export const EventDetailOverviewGuestsSummaryCard = memo(function EventDetailOverviewGuestsSummaryCard({
   guestsAttendingCount,
   guestsPendingCount,
 }: Props) {
@@ -41,7 +42,7 @@ export function EventDetailOverviewGuestsSummaryCard({
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   infoCard: {

@@ -3,6 +3,7 @@ import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { colors, radii } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 const MEDAL_SIZE = 40;
@@ -22,7 +23,7 @@ const MEDALS: { medal: RankingMedal; rank: number }[] = [
 /**
  * Host-only empty ranking: medal preview + copy (sin filas de API).
  */
-export function EventDetailRankingHostEmpty() {
+export const EventDetailRankingHostEmpty = memo(function EventDetailRankingHostEmpty() {
   const { t } = useTranslation();
   const copy = t('eventDetail.rankingHostEmpty');
 
@@ -44,7 +45,7 @@ export function EventDetailRankingHostEmpty() {
       <Text style={styles.copy}>{copy}</Text>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {

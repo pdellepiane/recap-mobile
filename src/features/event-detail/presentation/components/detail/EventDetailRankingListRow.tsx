@@ -3,13 +3,14 @@ import { EventDetailRankIndicator } from './EventDetailRankIndicator';
 import { EventDetailRankingAvatar } from './EventDetailRankingAvatar';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   row: RankingRow;
 };
 
-export function EventDetailRankingListRow({ row }: Props) {
+export const EventDetailRankingListRow = memo(function EventDetailRankingListRow({ row }: Props) {
   return (
     <View
       style={styles.row}
@@ -25,7 +26,7 @@ export function EventDetailRankingListRow({ row }: Props) {
       <Text style={styles.points}>{`${String(row.points)} ptos`}</Text>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   row: {

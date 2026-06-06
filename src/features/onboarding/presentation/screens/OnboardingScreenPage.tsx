@@ -20,7 +20,7 @@ export const OnboardingScreenPage = () => {
       />
       <View pointerEvents="box-none" style={styles.overlay}>
         <ProgressBar slides={slides} activeIndex={activeIndex} topInset={insets.top} />
-        <StartButton onPress={handleStart} bottomInset={insets.bottom} />
+        <StartButton onPress={handleStart} bottomInset={Math.max(insets.bottom, 20)} />
       </View>
     </>
   );

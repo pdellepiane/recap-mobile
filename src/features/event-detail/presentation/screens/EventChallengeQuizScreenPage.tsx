@@ -2,6 +2,7 @@ import { EventChallengeQuizCompletedView } from '../components/quiz/EventChallen
 import { EventChallengeQuizUnavailableView } from '../components/quiz/EventChallengeQuizUnavailableView';
 import { EventChallengeQuizView } from '../components/quiz/EventChallengeQuizView';
 import { useEventChallengeQuizScreen } from '../hooks/useEventChallengeQuizScreen';
+import { useTranslation } from '@/src/i18n';
 
 type Props = {
   eventId: string;
@@ -22,11 +23,12 @@ export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNu
     pointsEarned,
     resultCircleMarginTop,
     contentTopInset,
-    closeResult,
-    openRanking,
-    toggleOption,
-    finalize,
+    onCloseResult,
+    onOpenRanking,
+    onToggleOption,
+    onFinish,
   } = useEventChallengeQuizScreen({ eventId, challengeId, challengeNumber });
+  const { t } = useTranslation();
 
   if (!quiz) {
     return <EventChallengeQuizUnavailableView contentTopInset={contentTopInset} />;
@@ -42,20 +44,22 @@ export function EventChallengeQuizScreenPage({ eventId, challengeId, challengeNu
         correctLabel={correctLabel}
         pointsEarned={pointsEarned}
         resultCircleMarginTop={resultCircleMarginTop}
-        onClose={closeResult}
-        onOpenRanking={openRanking}
+        onClose={onCloseResult}
+        onOpenRanking={onOpenRanking}
       />
     );
   }
 
   return (
     <EventChallengeQuizView
-      quiz={quiz}
+      kicker={t('challenges.challengeNumberLabel', { n: quiz.number })}
+      question={quiz.question}
+      answerOptions={quiz.options}
       selectedIndex={selectedIndex}
       canFinish={canFinish}
       isSubmitting={isSubmitting}
-      onToggleOption={toggleOption}
-      onFinalize={finalize}
+      onToggleOption={onToggleOption}
+      onFinish={onFinish}
     />
   );
 }

@@ -1,48 +1,35 @@
-import { challengeFlowBackHeaderBottom } from '../shared/EventChallengeHeaderView';
 import { EventChallengeQuizOptionsList } from './EventChallengeQuizOptionsList';
 import { EventChallengeQuizQuestionCardFrame } from './EventChallengeQuizQuestionCardFrame';
-import { useTranslation } from '@/src/i18n';
-import { ScrollView, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
 
 type Props = {
-  quiz: { number: number; question: string; options: string[] };
+  kicker: string;
+  question: string;
+  answerOptions: string[];
   selectedIndex: number | null;
   onToggleOption: (index: number) => void;
 };
 
-export function EventChallengeQuizBodyView({ quiz, selectedIndex, onToggleOption }: Props) {
-  const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const headerBottom = challengeFlowBackHeaderBottom(insets.top);
-
+export function EventChallengeQuizBodyView({
+  kicker,
+  question,
+  answerOptions,
+  selectedIndex,
+  onToggleOption,
+}: Props) {
   return (
-    <ScrollView
-      style={styles.scroll}
-      contentContainerStyle={styles.scrollContent}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
-    >
-      <EventChallengeQuizQuestionCardFrame
-        kicker={t('challenges.challengeNumberLabel', { n: quiz.number })}
-        question={quiz.question}
-        contentInsetTop={headerBottom}
-      >
+    <View style={styles.body}>
+      <EventChallengeQuizQuestionCardFrame kicker={kicker} question={question}>
         <EventChallengeQuizOptionsList
-          options={quiz.options}
+          answerOptions={answerOptions}
           selectedIndex={selectedIndex}
           onToggleOption={onToggleOption}
         />
       </EventChallengeQuizQuestionCardFrame>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
+  body: {},
 });

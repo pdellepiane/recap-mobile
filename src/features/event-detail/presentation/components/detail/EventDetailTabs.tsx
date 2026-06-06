@@ -2,7 +2,7 @@ import { EventDetailTab } from '../../hooks/useEventDetailScreen';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
-import { useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
@@ -14,7 +14,46 @@ type Props = {
   showChallengesPendingDot?: boolean;
 };
 
-export function EventDetailTabs({
+type TabDef = {
+  key: EventDetailTab;
+  label: string;
+  showDot: boolean;
+};
+
+type TabButtonProps = {
+  tab: TabDef;
+  active: boolean;
+  onTabPress: (tab: EventDetailTab) => void;
+};
+
+const EventDetailTabButton = memo(function EventDetailTabButton({
+  tab,
+  active,
+  onTabPress,
+}: TabButtonProps) {
+  const onPress = useCallback(() => onTabPress(tab.key), [onTabPress, tab.key]);
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[styles.tab, active ? styles.tabActive : styles.tabInactive]}
+    >
+      <View style={styles.tabInner}>
+        {tab.showDot ? <View style={styles.challengesDot} /> : null}
+        <Text
+          style={[
+            styles.tabText,
+            active && tab.key !== EventDetailTab.Album ? styles.tabTextActive : null,
+          ]}
+        >
+          {tab.label}
+        </Text>
+      </View>
+    </Pressable>
+  );
+});
+
+export const EventDetailTabs = memo(function EventDetailTabs({
   activeTab,
   onTabPress,
   visibleTabs,
@@ -35,36 +74,24 @@ export function EventDetailTabs({
     [t, showChallengesPendingDot],
   );
 
-  const allowed = new Set(visibleTabs ?? detailTabs.map((x) => x.key));
-  const tabs = detailTabs.filter((x) => allowed.has(x.key));
+  const tabs = useMemo(() => {
+    const allowed = new Set(visibleTabs ?? detailTabs.map((x) => x.key));
+    return detailTabs.filter((x) => allowed.has(x.key));
+  }, [detailTabs, visibleTabs]);
 
   return (
     <View style={styles.tabsRow}>
-      {tabs.map((tab) => {
-        const active = activeTab === tab.key;
-        return (
-          <Pressable
-            key={tab.key}
-            onPress={() => onTabPress(tab.key)}
-            style={[styles.tab, active ? styles.tabActive : styles.tabInactive]}
-          >
-            <View style={styles.tabInner}>
-              {tab.showDot ? <View style={styles.challengesDot} /> : null}
-              <Text
-                style={[
-                  styles.tabText,
-                  active && tab.key !== EventDetailTab.Album ? styles.tabTextActive : null,
-                ]}
-              >
-                {tab.label}
-              </Text>
-            </View>
-          </Pressable>
-        );
-      })}
+      {tabs.map((tab) => (
+        <EventDetailTabButton
+          key={tab.key}
+          tab={tab}
+          active={activeTab === tab.key}
+          onTabPress={onTabPress}
+        />
+      ))}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   tabsRow: {

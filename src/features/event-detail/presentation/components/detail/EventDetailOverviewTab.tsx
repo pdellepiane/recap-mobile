@@ -1,3 +1,4 @@
+import type { MapAppId } from '../../../data/mapApps';
 import { useMapAppPicker } from '../../hooks/useMapAppPicker';
 import { EventDetailMapAppPickerSheet } from './EventDetailMapAppPickerSheet';
 import { EventDetailOverviewAddressCard } from './EventDetailOverviewAddressCard';
@@ -5,10 +6,14 @@ import { EventDetailOverviewCreatorsRow } from './EventDetailOverviewCreatorsRow
 import { EventDetailOverviewDateCard } from './EventDetailOverviewDateCard';
 import { EventDetailOverviewGuestListSection } from './EventDetailOverviewGuestListSection';
 import { EventDetailOverviewGuestsSummaryCard } from './EventDetailOverviewGuestsSummaryCard';
-import type { EventGuestListRow } from '@/src/features/event-detail/data/eventDetailDerived';
+import {
+  isEventDetailBeforeStartCountdownVisible,
+  type EventGuestListRow,
+} from '@/src/features/event-detail/data/eventDetailDerived';
 import { useTranslation } from '@/src/i18n';
 import { colors, CountdownTimer } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo, useCallback, useMemo } from 'react';
 import { StyleSheet, Text } from 'react-native';
 
 type Props = {
@@ -21,8 +26,6 @@ type Props = {
   mapQuery?: string | null;
   /** GET /api/events/:id — hosts line from API (see `Event.hostsLine` / derived organizer copy). */
   hostsLine: string;
-  /** False once the event start time (`event.date`) has passed. */
-  isBeforeStartCountdownVisible: boolean;
   /**
    * TODO(backend): Ensure detail payload always includes attending + invited counts for this card.
    */
@@ -32,20 +35,32 @@ type Props = {
   goingGuests?: EventGuestListRow[];
 };
 
-export function EventDetailOverviewTab({
+export const EventDetailOverviewTab = memo(function EventDetailOverviewTab({
   countdownEndsAt,
   eventDateIso,
   addressCity,
   addressVenue,
   mapQuery,
   hostsLine,
-  isBeforeStartCountdownVisible,
   guestsAttendingCount,
   guestsPendingCount,
   goingGuests,
 }: Props) {
   const { t } = useTranslation();
   const { visible, apps, openMapPicker, selectMapApp, closePicker } = useMapAppPicker(mapQuery);
+  const isBeforeStartCountdownVisible = useMemo(
+    () => isEventDetailBeforeStartCountdownVisible(eventDateIso, new Date()),
+    [eventDateIso],
+  );
+  const onOpenMap = useCallback(() => {
+    void openMapPicker();
+  }, [openMapPicker]);
+  const onSelectMapApp = useCallback(
+    (appId: MapAppId) => {
+      void selectMapApp(appId);
+    },
+    [selectMapApp],
+  );
 
   return (
     <>
@@ -61,9 +76,7 @@ export function EventDetailOverviewTab({
           city={addressCity}
           venue={addressVenue}
           mapQuery={mapQuery}
-          onOpenMap={() => {
-            void openMapPicker();
-          }}
+          onOpenMap={onOpenMap}
         />
       )}
 
@@ -71,9 +84,7 @@ export function EventDetailOverviewTab({
         visible={visible}
         apps={apps}
         onClose={closePicker}
-        onSelectApp={(appId) => {
-          void selectMapApp(appId);
-        }}
+        onSelectApp={onSelectMapApp}
       />
 
       <EventDetailOverviewGuestsSummaryCard
@@ -84,7 +95,7 @@ export function EventDetailOverviewTab({
       <EventDetailOverviewGuestListSection goingGuests={goingGuests} />
     </>
   );
-}
+});
 
 const styles = StyleSheet.create({
   sectionHeading: {

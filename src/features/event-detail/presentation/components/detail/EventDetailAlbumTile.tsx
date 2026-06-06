@@ -3,6 +3,7 @@ import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { appendRemoteImageEpoch, colors, useRemoteImageCacheEpoch } from '@/src/ui';
 import { Image } from 'expo-image';
+import { memo, useCallback, useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 const COL_GAP = 8;
@@ -11,24 +12,56 @@ const TILE_RADIUS = 12;
 type Props = {
   photo: AlbumPhoto;
   width: number;
-  onLikePress?: () => void;
+  onAlbumPhotoLike?: (photoId: string) => void;
 };
 
-export function EventDetailAlbumTile({ photo, width, onLikePress }: Props) {
+export const EventDetailAlbumTile = memo(function EventDetailAlbumTile({
+  photo,
+  width,
+  onAlbumPhotoLike,
+}: Props) {
   const { t } = useTranslation();
   const mediaCacheEpoch = useRemoteImageCacheEpoch();
-  const tileH = width / photo.aspectRatio;
-  const photoUri = appendRemoteImageEpoch(photo.uri, mediaCacheEpoch);
+  const onLikePress = useCallback(() => {
+    if (!onAlbumPhotoLike || photo.id.startsWith('local-')) {
+      return;
+    }
+    onAlbumPhotoLike(photo.id);
+  }, [onAlbumPhotoLike, photo.id]);
+  const canLike = useMemo(
+    () => Boolean(onAlbumPhotoLike && !photo.id.startsWith('local-')),
+    [onAlbumPhotoLike, photo.id],
+  );
+  const tileH = useMemo(() => width / photo.aspectRatio, [photo.aspectRatio, width]);
+  const photoUri = useMemo(
+    () => appendRemoteImageEpoch(photo.uri, mediaCacheEpoch),
+    [mediaCacheEpoch, photo.uri],
+  );
   const liked = photo.likedByMe === true;
-  const heartColor = liked ? colors.states.error : colors.neutral.primary;
-  const authorAvatarUri = photo.authorAvatarUrl
-    ? appendRemoteImageEpoch(photo.authorAvatarUrl, mediaCacheEpoch)
-    : null;
+  const heartColor = useMemo(
+    () => (liked ? colors.states.error : colors.neutral.primary),
+    [liked],
+  );
+  const authorAvatarUri = useMemo(
+    () =>
+      photo.authorAvatarUrl
+        ? appendRemoteImageEpoch(photo.authorAvatarUrl, mediaCacheEpoch)
+        : null,
+    [mediaCacheEpoch, photo.authorAvatarUrl],
+  );
+  const tileWrapStyle = useMemo(
+    () => [styles.tileWrap, { width, marginBottom: COL_GAP }],
+    [width],
+  );
+  const tileImageStyle = useMemo(
+    () => [styles.tileImage, { width, height: tileH }],
+    [tileH, width],
+  );
   return (
-    <View style={[styles.tileWrap, { width, marginBottom: COL_GAP }]}>
+    <View style={tileWrapStyle}>
       <Image
         source={{ uri: photoUri }}
-        style={[styles.tileImage, { width, height: tileH }]}
+        style={tileImageStyle}
         contentFit="cover"
         cachePolicy="memory-disk"
         transition={150}
@@ -55,7 +88,7 @@ export function EventDetailAlbumTile({ photo, width, onLikePress }: Props) {
               {photo.authorShort}
             </Text>
           </View>
-          {onLikePress ? (
+          {canLike ? (
             <Pressable
               style={styles.likes}
               onPress={onLikePress}
@@ -86,7 +119,7 @@ export function EventDetailAlbumTile({ photo, width, onLikePress }: Props) {
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   tileWrap: {

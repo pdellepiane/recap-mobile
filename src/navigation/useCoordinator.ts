@@ -151,12 +151,26 @@ export const useCoordinator = () => {
         trackNav('push', routePaths.eventChallengePhotoCreate(eventId), { eventId });
         router.push(routePaths.eventChallengePhotoCreate(eventId) as Href);
       },
-      goToEventChallengePhotoCreateChallenge: (eventId: string, challengeId: string) => {
-        trackNav('push', routePaths.eventChallengePhotoCreateChallenge(eventId, challengeId), {
-          eventId,
-          challengeId,
-        });
-        router.push(routePaths.eventChallengePhotoCreateChallenge(eventId, challengeId) as Href);
+      /** Host edits an existing photo challenge (opens preview screen). */
+      goToEventChallengePhotoEdit: (
+        eventId: string,
+        remoteChallengeId: string,
+        challengeNumber: number,
+      ) => {
+        const challengeId = `edit-${remoteChallengeId}`;
+        trackNav(
+          'push',
+          routePaths.eventChallengePhotoEditChallenge(eventId, challengeId, remoteChallengeId),
+          { eventId, challengeId, remoteChallengeId, challengeNumber },
+        );
+        router.push(
+          routePaths.eventChallengePhotoEditChallenge(
+            eventId,
+            challengeId,
+            remoteChallengeId,
+            challengeNumber,
+          ) as Href,
+        );
       },
       /** Photo challenge: intro screen with instructions and button to open the camera. */
       goToEventChallengePhoto: (eventId: string, challengeId: string, challengeNumber: number) => {

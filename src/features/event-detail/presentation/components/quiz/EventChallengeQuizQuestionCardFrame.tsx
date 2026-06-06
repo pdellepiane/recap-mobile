@@ -1,10 +1,13 @@
 import { images } from '@/src/assets/images';
+import {
+  scaledChallengeSize,
+  useChallengeFlowScale,
+} from '../../utils/challengeFlowLayout';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import type { ReactNode } from 'react';
+import { useMemo } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-
-const ICON_TOP_W = 170;
 
 type Props = {
   /** e.g. challenge number label (guest) or “Reto nuevo” (organizer). */
@@ -13,8 +16,6 @@ type Props = {
   question: string;
   /** Option rows or editor slots rendered inside the card. */
   children: ReactNode;
-  /** Top inset so content centers below a floating header (guest quiz flow). */
-  contentInsetTop?: number;
   /** Bottom inset when the footer overlays content instead of pushing layout. */
   contentInsetBottom?: number;
 };
@@ -25,26 +26,47 @@ type Props = {
  */
 export function EventChallengeQuizQuestionCardFrame({
   kicker,
+  kickerColor,
   question,
   children,
-  contentInsetTop = 0,
   contentInsetBottom = 0,
 }: Props) {
+  const scale = useChallengeFlowScale();
+
+  const layout = useMemo(() => {
+    const bubbleTop = scaledChallengeSize(-75, scale);
+    const bubbleOverlap = Math.abs(bubbleTop);
+    return {
+      cardPadding: scaledChallengeSize(20, scale),
+      kickerFontSize: scaledChallengeSize(20, scale),
+      kickerLineHeight: scaledChallengeSize(28, scale),
+      kickerMarginTop: scaledChallengeSize(40, scale),
+      kickerMarginBottom: scaledChallengeSize(14, scale),
+      titleFontSize: scaledChallengeSize(28, scale),
+      titleLineHeight: scaledChallengeSize(36, scale),
+      titleMarginBottom: scaledChallengeSize(20, scale),
+      bubbleWidth: scaledChallengeSize(170, scale),
+      bubbleHeight: scaledChallengeSize(120, scale),
+      bubbleTop,
+      bubbleOverlap,
+      sectionPaddingVertical: scaledChallengeSize(12, scale),
+    };
+  }, [scale]);
+
+  const sectionPaddingTop = layout.sectionPaddingVertical + layout.bubbleOverlap;
+
   return (
     <View
       style={[
         styles.cardSection,
-        { paddingTop: contentInsetTop, paddingBottom: contentInsetBottom },
+        {
+          paddingTop: sectionPaddingTop,
+          paddingBottom: contentInsetBottom + layout.sectionPaddingVertical,
+        },
       ]}
     >
-      <View>
-        <Image
-          source={images.eventDetail.challenges.triviaBubbles}
-          style={styles.triviaBubbles}
-          resizeMode="contain"
-          accessibilityIgnoresInvertColors
-        />
-        <View style={styles.card}>
+      <View style={styles.cardWrap}>
+        <View style={[styles.card, { padding: layout.cardPadding }]}>
           <Image
             source={images.eventDetail.challenges.cardDecorUnion}
             style={styles.cardBgImage}
@@ -52,10 +74,47 @@ export function EventChallengeQuizQuestionCardFrame({
             accessibilityElementsHidden
           />
 
-          <Text style={styles.kicker}>{kicker}</Text>
-          <Text style={styles.challengeTitle}>{question}</Text>
+          <Text
+            style={[
+              styles.kicker,
+              {
+                color: kickerColor ?? colors.brand[300],
+                fontSize: layout.kickerFontSize,
+                lineHeight: layout.kickerLineHeight,
+                marginTop: layout.kickerMarginTop,
+                marginBottom: layout.kickerMarginBottom,
+              },
+            ]}
+          >
+            {kicker}
+          </Text>
+          <Text
+            style={[
+              styles.challengeTitle,
+              {
+                fontSize: layout.titleFontSize,
+                lineHeight: layout.titleLineHeight,
+                marginBottom: layout.titleMarginBottom,
+              },
+            ]}
+          >
+            {question}
+          </Text>
           {children}
         </View>
+        <Image
+          source={images.eventDetail.challenges.triviaBubbles}
+          style={[
+            styles.triviaBubbles,
+            {
+              width: layout.bubbleWidth,
+              height: layout.bubbleHeight,
+              top: layout.bubbleTop,
+            },
+          ]}
+          resizeMode="contain"
+          accessibilityIgnoresInvertColors
+        />
       </View>
     </View>
   );
@@ -63,13 +122,15 @@ export function EventChallengeQuizQuestionCardFrame({
 
 const styles = StyleSheet.create({
   cardSection: {
-    flex: 1,
-    justifyContent: 'center',
+    overflow: 'visible',
+  },
+  cardWrap: {
+    width: '100%',
+    overflow: 'visible',
   },
   card: {
     borderRadius: 16,
     backgroundColor: colors.background.elevated,
-    padding: 20,
     overflow: 'hidden',
     width: '100%',
   },
@@ -80,30 +141,19 @@ const styles = StyleSheet.create({
     left: '-20%',
   },
   kicker: {
-    color: colors.brand[300],
-    fontSize: 20,
     fontWeight: '400',
-    lineHeight: 28,
     fontFamily: fontFamilies.signikaRegular,
     textAlign: 'center',
-    marginBottom: 14,
-    marginTop: 40,
   },
   challengeTitle: {
     color: colors.neutral.primary,
-    fontSize: 28,
     fontWeight: '500',
     textAlign: 'center',
-    lineHeight: 36,
     fontFamily: fontFamilies.medium,
-    marginBottom: 20,
   },
   triviaBubbles: {
     position: 'absolute',
-    width: ICON_TOP_W,
-    height: 120,
-    top: -75,
     alignSelf: 'center',
-    zIndex: 2,
+    zIndex: 3,
   },
 });

@@ -9,12 +9,14 @@ const PhotoCreateDraftContext = createContext<PhotoCreateDraftContextValue | nul
 
 export function PhotoCreateDraftProvider({
   eventId,
+  editRemoteChallengeId,
   children,
 }: {
   eventId: string;
+  editRemoteChallengeId?: string;
   children: ReactNode;
 }) {
-  const value = useEventChallengePhotoCreateScreen({ eventId });
+  const value = useEventChallengePhotoCreateScreen({ eventId, editRemoteChallengeId });
   return (
     <PhotoCreateDraftContext.Provider value={value}>{children}</PhotoCreateDraftContext.Provider>
   );

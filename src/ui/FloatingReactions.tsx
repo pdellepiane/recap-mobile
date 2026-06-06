@@ -124,7 +124,7 @@ export type FloatingReactionsProps = {
  * Place as a direct child of a `flex:1` screen root so coordinates match `measureInWindow`.
  *
  * Event detail: only mount when the event is inside the “start → +24h” window; otherwise pass
- * `onReactionPress={undefined}` so reaction emojis are hidden (see `isGuestLiveActionsVisible` in `useEventDetailScreen`).
+ * `onReactionPress={undefined}` so reaction emojis are hidden (see `EventDetailLiveReactionProvider`).
  */
 export function FloatingReactions({ maxConcurrent = 10, children }: FloatingReactionsProps) {
   const { spawnAt, overlay } = useFloatingReactions({ maxConcurrent });

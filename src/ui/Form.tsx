@@ -13,10 +13,13 @@ export const Form = ({
   children,
   title,
   includesGoBack,
+  topPaddingExtra = 0,
 }: {
   children: React.ReactNode;
   title?: string;
   includesGoBack?: boolean;
+  /** Added below the top safe area (e.g. notch / Dynamic Island screens). */
+  topPaddingExtra?: number;
 }) => {
   const insets = useSafeAreaInsets();
 
@@ -27,7 +30,7 @@ export const Form = ({
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
       >
-        <View style={[styles.inner, { paddingTop: insets.top + 16 }]}>
+        <View style={[styles.inner, { paddingTop: insets.top + 16 + topPaddingExtra }]}>
           {includesGoBack && <BackButton />}
           {title && <ScreenTitle>{title}</ScreenTitle>}
           {children}

@@ -1,10 +1,10 @@
 import type { RankingRow } from '../../data/eventRanking';
 import { EventDetailTab } from './eventDetailTabs';
 import { eventRepository } from '@/src/core/di/container';
-import type { Event } from '@/src/domain/entities';
 import { useAbortController } from '@/src/core/hooks/useAbortController';
 import { useMountedRef } from '@/src/core/hooks/useMountedRef';
 import { isAbortError } from '@/src/core/http/isAbortError';
+import type { Event } from '@/src/domain/entities';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Params = {

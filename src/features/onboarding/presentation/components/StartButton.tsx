@@ -1,8 +1,12 @@
+import {
+  scaledOnboardingSize,
+  useOnboardingScale,
+} from '../utils/onboardingLayout';
 import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { Button } from '@/src/ui';
 import { colors } from '@/src/ui/colors';
-import { fontFamilies } from '@/src/ui/typography';
+import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 type StartButtonProps = {
@@ -12,17 +16,26 @@ type StartButtonProps = {
 
 export function StartButton({ onPress, bottomInset }: StartButtonProps) {
   const { t } = useTranslation();
+  const scale = useOnboardingScale();
+
+  const layout = useMemo(
+    () => ({
+      minWidth: scaledOnboardingSize(160, scale),
+      iconSize: scaledOnboardingSize(24, scale),
+    }),
+    [scale],
+  );
 
   return (
-    <View style={[styles.buttonContainer, { paddingBottom: bottomInset + 20 }]}>
+    <View style={[styles.buttonContainer, { marginBottom: bottomInset }]}>
       <Button
         title={t('onboarding.start')}
         onPress={() => void onPress()}
         accessibilityLabel={t('onboarding.start')}
         rightIconSource={images.common.start}
-        rightIconStyle={styles.buttonIcon}
+        rightIconStyle={{ width: layout.iconSize, height: layout.iconSize }}
         textStyle={styles.buttonText}
-        style={styles.button}
+        style={[styles.button, { minWidth: layout.minWidth }]}
       />
     </View>
   );
@@ -30,28 +43,12 @@ export function StartButton({ onPress, bottomInset }: StartButtonProps) {
 
 const styles = StyleSheet.create({
   buttonContainer: {
-    paddingHorizontal: 24,
     alignItems: 'center',
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: colors.background.secondary,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 16,
-    gap: 8,
-    minWidth: 160,
-    height: 64,
   },
   buttonText: {
     color: colors.neutral.primary,
-    fontSize: 18,
-    fontFamily: fontFamilies.bold,
-  },
-  buttonIcon: {
-    width: 24,
-    height: 24,
   },
 });

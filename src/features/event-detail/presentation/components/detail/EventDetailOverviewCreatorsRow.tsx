@@ -1,15 +1,18 @@
 import { useTranslation } from '@/src/i18n';
 import { colors, HostInitialsAvatar, parseHostsFromLine } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   hostsLine: string;
 };
 
-export function EventDetailOverviewCreatorsRow({ hostsLine }: Props) {
+export const EventDetailOverviewCreatorsRow = memo(function EventDetailOverviewCreatorsRow({
+  hostsLine,
+}: Props) {
   const { t } = useTranslation();
-  const hostNames = parseHostsFromLine(hostsLine);
+  const hostNames = useMemo(() => parseHostsFromLine(hostsLine), [hostsLine]);
 
   return (
     <View style={styles.creatorsRow}>
@@ -33,7 +36,7 @@ export function EventDetailOverviewCreatorsRow({ hostsLine }: Props) {
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   creatorsRow: {

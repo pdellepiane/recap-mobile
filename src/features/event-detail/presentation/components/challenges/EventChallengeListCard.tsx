@@ -3,6 +3,7 @@ import { EventChallengeCardBody } from './EventChallengeCardBody';
 import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { colors, radii } from '@/src/ui';
+import { memo, useCallback, useMemo } from 'react';
 import { Image, Pressable, StyleSheet } from 'react-native';
 
 function accessibilitySummary(challenge: EventChallenge) {
@@ -17,20 +18,38 @@ type Props = {
   onChallengePress?: (challenge: EventChallenge) => void;
 };
 
-export function EventChallengeListCard({
+export const EventChallengeListCard = memo(function EventChallengeListCard({
   challenge,
   completedByChallengeId,
   onChallengePress,
 }: Props) {
   const { t } = useTranslation();
-  const isQuiz = challenge.kind === EventChallengeKind.Quiz;
-  const isCompleted = Object.prototype.hasOwnProperty.call(completedByChallengeId, challenge.id);
-  const pointsShown = isCompleted ? (completedByChallengeId[challenge.id] ?? 0) : 0;
-  const zeroPoints = isCompleted && pointsShown === 0;
+  const isQuiz = useMemo(() => challenge.kind === EventChallengeKind.Quiz, [challenge.kind]);
+  const isCompleted = useMemo(
+    () => Object.prototype.hasOwnProperty.call(completedByChallengeId, challenge.id),
+    [challenge.id, completedByChallengeId],
+  );
+  const pointsShown = useMemo(
+    () => (isCompleted ? (completedByChallengeId[challenge.id] ?? 0) : 0),
+    [challenge.id, completedByChallengeId, isCompleted],
+  );
+  const zeroPoints = useMemo(() => isCompleted && pointsShown === 0, [isCompleted, pointsShown]);
+  const accessibilityLabel = useMemo(() => {
+    const summary = accessibilitySummary(challenge);
+    if (isCompleted) {
+      return t('challenges.completedWithSummary', { summary });
+    }
+    return t('challenges.challengeA11yLine', { n: challenge.number, summary });
+  }, [challenge, isCompleted, t]);
+  const onPress = useCallback(() => {
+    if (!isCompleted) {
+      onChallengePress?.(challenge);
+    }
+  }, [challenge, isCompleted, onChallengePress]);
 
   return (
     <Pressable
-      onPress={() => (isCompleted ? undefined : onChallengePress?.(challenge))}
+      onPress={onPress}
       disabled={isCompleted}
       style={({ pressed }) => [
         styles.card,
@@ -39,14 +58,7 @@ export function EventChallengeListCard({
         pressed && styles.cardPressed,
       ]}
       accessibilityRole="button"
-      accessibilityLabel={
-        isCompleted
-          ? t('challenges.completedWithSummary', { summary: accessibilitySummary(challenge) })
-          : t('challenges.challengeA11yLine', {
-              n: challenge.number,
-              summary: accessibilitySummary(challenge),
-            })
-      }
+      accessibilityLabel={accessibilityLabel}
     >
       {!isCompleted ? (
         <Image
@@ -80,7 +92,7 @@ export function EventChallengeListCard({
       ) : null}
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {

@@ -2,9 +2,11 @@ import { useLoginScreen } from '../hooks/useLoginScreen';
 import { useTranslation } from '@/src/i18n';
 import { Button, Form, InputField } from '@/src/ui';
 import { StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const LoginScreenPage = () => {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const {
     keyboardVisible,
     email,
@@ -30,7 +32,7 @@ export const LoginScreenPage = () => {
         loadingText={t('auth.loading')}
         loading={isLoading}
         onPress={handlePressContinue}
-        style={[styles.button, { marginBottom: keyboardVisible ? 8 : 48 }]}
+        style={[styles.button, { marginBottom: keyboardVisible ? 8 : Math.max(insets.bottom, 20) }]}
       />
     </Form>
   );

@@ -2,6 +2,7 @@ import type { MapAppOption } from '../../../data/mapApps';
 import { useTranslation } from '@/src/i18n';
 import { CloseButton, SlideUpBottomModal, colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
 type Props = {
@@ -11,16 +12,39 @@ type Props = {
   onSelectApp: (appId: MapAppOption['id']) => void;
 };
 
-export function EventDetailMapAppPickerSheet({ visible, apps, onClose, onSelectApp }: Props) {
+type MapAppPickerRowProps = {
+  app: MapAppOption;
+  label: string;
+  onSelectApp: (appId: MapAppOption['id']) => void;
+};
+
+const MapAppPickerRow = memo(function MapAppPickerRow({
+  app,
+  label,
+  onSelectApp,
+}: MapAppPickerRowProps) {
+  const onPress = useCallback(() => onSelectApp(app.id), [app.id, onSelectApp]);
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+    >
+      <Text style={styles.rowLabel}>{label}</Text>
+    </Pressable>
+  );
+});
+
+export const EventDetailMapAppPickerSheet = memo(function EventDetailMapAppPickerSheet({
+  visible,
+  apps,
+  onClose,
+  onSelectApp,
+}: Props) {
   const { t } = useTranslation();
 
   return (
-    <SlideUpBottomModal
-      visible={visible}
-      onRequestClose={onClose}
-      contentContainerStyle={styles.overlayPadding}
-      sheetStyle={styles.sheet}
-    >
+    <SlideUpBottomModal visible={visible} onRequestClose={onClose}>
       <CloseButton
         onPress={onClose}
         style={styles.closeBtn}
@@ -30,40 +54,22 @@ export function EventDetailMapAppPickerSheet({ visible, apps, onClose, onSelectA
       <Text style={styles.title}>{t('eventDetail.mapAppPickerTitle')}</Text>
 
       {apps.map((app) => (
-        <Pressable
+        <MapAppPickerRow
           key={app.id}
-          onPress={() => onSelectApp(app.id)}
-          style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-        >
-          <Text style={styles.rowLabel}>{t(app.labelKey)}</Text>
-        </Pressable>
+          app={app}
+          label={t(app.labelKey)}
+          onSelectApp={onSelectApp}
+        />
       ))}
     </SlideUpBottomModal>
   );
-}
+});
 
 const styles = StyleSheet.create({
-  overlayPadding: {
-    paddingHorizontal: 18,
-    paddingBottom: 18,
-  },
-  sheet: {
-    borderRadius: 28,
-    backgroundColor: colors.background.elevated,
-    paddingHorizontal: 22,
-    paddingTop: 28,
-    paddingBottom: 26,
-  },
   closeBtn: {
     position: 'absolute',
     top: 16,
     right: 16,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.background.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   title: {
     color: colors.neutral.primary,

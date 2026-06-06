@@ -2,13 +2,16 @@ import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
 import { Button, colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
+import { memo } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   onPress: () => void;
 };
 
-export function EventDetailCreateChallengeQuizOption({ onPress }: Props) {
+export const EventDetailCreateChallengeQuizOption = memo(function EventDetailCreateChallengeQuizOption({
+  onPress,
+}: Props) {
   const { t } = useTranslation();
 
   return (
@@ -28,7 +31,7 @@ export function EventDetailCreateChallengeQuizOption({ onPress }: Props) {
       </View>
     </Button>
   );
-}
+});
 
 const styles = StyleSheet.create({
   optionCard: {

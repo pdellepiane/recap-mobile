@@ -1,4 +1,5 @@
 import { EventDetailRouteProvider } from '@/src/features/event-detail/presentation/context/EventDetailRouteContext';
+import { UserToastOverlay } from '@/src/ui';
 import { Stack, useLocalSearchParams } from 'expo-router';
 
 function firstString(v: string | string[] | undefined): string | undefined {
@@ -18,65 +19,67 @@ export default function EventIdLayout() {
 
   return (
     <EventDetailRouteProvider eventId={eventId}>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen
-          name="camera"
-          options={{
-            presentation: 'modal',
-            gestureEnabled: false,
-            animation: 'slide_from_bottom',
+      <UserToastOverlay>
+        <Stack
+          screenOptions={{
+            headerShown: false,
           }}
-        />
-        <Stack.Screen name="map" />
-        <Stack.Screen name="challenge-quiz" />
-        <Stack.Screen
-          name="challenge-quiz-create"
-          options={{
-            presentation: 'modal',
-            animation: 'slide_from_bottom',
-          }}
-        />
-        <Stack.Screen
-          name="challenge-photo-create"
-          options={{
-            presentation: 'modal',
-            animation: 'slide_from_bottom',
-          }}
-        />
-        <Stack.Screen name="challenge-photo" />
-        <Stack.Screen
-          name="challenge-photo-camera"
-          options={{
-            presentation: 'modal',
-            gestureEnabled: false,
-            animation: 'slide_from_bottom',
-          }}
-        />
-        <Stack.Screen name="challenge-photo-completed" />
-        <Stack.Screen
-          name="participants"
-          options={{
-            presentation: 'modal',
-            animation: 'slide_from_bottom',
-          }}
-        />
-        <Stack.Screen
-          name="stories"
-          options={{
-            /** Transparent modal: dragging down reveals event detail outside the circle. */
-            presentation: 'transparentModal',
-            gestureEnabled: false,
-            contentStyle: { backgroundColor: 'transparent' },
-            animation: 'fade',
-            animationDuration: 260,
-          }}
-        />
-      </Stack>
+        >
+          <Stack.Screen name="index" />
+          <Stack.Screen
+            name="camera"
+            options={{
+              presentation: 'modal',
+              gestureEnabled: false,
+              animation: 'slide_from_bottom',
+            }}
+          />
+          <Stack.Screen name="map" />
+          <Stack.Screen name="challenge-quiz" />
+          <Stack.Screen
+            name="challenge-quiz-create"
+            options={{
+              presentation: 'modal',
+              animation: 'slide_from_bottom',
+            }}
+          />
+          <Stack.Screen
+            name="challenge-photo-create"
+            options={{
+              presentation: 'modal',
+              animation: 'slide_from_bottom',
+            }}
+          />
+          <Stack.Screen name="challenge-photo" />
+          <Stack.Screen
+            name="challenge-photo-camera"
+            options={{
+              presentation: 'modal',
+              gestureEnabled: false,
+              animation: 'slide_from_bottom',
+            }}
+          />
+          <Stack.Screen name="challenge-photo-completed" />
+          <Stack.Screen
+            name="participants"
+            options={{
+              presentation: 'modal',
+              animation: 'slide_from_bottom',
+            }}
+          />
+          <Stack.Screen
+            name="stories"
+            options={{
+              /** Transparent modal: dragging down reveals event detail outside the circle. */
+              presentation: 'transparentModal',
+              gestureEnabled: false,
+              contentStyle: { backgroundColor: 'transparent' },
+              animation: 'fade',
+              animationDuration: 260,
+            }}
+          />
+        </Stack>
+      </UserToastOverlay>
     </EventDetailRouteProvider>
   );
 }

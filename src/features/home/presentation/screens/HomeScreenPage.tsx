@@ -2,11 +2,17 @@ import { HomeBannerCarousel } from '../components/HomeBannerCarousel';
 import { HomeFeedCarouselSections } from '../components/HomeFeedCarouselSections';
 import { useHomeScreen } from '../hooks/useHomeScreen';
 import { images } from '@/src/assets/images';
-import { ScreenLoading, colors, useInvalidateRemoteImageCache } from '@/src/ui';
+import {
+  AppRefreshControl,
+  ScreenLoading,
+  ScreenTitle,
+  colors,
+  useInvalidateRemoteImageCache,
+} from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { Image } from 'expo-image';
 import { useCallback } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 /**
@@ -51,18 +57,14 @@ export function HomeScreenPage() {
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView
           refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={() => void handleRefresh()}
-              tintColor={colors.neutral.primary}
-              colors={[colors.neutral.primary]}
-              progressBackgroundColor={colors.background.primary}
-            />
+            <AppRefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
           }
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.greeting}>{greeting}</Text>
+          <View style={styles.header}>
+            <ScreenTitle>{greeting}</ScreenTitle>
+          </View>
           <HomeBannerCarousel banners={banners} onSlidePress={handleSlidePress} />
           <HomeFeedCarouselSections
             hasEvents={hasEvents}
@@ -81,7 +83,11 @@ export function HomeScreenPage() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
   },
   /** Decorative asset: anchored top-left (not centered like full-screen ImageBackground + contain). */
   backgroundImage: {
