@@ -12,6 +12,8 @@ build-*.ipa
 build-*.apk
 build-*.aab
 expo-env.d.ts
+.cursor/
+docs/
 
 # Native
 .kotlin/
