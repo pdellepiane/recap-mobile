@@ -15,4 +15,5 @@ export type HttpClient = {
   postFormData<T>(path: string, body: FormData, options?: FetchOpts): Promise<T>;
   patch<T>(path: string, body: object, options?: FetchOpts): Promise<T>;
   put<T>(path: string, body: object, options?: FetchOpts): Promise<T>;
+  delete<T>(path: string, options?: FetchOpts): Promise<T>;
 };

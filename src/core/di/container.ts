@@ -3,6 +3,7 @@ import { getAuthAccessToken } from '@/src/core/http/authSession';
 import { AuthRepository } from '@/src/features/auth/data/repositories/AuthRepository';
 import { getPersistedAccessToken } from '@/src/features/auth/data/sessionStorage';
 import { EventRepository } from '@/src/features/events/data/repositories/EventRepository';
+import { NotificationRepository } from '@/src/features/notifications/data/repositories/NotificationRepository';
 
 /**
  * Email OTP + JWT + logout and authenticated event endpoints use the real API (`EXPO_PUBLIC_API_BASE_URL`).
@@ -30,3 +31,4 @@ const eventsApi = new FetchHttpClient(apiBaseUrl, { getAccessToken: authAccessTo
 
 export const authRepository = new AuthRepository(authHttp);
 export const eventRepository = new EventRepository(eventsApi);
+export const notificationRepository = new NotificationRepository(authHttp);

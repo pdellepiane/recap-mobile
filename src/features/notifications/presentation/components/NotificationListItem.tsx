@@ -1,4 +1,3 @@
-import { NOTIFICATION_LIST_HORIZONTAL_PADDING } from '../../data/notificationNavigation';
 import { notificationInitialsName, type NotificationItem } from '../../data/notificationItem';
 import { NotificationListItemLeading } from './NotificationListItemLeading';
 import { NotificationListItemMessage } from './NotificationListItemMessage';
@@ -33,7 +32,7 @@ export function NotificationListItem({ item, onPress }: Props) {
       <View style={styles.content}>
         <NotificationListItemMessage message={item.message} />
         <Text style={styles.meta}>
-          {item.timeAgo} • {item.eventName}
+          {item.timeAgo} {item.eventName ? `• ${item.eventName}` : ''}
         </Text>
       </View>
     </Pressable>
@@ -43,10 +42,10 @@ export function NotificationListItem({ item, onPress }: Props) {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 12,
-    paddingVertical: 16,
-    paddingHorizontal: NOTIFICATION_LIST_HORIZONTAL_PADDING,
+    paddingHorizontal: 20,
+    height: 100,
   },
   rowSeen: {
     backgroundColor: colors.background.secondary,

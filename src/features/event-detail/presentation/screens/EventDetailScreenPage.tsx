@@ -6,9 +6,9 @@ import { EventDetailShareSheet } from '../components/detail/EventDetailShareShee
 import { EventDetailTab, useEventDetailScreen } from '../hooks/useEventDetailScreen';
 import { images } from '@/src/assets/images';
 import { eventRepository } from '@/src/core/di/container';
+import type { Event } from '@/src/domain/entities';
 import { EVENT_DETAIL_LIVE_REACTION_IMAGES } from '@/src/features/event-detail/data/eventDetailLiveReactions';
 import type { EventDetailReactionPressPayload } from '@/src/features/event-detail/data/eventReactions';
-import type { Event } from '@/src/domain/entities';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import {
@@ -160,7 +160,7 @@ const EventDetailScreenScrollContent = memo(function EventDetailScreenScrollCont
         onAlbumPhotoLike={onAlbumPhotoLike}
         showChallengesPendingDot={showChallengesPendingDot}
       />
-      {canHostEditChallenges ? (
+      {!canHostEditChallenges ? (
         <Button
           title={createChallengeLabel}
           onPress={onCreateChallengeSheetOpen}
@@ -193,7 +193,7 @@ export const EventDetailScreenPage = ({
   completedPoints,
 }: EventDetailScreenPageProps) => {
   const { t } = useTranslation();
-  const { goBack } = useCoordinator();
+  const { goBackOrHome } = useCoordinator();
   const { data, handlers } = useEventDetailScreen({
     eventId,
     initialTab,
@@ -269,7 +269,7 @@ export const EventDetailScreenPage = ({
   }
 
   if (!event) {
-    return <ScreenNotFoundFallback title={t('eventDetail.notFound')} onBackPress={goBack} />;
+    return <ScreenNotFoundFallback title={t('eventDetail.notFound')} onBackPress={goBackOrHome} />;
   }
 
   return (

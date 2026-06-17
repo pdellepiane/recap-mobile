@@ -1,4 +1,5 @@
 import { routePaths } from './routes';
+import { resolvePushActionToAppPath } from './resolvePushActionToAppPath';
 import analytics from '@/src/core/analytics';
 import { EventDetailTab } from '@/src/features/event-detail/presentation/hooks/eventDetailTabs';
 import { useRouter, type Href } from 'expo-router';
@@ -255,6 +256,31 @@ export const useCoordinator = () => {
       goBack: () => {
         trackNav('back', 'back');
         router.back();
+      },
+      /** Back when possible; otherwise home (e.g. cold-start deep link to a missing screen). */
+      goBackOrHome: () => {
+        if (router.canGoBack()) {
+          trackNav('back', 'back');
+          router.back();
+          return;
+        }
+        trackNav('replace', routePaths.home);
+        router.replace(routePaths.home as Href);
+      },
+      /** Deep link from a push notification `data.action` payload. */
+      goToPushRedirect: (action: string) => {
+        const resolved = resolvePushActionToAppPath(action);
+        if (!resolved) {
+          trackNav('push', routePaths.notFound, { source: 'push_notification', action });
+          router.push(routePaths.notFound as Href);
+          return;
+        }
+        trackNav('push', resolved, { source: 'push_notification' });
+        router.push(resolved as Href);
+      },
+      goToNotFound: () => {
+        trackNav('push', routePaths.notFound, { source: 'not_found' });
+        router.push(routePaths.notFound as Href);
       },
     }),
 

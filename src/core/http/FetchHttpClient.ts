@@ -42,6 +42,9 @@ export class FetchHttpClient implements HttpClient {
     private readonly baseUrl: string,
     private readonly options: FetchHttpClientOptions = {},
   ) {}
+  put<T>(path: string, body: object, options?: FetchOpts): Promise<T> {
+    throw new Error('Method not implemented.');
+  }
 
   private resolveUrl(path: string): string {
     const base = trimTrailingSlash(this.baseUrl);
@@ -60,7 +63,6 @@ export class FetchHttpClient implements HttpClient {
     if (init.auth === 'bearer') {
       const token = await this.options.getAccessToken?.();
       if (token) {
-        console.log('token', token);
         headers.Authorization = `Bearer ${token}`;
       }
     }
@@ -168,20 +170,14 @@ export class FetchHttpClient implements HttpClient {
     });
   }
 
-  async put<T>(path: string, body: object, options: FetchOpts = {}): Promise<T> {
+  async delete<T>(path: string, options: FetchOpts = {}): Promise<T> {
     const url = this.resolveUrl(path);
-    logHttp('→', 'PUT', url, { requestBody: body });
+    logHttp('→', 'DELETE', url, {});
     const res = await fetch(url, {
-      method: 'PUT',
-      headers: await this.headersFor(options, true),
-      body: JSON.stringify(body),
+      method: 'DELETE',
+      headers: await this.headersFor(options, false),
       signal: options.signal,
     });
-    return this.parseResponse<T>(res, {
-      method: 'PUT',
-      url,
-      requestBody: body,
-      auth: options.auth,
-    });
+    return this.parseResponse<T>(res, { method: 'DELETE', url, auth: options.auth });
   }
 }

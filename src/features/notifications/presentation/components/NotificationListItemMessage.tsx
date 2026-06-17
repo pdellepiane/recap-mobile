@@ -50,10 +50,10 @@ const styles = StyleSheet.create({
   },
   messagePlain: {
     color: colors.neutral.primary,
-    fontSize: 14,
-    lineHeight: 20,
-    fontFamily: fontFamilies.signikaRegular,
-    fontWeight: '400',
+    fontSize: 16,
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaLight,
+    fontWeight: '300',
     marginBottom: 6,
   },
   emphasis: {
@@ -65,9 +65,9 @@ const styles = StyleSheet.create({
   },
   regular: {
     color: colors.neutral.primary,
-    fontSize: 14,
-    lineHeight: 20,
-    fontFamily: fontFamilies.signikaRegular,
-    fontWeight: '400',
+    fontSize: 16,
+    lineHeight: 24,
+    fontFamily: fontFamilies.signikaLight,
+    fontWeight: '300',
   },
 });

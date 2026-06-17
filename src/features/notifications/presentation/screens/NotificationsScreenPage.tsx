@@ -2,20 +2,23 @@ import { NotificationsEmptyState } from '../components/NotificationsEmptyState';
 import { NotificationsList } from '../components/NotificationsList';
 import { useNotificationsScreen } from '../hooks/useNotificationsScreen';
 import { useTranslation } from '@/src/i18n';
-import { colors, ScreenTitle } from '@/src/ui';
+import { colors, ScreenLoading, ScreenTitle } from '@/src/ui';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export function NotificationsScreenPage() {
   const { t } = useTranslation();
-  const { items, isRefreshing, onNotificationPress, onRefresh } = useNotificationsScreen();
+  const { items, isLoading, isRefreshing, onNotificationPress, onRefresh } =
+    useNotificationsScreen();
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
         <ScreenTitle>{t('tabs.notifications')}</ScreenTitle>
       </View>
-      {items.length === 0 ? (
+      {isLoading ? (
+        <ScreenLoading />
+      ) : items.length === 0 ? (
         <NotificationsEmptyState />
       ) : (
         <NotificationsList

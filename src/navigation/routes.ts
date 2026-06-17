@@ -5,6 +5,7 @@ export const routePaths = {
   login: '/login',
   verifyCode: '/verify-code',
   home: '/home',
+  notFound: '/not-found',
   profile: '/home/profile',
   profileEdit: '/home/profile/edit',
   /** In-app WebView modal; `url` must be a full `https` URL (encoded). */

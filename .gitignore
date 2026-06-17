@@ -24,6 +24,8 @@ docs/
 *.key
 *.mobileprovision
 google-play-service-account.json
+recap-26c1c-firebase-adminsdk-fbsvc-ba1b9f5246.json
+
 scripts/
 # Metro
 .metro-health-check*

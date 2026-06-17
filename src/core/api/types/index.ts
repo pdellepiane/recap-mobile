@@ -10,3 +10,4 @@ export * from './eventRanking';
 export * from './eventReactions';
 export * from './eventSettings';
 export * from './homeEvents';
+export * from './notifications';

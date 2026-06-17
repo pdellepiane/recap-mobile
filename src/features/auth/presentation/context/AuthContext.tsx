@@ -1,6 +1,6 @@
 import analytics from '@/src/core/analytics';
 import { registerSessionExpiredHandler } from '@/src/core/auth/sessionExpiredBridge';
-import { authRepository } from '@/src/core/di/container';
+import { authRepository, notificationRepository } from '@/src/core/di/container';
 import { getAuthAccessToken, setAuthAccessToken } from '@/src/core/http/authSession';
 import type { AuthSession } from '@/src/domain/entities';
 import {
@@ -142,6 +142,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshAbortRef.current?.abort();
     refreshAbortRef.current = null;
     try {
+      try {
+        await notificationRepository.deletePushToken();
+      } catch {
+        // Best effort — proceed with logout even if token removal fails.
+      }
       await authRepository.logout();
     } finally {
       setAuthAccessToken(null);

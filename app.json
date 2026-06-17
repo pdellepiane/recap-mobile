@@ -18,6 +18,7 @@
     },
     "android": {
       "package": "com.sinenvolturas.recap",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -33,6 +34,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "expo-notifications",
       "./plugins/withPhoneOnlyAndroid",
       "expo-router",
       [

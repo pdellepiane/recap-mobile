@@ -9,6 +9,8 @@ export const userPaths = {
   me: 'api/user/me',
   profile: 'api/user/profile',
   avatar: 'api/user/avatar',
+  pushToken: 'api/user/push-token',
+  notifications: 'api/user/notifications',
 } as const;
 
 export const homePaths = {

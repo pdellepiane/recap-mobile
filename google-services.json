@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "270401196848",
+    "project_id": "recap-26c1c",
+    "storage_bucket": "recap-26c1c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:270401196848:android:54979f37ee763f8a2beef5",
+        "android_client_info": {
+          "package_name": "com.sinenvolturas.recap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyiVeZ4uySSoRVIMqcOVU4bqRXCbpJBws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
