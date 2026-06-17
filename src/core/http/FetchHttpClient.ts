@@ -42,9 +42,6 @@ export class FetchHttpClient implements HttpClient {
     private readonly baseUrl: string,
     private readonly options: FetchHttpClientOptions = {},
   ) {}
-  put<T>(path: string, body: object, options?: FetchOpts): Promise<T> {
-    throw new Error('Method not implemented.');
-  }
 
   private resolveUrl(path: string): string {
     const base = trimTrailingSlash(this.baseUrl);
@@ -179,5 +176,16 @@ export class FetchHttpClient implements HttpClient {
       signal: options.signal,
     });
     return this.parseResponse<T>(res, { method: 'DELETE', url, auth: options.auth });
+  }
+
+  async put<T>(path: string, body: object, options: FetchOpts = {}): Promise<T> {
+    const url = this.resolveUrl(path);
+    logHttp('→', 'PUT', url, { requestBody: body });
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: await this.headersFor(options, true),
+      body: JSON.stringify(body),
+    });
+    return this.parseResponse<T>(res, { method: 'PUT', url, auth: options.auth });
   }
 }

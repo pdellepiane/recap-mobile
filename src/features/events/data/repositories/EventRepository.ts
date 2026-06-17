@@ -1,8 +1,8 @@
+import { cacheEventChallengeApiItems } from '../eventChallengeApiItemCache';
 import {
   normalizeChallengesFromApi,
   parseChallengeAnswerEarnedPoints,
 } from '../eventChallengesMap';
-import { cacheEventChallengeApiItems } from '../eventChallengeApiItemCache';
 import { seedEventChallengeQuizzesFromApi } from '../eventChallengesQuizSeed';
 import { mapEventDetailDataToDomain, mapHomeEventApiItemToDomain } from '../eventDomainMap';
 import {
@@ -11,9 +11,13 @@ import {
   normalizeMediaLikesCount,
 } from '../eventMediaMap';
 import { buildEventMediaFormData } from '../eventMediaUpload';
-import { prepareEventMediaUploadFile } from '../prepareEventMediaUploadFile';
 import { mapRankingApiItemsToRows } from '../eventRankingMap';
 import { getCachedHomeEvent } from '../homeEventCache';
+import { prepareEventMediaUploadFile } from '../prepareEventMediaUploadFile';
+import {
+  questionSuggestionFromApiItem,
+  type QuestionSuggestion,
+} from '../questionSuggestionFromApi';
 import { eventPaths, homePaths } from '@/src/core/api/paths';
 import type {
   EventChallengeAnswerPostBody,
@@ -365,6 +369,11 @@ export class EventRepository {
     body: EventChallengePutBody,
   ): Promise<boolean> {
     try {
+      console.log('body', body);
+      console.log(
+        'eventPaths.challenge(eventId, challengeId)',
+        eventPaths.challenge(eventId, challengeId),
+      );
       const res = await this.api.put<EventChallengeUpdateResponse>(
         eventPaths.challenge(eventId, challengeId),
         body,
@@ -376,15 +385,20 @@ export class EventRepository {
         emitEventChallengesListRefresh(eventId);
       }
       return ok;
-    } catch {
+    } catch (e) {
+      console.error(e);
+      if (isAbortError(e)) {
+        throw e;
+      }
+      if (isApiRequestError(e)) {
+        throw e;
+      }
       return false;
     }
   }
 
   /** GET /api/event-challenge-suggestions/questions. */
-  async fetchEventChallengeQuestionSuggestions(
-    opts?: FetchOpts,
-  ): Promise<{ id: string; question: string }[]> {
+  async fetchEventChallengeQuestionSuggestions(opts?: FetchOpts): Promise<QuestionSuggestion[]> {
     try {
       const res = await this.api.get<EventChallengeQuestionSuggestionsResponse>(
         eventPaths.challengeQuestionSuggestions,
@@ -394,11 +408,8 @@ export class EventRepository {
         return [];
       }
       return res.data
-        .map((item) => ({
-          id: String(item.id),
-          question: item.question?.trim() ?? '',
-        }))
-        .filter((item) => item.question.length > 0);
+        .map(questionSuggestionFromApiItem)
+        .filter((item): item is QuestionSuggestion => item != null);
     } catch (e) {
       if (isAbortError(e)) {
         throw e;

@@ -1,4 +1,7 @@
 import type { QuizCreateAddedQuestion } from '../../hooks/useEventChallengeQuizCreateScreen';
+import {
+  resolveQuizCreateQuestionPosition,
+} from '../../hooks/useEventChallengeQuizCreateScreen';
 import { EventChallengeQuizCreateAddedQuestionCard } from './EventChallengeQuizCreateAddedQuestionCard';
 import { useTranslation } from '@/src/i18n';
 import { colors } from '@/src/ui';
@@ -27,6 +30,7 @@ export function EventChallengeQuizCreateAddedQuestionsSection({
         <EventChallengeQuizCreateAddedQuestionCard
           key={q.id}
           question={q}
+          position={resolveQuizCreateQuestionPosition(q, questions)}
           onPress={onPressChallenge}
         />
       ))}

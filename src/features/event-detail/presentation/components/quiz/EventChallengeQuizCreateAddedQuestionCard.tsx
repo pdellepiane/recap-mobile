@@ -11,10 +11,11 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   question: QuizCreateAddedQuestion;
+  position: number;
   onPress: (questionId: string) => void;
 };
 
-export function EventChallengeQuizCreateAddedQuestionCard({ question, onPress }: Props) {
+export function EventChallengeQuizCreateAddedQuestionCard({ question, position, onPress }: Props) {
   const { t } = useTranslation();
   const isValid = questionHasValidAnswers(question);
 
@@ -53,7 +54,7 @@ export function EventChallengeQuizCreateAddedQuestionCard({ question, onPress }:
                 />
                 <Text style={styles.validMetaText} numberOfLines={2}>
                   <Text style={styles.validMetaLabel}>
-                    {t('eventDetail.createQuizAddedChallengeLabel')}{' '}
+                    {t('challenges.challengeNumberWithColon', { n: position })}{' '}
                   </Text>
                   <Text style={styles.validMetaValue}>
                     {t('eventDetail.createQuizAddedAnswerOptionsCount', {

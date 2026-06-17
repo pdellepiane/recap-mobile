@@ -1,7 +1,13 @@
+export type EventChallengeQuestionSuggestionOptionApiItem = {
+  id: number;
+  option: string;
+  position: number;
+};
+
 export type EventChallengeQuestionSuggestionApiItem = {
   id: number;
   question: string;
-  options: string;
+  options: EventChallengeQuestionSuggestionOptionApiItem[];
   created_at: string;
   updated_at: string;
 };

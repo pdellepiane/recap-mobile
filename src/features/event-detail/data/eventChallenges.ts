@@ -22,6 +22,7 @@ export type EventChallenge = {
   createdAt?: string;
   /** When GET challenges includes `current_guest_answer`, guest-earned points from that answer. */
   remoteCompletedPoints?: number;
+  position: number;
 };
 
 type ChallengesCacheEntry = {

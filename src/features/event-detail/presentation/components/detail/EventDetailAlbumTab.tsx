@@ -42,6 +42,8 @@ export const EventDetailAlbumTab = memo(function EventDetailAlbumTab({
   arePhotosLoaded = false,
   onAlbumPhotoLike,
 }: Props) {
+  console.log('photos', photos);
+  console.log('arePhotosLoaded', arePhotosLoaded);
   const { t } = useTranslation();
   const { width: winW } = useWindowDimensions();
   const colW = useMemo(() => {

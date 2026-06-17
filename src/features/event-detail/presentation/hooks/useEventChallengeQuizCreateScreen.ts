@@ -1,3 +1,4 @@
+import { getEventChallengeQuiz } from '@/src/features/event-detail/data/eventChallengeQuiz';
 import { EventChallengePostBody } from '@/src/core/api/types';
 import { eventRepository } from '@/src/core/di/container';
 import { isAbortError } from '@/src/core/http/isAbortError';
@@ -63,13 +64,30 @@ export function isPublishedQuizQuestion(q: QuizCreateAddedQuestion): boolean {
   return Boolean(q.remoteChallengeId) || q.id.startsWith('edit-');
 }
 
-function challengeCreatedAtMs(createdAt: string | undefined): number {
-  const trimmed = createdAt?.trim();
-  if (!trimmed) {
-    return 0;
+/** Display position for added-question cards (`Reto {{n}}:`). */
+export function resolveQuizCreateQuestionPosition(
+  question: QuizCreateAddedQuestion,
+  listedQuestions: QuizCreateAddedQuestion[],
+): number {
+  if (question.remoteChallengeId) {
+    const quiz = getEventChallengeQuiz(question.remoteChallengeId);
+    if (quiz?.number) {
+      return quiz.number;
+    }
   }
-  const ms = Date.parse(trimmed);
-  return Number.isFinite(ms) ? ms : 0;
+
+  const index = listedQuestions.findIndex((q) => q.id === question.id);
+  if (index < 0) {
+    return 1;
+  }
+
+  const remoteCount = listedQuestions.filter(isPublishedQuizQuestion).length;
+  const localCount = listedQuestions.length - remoteCount;
+  if (index < localCount) {
+    return remoteCount + index + 1;
+  }
+
+  return index + 1;
 }
 
 function remoteQuizQuestionsFromEventChallenges(
@@ -77,7 +95,7 @@ function remoteQuizQuestionsFromEventChallenges(
 ): QuizCreateAddedQuestion[] {
   return challenges
     .filter((c) => c.kind === EventChallengeKind.Quiz)
-    .sort((a, b) => challengeCreatedAtMs(b.createdAt) - challengeCreatedAtMs(a.createdAt))
+    .sort((a, b) => b.position - a.position)
     .map((c) => quizDraftQuestionFromRemoteChallenge(c.id))
     .filter((q): q is QuizCreateAddedQuestion => q != null);
 }
@@ -85,6 +103,7 @@ function remoteQuizQuestionsFromEventChallenges(
 export type QuizCreateQuestionSuggestion = {
   id: string;
   question: string;
+  options: { id: string; option: string; position: number }[];
 };
 
 function newQuestionId(): string {
@@ -115,6 +134,23 @@ export function questionHasValidAnswers(q: QuizCreateAddedQuestion): boolean {
   return Boolean(correct?.text.trim().length);
 }
 
+function buildAnswerOptionsForQuestion(
+  questionId: string,
+  suggestionOptions?: QuizCreateQuestionSuggestion['options'],
+): QuizCreateQuestionOption[] {
+  const slots = emptyOptionsForQuestion(questionId);
+  if (!suggestionOptions?.length) {
+    return slots;
+  }
+
+  const sorted = [...suggestionOptions].sort((a, b) => a.position - b.position);
+  return slots.map((slot, index) => {
+    const fromSuggestion = sorted[index];
+    const text = fromSuggestion?.option.trim() ?? '';
+    return text ? { ...slot, text } : slot;
+  });
+}
+
 function buildQuestion(
   text: string,
   consumedSuggestion?: QuizCreateQuestionSuggestion,
@@ -123,7 +159,7 @@ function buildQuestion(
   return {
     id,
     text,
-    answerOptions: emptyOptionsForQuestion(id),
+    answerOptions: buildAnswerOptionsForQuestion(id, consumedSuggestion?.options),
     correctOptionId: null,
     ...(consumedSuggestion ? { consumedSuggestion } : {}),
   };

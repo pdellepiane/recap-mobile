@@ -6,6 +6,7 @@ export type {
   CurrentUserMeResponse,
   EventChallengeApiItem,
   EventChallengeQuestionSuggestionApiItem,
+  EventChallengeQuestionSuggestionOptionApiItem,
   EventChallengeQuestionSuggestionsResponse,
   EventChallengeGuestAnswerApi,
   EventChallengeAnswerPostBody,
