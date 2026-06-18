@@ -1,4 +1,4 @@
-import { actionFromPushNotificationData } from '@/src/features/notifications/data/pushNotificationAction';
+import { usePushNotifications } from './hooks/usePushNotifications';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import {
   enqueueNotificationAction,
@@ -10,7 +10,6 @@ import type { NotificationResponse } from 'expo-notifications';
 import { useSegments } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { InteractionManager } from 'react-native';
-import { usePushNotifications } from './hooks/usePushNotifications';
 
 /**
  * Headless push notification registration — mount under {@link AuthProvider}.
@@ -22,15 +21,19 @@ export function PushNotificationSync() {
   const { goToPushRedirect } = useCoordinator();
   const [pendingTick, setPendingTick] = useState(0);
 
+  /** Queue the notification action path from a push tap or initial deeplink. */
   const onNotificationResponse = useCallback((response: NotificationResponse) => {
-    const action = actionFromPushNotificationData(response.notification.request.content.data);
-    if (action && enqueueNotificationAction(action)) {
+    const data = response.notification.request.content.data;
+    const actionPath = data.action as string;
+
+    if (actionPath && enqueueNotificationAction(actionPath)) {
       setPendingTick((tick) => tick + 1);
     }
   }, []);
 
   usePushNotifications({ onNotificationResponse });
 
+  /** Handle the pending notification action path from a push tap or initial deeplink. */
   useEffect(() => {
     if (!isReady || !session) {
       return undefined;

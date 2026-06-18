@@ -1,3 +1,4 @@
+import { EventDetailTab } from '../../../../navigation/eventDetailTabs';
 import {
   countdownEndsAtForEvent,
   eventGuestListGoingRows,
@@ -8,7 +9,6 @@ import {
   organizerGuestListCounts,
 } from '../../data/eventDetailDerived';
 import { useEventDetailRoute } from '../context/EventDetailRouteContext';
-import { EventDetailTab } from './eventDetailTabs';
 import { useEventDetailAlbum } from './useEventDetailAlbum';
 import { useEventDetailChallenges } from './useEventDetailChallenges';
 import { useEventDetailRanking } from './useEventDetailRanking';
@@ -40,7 +40,7 @@ import {
   type SetStateAction,
 } from 'react';
 
-export { EventDetailTab } from './eventDetailTabs';
+export { EventDetailTab } from '../../../../navigation/eventDetailTabs';
 
 type Params = {
   eventId: string;

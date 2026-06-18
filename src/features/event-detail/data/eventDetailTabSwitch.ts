@@ -1,4 +1,4 @@
-import { EventDetailTab } from '../presentation/hooks/eventDetailTabs';
+import { EventDetailTab } from '../../../navigation/eventDetailTabs';
 
 type Listener = (tab: EventDetailTab) => void;
 

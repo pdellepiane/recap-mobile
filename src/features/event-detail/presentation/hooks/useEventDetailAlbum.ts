@@ -1,17 +1,17 @@
+import { EventDetailTab } from '../../../../navigation/eventDetailTabs';
 import type { AlbumPhoto } from '../../data/eventAlbum';
 import { cacheEventAlbumPhotos, setCachedEventAlbumPhoto } from '../../data/eventAlbumPhotoCache';
 import { takePendingEventAlbumPhoto } from '../../data/pendingEventAlbumPhoto';
-import { EventDetailTab } from './eventDetailTabs';
 import { eventRepository } from '@/src/core/di/container';
-import type { Event } from '@/src/domain/entities';
-import { showShortUserMessage } from '@/src/ui';
-import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { useFocusEffect } from '@react-navigation/native';
-import type { TFunction } from 'i18next';
-import type { Dispatch, SetStateAction } from 'react';
 import { useAbortController } from '@/src/core/hooks/useAbortController';
 import { useMountedRef } from '@/src/core/hooks/useMountedRef';
 import { isAbortError } from '@/src/core/http/isAbortError';
+import type { Event } from '@/src/domain/entities';
+import { useCoordinator } from '@/src/navigation/useCoordinator';
+import { showShortUserMessage } from '@/src/ui';
+import { useFocusEffect } from '@react-navigation/native';
+import type { TFunction } from 'i18next';
+import type { Dispatch, SetStateAction } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Params = {
@@ -82,16 +82,17 @@ export function useEventDetailAlbum({
       mode: 'replace' | 'append',
       opts?: { signal?: AbortSignal; generation?: number; loadMoreGeneration?: number },
     ) => {
-      const result = await eventRepository.fetchEventMedia(eventId, { page }, {
-        signal: opts?.signal,
-      });
+      const result = await eventRepository.fetchEventMedia(
+        eventId,
+        { page },
+        {
+          signal: opts?.signal,
+        },
+      );
       if (opts?.signal?.aborted) {
         return;
       }
-      if (
-        opts?.generation != null &&
-        opts.generation !== refetchGenerationRef.current
-      ) {
+      if (opts?.generation != null && opts.generation !== refetchGenerationRef.current) {
         return;
       }
       if (
@@ -113,7 +114,11 @@ export function useEventDetailAlbum({
       try {
         await loadAlbumPage(1, 'replace', { signal: opts?.signal, generation });
       } catch (e) {
-        if (!isAbortError(e) && !opts?.signal?.aborted && generation === refetchGenerationRef.current) {
+        if (
+          !isAbortError(e) &&
+          !opts?.signal?.aborted &&
+          generation === refetchGenerationRef.current
+        ) {
           setAlbumPhotos([]);
           albumHasMoreRef.current = false;
           setAlbumHasMore(false);

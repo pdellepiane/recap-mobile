@@ -27,7 +27,7 @@ export function useEventAlbumPhotoScreen({ eventId, mediaId }: Params) {
 
   useEffect(() => {
     const cached = getCachedEventAlbumPhoto(eventId, mediaId);
-    console.log('cached', cached);
+
     if (cached) {
       setPhoto(cached);
       setIsLoading(false);

@@ -1,5 +1,5 @@
+import { EventDetailTab } from '../../../../navigation/eventDetailTabs';
 import type { RankingRow } from '../../data/eventRanking';
-import { EventDetailTab } from './eventDetailTabs';
 import { eventRepository } from '@/src/core/di/container';
 import { useAbortController } from '@/src/core/hooks/useAbortController';
 import { useMountedRef } from '@/src/core/hooks/useMountedRef';
@@ -32,12 +32,10 @@ export function useEventDetailRanking({
   useEffect(() => {
     /** Only fetch ranking data when the Ranking tab is active and the event ID is valid. */
     if (activeTab !== EventDetailTab.Ranking || !event?.id) {
-      console.log('useEventDetailRanking: activeTab !== EventDetailTab.Ranking || !event?.id');
       return;
     }
     /** Block guest from seeing ranking before event day. */
     if (guestEventDayOrPastTabBlocked) {
-      console.log('useEventDetailRanking: guestEventDayOrPastTabBlocked');
       setRankingRows([]);
       return;
     }
@@ -45,7 +43,6 @@ export function useEventDetailRanking({
     const controller = beginRequest();
     void (async () => {
       try {
-        console.log('useEventDetailRanking: fetchEventRankingRemote');
         const remote = await eventRepository.fetchEventRankingRemote(id, {
           signal: controller.signal,
         });

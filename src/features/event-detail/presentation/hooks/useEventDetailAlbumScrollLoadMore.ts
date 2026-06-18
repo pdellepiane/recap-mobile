@@ -1,4 +1,4 @@
-import { EventDetailTab } from './eventDetailTabs';
+import { EventDetailTab } from '../../../../navigation/eventDetailTabs';
 import { useCallback } from 'react';
 import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 
@@ -28,8 +28,7 @@ export function useEventDetailAlbumScrollLoadMore({
         return;
       }
       const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-      const distanceFromBottom =
-        contentSize.height - (layoutMeasurement.height + contentOffset.y);
+      const distanceFromBottom = contentSize.height - (layoutMeasurement.height + contentOffset.y);
       if (distanceFromBottom <= ALBUM_LOAD_MORE_THRESHOLD_PX) {
         onAlbumLoadMore();
       }

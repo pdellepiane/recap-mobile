@@ -1,9 +1,9 @@
+import { EventDetailTab } from '../../../../navigation/eventDetailTabs';
 import { takeChallengePhotoCompletionPreview } from '../../data/challengePhotoCompletionPreview';
 import { getEventChallenges } from '../../data/eventChallenges';
 import { recordEventChallengeCompletion } from '../../data/eventChallengesCompletionStore';
 import { emitEventChallengesListRefresh } from '../../data/eventChallengesListRefresh';
 import { emitEventDetailTabSwitch } from '../../data/eventDetailTabSwitch';
-import { EventDetailTab } from './eventDetailTabs';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useMemo, useState } from 'react';

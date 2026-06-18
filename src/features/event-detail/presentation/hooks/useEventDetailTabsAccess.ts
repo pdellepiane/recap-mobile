@@ -1,6 +1,10 @@
+import {
+  EventDetailTab,
+  FULL_DETAIL_TABS,
+  GUEST_PRE_EVENT_DAY_TABS,
+} from '../../../../navigation/eventDetailTabs';
 import { subscribeEventDetailTabSwitch } from '../../data/eventDetailTabSwitch';
 import { isEventOrganizerForUser } from '../../data/eventOrganizer';
-import { EventDetailTab, FULL_DETAIL_TABS, GUEST_PRE_EVENT_DAY_TABS } from './eventDetailTabs';
 import { useGuestEventDayOrPastTabBlocked } from './useGuestEventDayOrPastTabBlocked';
 import type { Event } from '@/src/domain/entities';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';

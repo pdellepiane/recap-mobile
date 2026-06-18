@@ -1,7 +1,7 @@
-import { resolveNotificationActionPath } from './resolveNotificationActionPath';
+import { resolveAppActionPath } from './resolveAppActionPath';
 import { routePaths } from './routes';
 import analytics from '@/src/core/analytics';
-import { EventDetailTab } from '@/src/features/event-detail/presentation/hooks/eventDetailTabs';
+import { EventDetailTab } from '@/src/navigation/eventDetailTabs';
 import { useRouter, type Href } from 'expo-router';
 import { useMemo } from 'react';
 
@@ -283,16 +283,20 @@ export const useCoordinator = () => {
         trackNav('replace', routePaths.home);
         router.replace(routePaths.home as Href);
       },
-      /** Deep link from a push notification or notification `action` path. */
-      goToPushRedirect: (action: string) => {
-        const resolved = resolveNotificationActionPath(action);
-        if (!resolved) {
-          trackNav('push', routePaths.notFound, { source: 'push_notification', action });
+      /** Redirect to a resolved path from a push notification or deeplink action path. */
+      goToPushRedirect: (actionPath: string) => {
+        const appActionPath = resolveAppActionPath(actionPath);
+
+        if (!appActionPath) {
+          trackNav('push', routePaths.notFound, {
+            source: 'push_notification',
+            actionPath,
+          });
           router.push(routePaths.notFound as Href);
           return;
         }
-        trackNav('push', resolved, { source: 'push_notification' });
-        router.push(resolved as Href);
+        trackNav('push', appActionPath, { source: 'push_notification' });
+        router.push(appActionPath as Href);
       },
       goToNotFound: () => {
         trackNav('push', routePaths.notFound, { source: 'not_found' });

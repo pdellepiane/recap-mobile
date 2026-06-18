@@ -1,4 +1,4 @@
-import type { EventDetailTab } from '@/src/features/event-detail/presentation/hooks/eventDetailTabs';
+import type { EventDetailTab } from '@/src/navigation/eventDetailTabs';
 
 export type NotificationLeading =
   | { kind: 'initials'; colorIndex: number }

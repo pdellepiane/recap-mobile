@@ -1,4 +1,4 @@
-import { EventDetailTab } from '../features/event-detail/presentation/hooks/eventDetailTabs';
+import { EventDetailTab } from './eventDetailTabs';
 
 export const routePaths = {
   onboarding: '/onboarding',

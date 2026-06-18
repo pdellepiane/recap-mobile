@@ -1,3 +1,4 @@
+import { EventDetailTab } from '../../../../navigation/eventDetailTabs';
 import {
   EventChallengeKind,
   getEventChallenges,
@@ -8,7 +9,6 @@ import {
   recordEventChallengeCompletion,
 } from '../../data/eventChallengesCompletionStore';
 import { subscribeEventChallengesListRefresh } from '../../data/eventChallengesListRefresh';
-import { EventDetailTab } from './eventDetailTabs';
 import { eventRepository } from '@/src/core/di/container';
 import { useAbortController } from '@/src/core/hooks/useAbortController';
 import { useMountedRef } from '@/src/core/hooks/useMountedRef';

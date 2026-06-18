@@ -1,4 +1,4 @@
-import { EventDetailTab } from '../../hooks/eventDetailTabs';
+import { EventDetailTab } from '../../../../../navigation/eventDetailTabs';
 import { colors } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { memo, useCallback } from 'react';

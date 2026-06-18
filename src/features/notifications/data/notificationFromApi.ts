@@ -1,11 +1,15 @@
 import type {
+  NotificationItem,
+  NotificationLeading,
+  NotificationMessage,
+} from './notificationItem';
+import { resolveApiAssetUrl } from '@/src/core/api/resolveApiAssetUrl';
+import type {
   NotificationApiItem,
   NotificationApiNotifiable,
   NotificationType,
 } from '@/src/core/api/types/notifications';
-import { resolveApiAssetUrl } from '@/src/core/api/resolveApiAssetUrl';
-import type { NotificationItem, NotificationLeading, NotificationMessage } from './notificationItem';
-import { EventDetailTab } from '@/src/features/event-detail/presentation/hooks/eventDetailTabs';
+import { EventDetailTab } from '@/src/navigation/eventDetailTabs';
 
 const TARGET_TAB_BY_TYPE: Partial<Record<NotificationType, EventDetailTab>> = {
   media_liked: EventDetailTab.Album,

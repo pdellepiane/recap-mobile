@@ -431,11 +431,6 @@ export class EventRepository {
     body: EventChallengePutBody,
   ): Promise<boolean> {
     try {
-      console.log('body', body);
-      console.log(
-        'eventPaths.challenge(eventId, challengeId)',
-        eventPaths.challenge(eventId, challengeId),
-      );
       const res = await this.api.put<EventChallengeUpdateResponse>(
         eventPaths.challenge(eventId, challengeId),
         body,

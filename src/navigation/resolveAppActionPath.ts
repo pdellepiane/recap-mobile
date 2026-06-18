@@ -1,6 +1,10 @@
 import { routePaths } from './routes';
-import { EventDetailTab } from '@/src/features/event-detail/presentation/hooks/eventDetailTabs';
+import { EventDetailTab } from '@/src/navigation/eventDetailTabs';
 
+/**
+ * Checks if a path is safe to use as an Expo Router href.
+ * Only paths emitted by backend notification types are supported.
+ */
 function isSafeAppActionPath(path: string): boolean {
   return path.startsWith('/') && !path.startsWith('//') && !path.includes('://');
 }
@@ -15,8 +19,8 @@ function isSafeAppActionPath(path: string): boolean {
  * - `/events/:eventId/media/:mediaId` — media_liked, media_uploaded
  * - `/events/:eventId/challenges/:challengeId` — challenge_added, challenge_deadline, challenge_answered, challenge_reminder
  */
-export function resolveNotificationActionPath(action: string): string | null {
-  const path = action.trim();
+export function resolveAppActionPath(actionPath: string): string | null {
+  const path = actionPath;
   if (!path || !isSafeAppActionPath(path)) {
     return null;
   }

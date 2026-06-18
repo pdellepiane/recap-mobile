@@ -1,3 +1,4 @@
+import { EventDetailTab } from '../../../../navigation/eventDetailTabs';
 import { showChallengeAnswerErrorAlert } from '../../data/challengeAnswerErrorMessage';
 import { getEventChallengeQuiz } from '../../data/eventChallengeQuiz';
 import { getEventChallenges } from '../../data/eventChallenges';
@@ -7,7 +8,6 @@ import {
 } from '../../data/eventChallengesCompletionStore';
 import { emitEventChallengesListRefresh } from '../../data/eventChallengesListRefresh';
 import { emitEventDetailTabSwitch } from '../../data/eventDetailTabSwitch';
-import { EventDetailTab } from './eventDetailTabs';
 import { eventRepository } from '@/src/core/di/container';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
