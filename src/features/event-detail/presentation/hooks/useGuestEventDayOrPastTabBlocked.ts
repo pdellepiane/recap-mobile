@@ -1,5 +1,6 @@
 import type { Event } from '@/src/domain/entities';
-import { isEventHostedFromHomeFeed } from '@/src/features/events/data/homeEventCache';
+import { isEventOrganizerForUser } from '../../data/eventOrganizer';
+import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import { isBeforeEventCalendarDay } from '@/src/features/home/presentation/components/utils/eventCalendar';
 import { useMemo } from 'react';
 
@@ -8,11 +9,13 @@ import { useMemo } from 'react';
  * Invitado sin fecha válida: no cargar desde API.
  */
 export function useGuestEventDayOrPastTabBlocked(event: Event | null | undefined): boolean {
+  const { session } = useAuth();
+
   return useMemo(() => {
     if (!event?.id) {
       return false;
     }
-    if (isEventHostedFromHomeFeed(event.id)) {
+    if (isEventOrganizerForUser(event, session?.user.id)) {
       return false;
     }
     const trimmed = event.date?.trim() ?? '';
@@ -21,5 +24,5 @@ export function useGuestEventDayOrPastTabBlocked(event: Event | null | undefined
       return true;
     }
     return isBeforeEventCalendarDay(trimmed);
-  }, [event?.id, event?.date]);
+  }, [event, session?.user.id]);
 }

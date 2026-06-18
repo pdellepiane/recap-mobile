@@ -136,6 +136,7 @@
     "albumTitle": "Photos uploaded to the event",
     "albumEmpty": "There are no photos in this album yet.",
     "albumLikeError": "Could not update like. Try again.",
+    "albumPhotoNotFound": "Photo not found",
     "reactionError": "Could not send reaction. Try again.",
     "albumLikeA11y": "Like photo",
     "photoA11y": "Photo by {{author}}",

@@ -136,6 +136,7 @@
     "albumTitle": "Fotos subidas al evento",
     "albumEmpty": "Aún no hay fotos en este álbum.",
     "albumLikeError": "No se pudo registrar el me gusta. Inténtalo de nuevo.",
+    "albumPhotoNotFound": "Foto no encontrada",
     "reactionError": "No se pudo enviar la reacción. Inténtalo de nuevo.",
     "albumLikeA11y": "Me gusta en la foto",
     "photoA11y": "Foto de {{author}}",

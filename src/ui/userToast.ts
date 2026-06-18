@@ -8,7 +8,7 @@ export type UserToastPayload = {
   variant: UserToastVariant;
 };
 
-const DEFAULT_DURATION_MS = 3500;
+const DEFAULT_DURATION_MS = 1500;
 
 type Listener = () => void;
 

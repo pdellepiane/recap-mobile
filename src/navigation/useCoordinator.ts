@@ -1,5 +1,5 @@
+import { resolveNotificationActionPath } from './resolveNotificationActionPath';
 import { routePaths } from './routes';
-import { resolvePushActionToAppPath } from './resolvePushActionToAppPath';
 import analytics from '@/src/core/analytics';
 import { EventDetailTab } from '@/src/features/event-detail/presentation/hooks/eventDetailTabs';
 import { useRouter, type Href } from 'expo-router';
@@ -108,6 +108,22 @@ export const useCoordinator = () => {
       goToEventStories: (eventId: string) => {
         trackNav('push', routePaths.eventStories(eventId), { eventId });
         router.push(routePaths.eventStories(eventId) as Href);
+      },
+      /** Event detail (album tab) then photo modal — push/deeplink `/events/:id/media/:mediaId`. */
+      goToEventDetailOpenAlbumPhoto: (eventId: string, mediaId: string) => {
+        trackNav('push', routePaths.eventDetailOpenAlbumPhoto(eventId, mediaId), {
+          eventId,
+          mediaId,
+        });
+        router.push(routePaths.eventDetailOpenAlbumPhoto(eventId, mediaId) as Href);
+      },
+      /** Album photo modal when event detail is already open. */
+      goToEventAlbumPhotoModal: (eventId: string, mediaId: string) => {
+        trackNav('push', routePaths.eventDetailAlbumPhotoModal(eventId, mediaId), {
+          eventId,
+          mediaId,
+        });
+        router.push(routePaths.eventDetailAlbumPhotoModal(eventId, mediaId) as Href);
       },
       /** Opens a trivia-style challenge (question + options). */
       goToEventChallengeQuiz: (eventId: string, challengeId: string, challengeNumber: number) => {
@@ -267,9 +283,9 @@ export const useCoordinator = () => {
         trackNav('replace', routePaths.home);
         router.replace(routePaths.home as Href);
       },
-      /** Deep link from a push notification `data.action` payload. */
+      /** Deep link from a push notification or notification `action` path. */
       goToPushRedirect: (action: string) => {
-        const resolved = resolvePushActionToAppPath(action);
+        const resolved = resolveNotificationActionPath(action);
         if (!resolved) {
           trackNav('push', routePaths.notFound, { source: 'push_notification', action });
           router.push(routePaths.notFound as Href);

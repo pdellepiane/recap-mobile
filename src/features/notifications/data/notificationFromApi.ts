@@ -324,6 +324,7 @@ export function notificationFromApiItem(item: NotificationApiItem): Notification
   return {
     id: String(item.id),
     eventId: resolveEventId(item),
+    action: item.action?.trim() || undefined,
     targetTab: mapTargetTab(item),
     isSeen: item.is_read,
     message: mapMessage(item),

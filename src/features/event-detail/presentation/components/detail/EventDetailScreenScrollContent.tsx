@@ -22,6 +22,8 @@ export type EventDetailScreenScrollContentProps = {
   rankingRows: ReturnType<typeof useEventDetailScreen>['data']['rankingRows'];
   albumPhotos: ReturnType<typeof useEventDetailScreen>['data']['albumPhotos'];
   arePhotosLoaded: boolean;
+  albumHasMore: boolean;
+  isLoadingMoreAlbum: boolean;
   detailVisibleTabs: readonly EventDetailTab[];
   isOrganizer: boolean;
   canHostEditChallenges: boolean;
@@ -48,6 +50,8 @@ export type EventDetailScreenScrollContentProps = {
   onCreateQuizChallengeSelect: () => void;
   onCreatePhotoChallengeSelect: () => void;
   onAlbumPhotoLike: (photoId: string) => void;
+  onAlbumPhotoPress: (photoId: string) => void;
+  onAlbumLoadMore: () => void;
   createChallengeLabel: string;
 };
 
@@ -64,6 +68,8 @@ export const EventDetailScreenScrollContent = memo(function EventDetailScreenScr
   rankingRows,
   albumPhotos,
   arePhotosLoaded,
+  albumHasMore,
+  isLoadingMoreAlbum,
   detailVisibleTabs,
   isOrganizer,
   canHostEditChallenges,
@@ -90,6 +96,8 @@ export const EventDetailScreenScrollContent = memo(function EventDetailScreenScr
   onCreateQuizChallengeSelect,
   onCreatePhotoChallengeSelect,
   onAlbumPhotoLike,
+  onAlbumPhotoPress,
+  onAlbumLoadMore,
   createChallengeLabel,
 }: EventDetailScreenScrollContentProps) {
   return (
@@ -122,6 +130,8 @@ export const EventDetailScreenScrollContent = memo(function EventDetailScreenScr
         rankingRows={rankingRows}
         albumPhotos={albumPhotos}
         arePhotosLoaded={arePhotosLoaded}
+        albumHasMore={albumHasMore}
+        isLoadingMoreAlbum={isLoadingMoreAlbum}
         visibleTabs={detailVisibleTabs}
         hostsLine={hostsLine}
         isOrganizer={isOrganizer}
@@ -131,6 +141,8 @@ export const EventDetailScreenScrollContent = memo(function EventDetailScreenScr
         onOpenParticipantsModal={onParticipantsModalOpen}
         onShareEventPress={onSharePress}
         onAlbumPhotoLike={onAlbumPhotoLike}
+        onAlbumPhotoPress={onAlbumPhotoPress}
+        onAlbumLoadMore={onAlbumLoadMore}
         showChallengesPendingDot={showChallengesPendingDot}
       />
       {canHostEditChallenges ? (

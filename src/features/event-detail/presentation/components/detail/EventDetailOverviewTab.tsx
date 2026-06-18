@@ -71,14 +71,12 @@ export const EventDetailOverviewTab = memo(function EventDetailOverviewTab({
       <Text style={styles.sectionHeading}>{t('eventDetail.infoHeading')}</Text>
 
       <EventDetailOverviewDateCard eventDateIso={eventDateIso} />
-      {mapQuery && (
-        <EventDetailOverviewAddressCard
-          city={addressCity}
-          venue={addressVenue}
-          mapQuery={mapQuery}
-          onOpenMap={onOpenMap}
-        />
-      )}
+      <EventDetailOverviewAddressCard
+        city={addressCity}
+        venue={addressVenue}
+        mapQuery={mapQuery}
+        onOpenMap={onOpenMap}
+      />
 
       <EventDetailMapAppPickerSheet
         visible={visible}

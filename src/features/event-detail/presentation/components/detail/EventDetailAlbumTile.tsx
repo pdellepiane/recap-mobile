@@ -13,12 +13,14 @@ type Props = {
   photo: AlbumPhoto;
   width: number;
   onAlbumPhotoLike?: (photoId: string) => void;
+  onAlbumPhotoPress?: (photoId: string) => void;
 };
 
 export const EventDetailAlbumTile = memo(function EventDetailAlbumTile({
   photo,
   width,
   onAlbumPhotoLike,
+  onAlbumPhotoPress,
 }: Props) {
   const { t } = useTranslation();
   const mediaCacheEpoch = useRemoteImageCacheEpoch();
@@ -28,6 +30,9 @@ export const EventDetailAlbumTile = memo(function EventDetailAlbumTile({
     }
     onAlbumPhotoLike(photo.id);
   }, [onAlbumPhotoLike, photo.id]);
+  const onPhotoPress = useCallback(() => {
+    onAlbumPhotoPress?.(photo.id);
+  }, [onAlbumPhotoPress, photo.id]);
   const canLike = useMemo(
     () => Boolean(onAlbumPhotoLike && !photo.id.startsWith('local-')),
     [onAlbumPhotoLike, photo.id],
@@ -59,14 +64,20 @@ export const EventDetailAlbumTile = memo(function EventDetailAlbumTile({
   );
   return (
     <View style={tileWrapStyle}>
-      <Image
-        source={{ uri: photoUri }}
-        style={tileImageStyle}
-        contentFit="cover"
-        cachePolicy="memory-disk"
-        transition={150}
+      <Pressable
+        onPress={onPhotoPress}
+        disabled={!onAlbumPhotoPress}
+        accessibilityRole="button"
         accessibilityLabel={t('eventDetail.photoA11y', { author: photo.authorShort })}
-      />
+      >
+        <Image
+          source={{ uri: photoUri }}
+          style={tileImageStyle}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          transition={150}
+        />
+      </Pressable>
       <View style={styles.tileOverlay} pointerEvents="box-none">
         <View style={styles.tileMetaRow} pointerEvents="box-none">
           <View style={styles.author} pointerEvents="none">

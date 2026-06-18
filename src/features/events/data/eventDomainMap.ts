@@ -131,6 +131,7 @@ export function mapEventDetailDataToDomain(data: EventDetailData): Event {
     ...(venue.length > 0 ? { venue } : {}),
     description: descriptionParts.join(' · '),
     shareUrl: shareUrlFromIdentity(id, data.slug),
+    ...(data.user_id != null ? { ownerUserId: String(data.user_id) } : {}),
     ...(cover ? { coverImageUrl: cover } : {}),
     ...(hosts.length > 0 ? { hosts } : {}),
     ...(eventGuests.length > 0 ? { guests: eventGuests } : {}),

@@ -31,7 +31,9 @@ export type NotificationMessage =
 export type NotificationItem = {
   id: string;
   eventId: string;
-  /** Event detail tab to open on tap (defaults to overview). */
+  /** API `action` path — preferred for navigation (push, deeplink, in-app tap). */
+  action?: string;
+  /** Event detail tab to open when `action` is absent. */
   targetTab?: EventDetailTab;
   isSeen: boolean;
   message: NotificationMessage;

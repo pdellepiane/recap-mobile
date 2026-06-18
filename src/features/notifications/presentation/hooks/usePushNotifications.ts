@@ -37,6 +37,7 @@ export function usePushNotifications(
 
   useEffect(() => {
     if (!isReady || !userId) {
+      handledColdStartResponseRef.current = false;
       setExpoPushToken(null);
       setNotification(undefined);
       return;
@@ -75,9 +76,9 @@ export function usePushNotifications(
     });
 
     if (!handledColdStartResponseRef.current) {
+      handledColdStartResponseRef.current = true;
       void Notifications.getLastNotificationResponseAsync().then((response) => {
-        if (!cancelled && response) {
-          handledColdStartResponseRef.current = true;
+        if (response) {
           onNotificationResponseRef.current?.(response);
         }
       });

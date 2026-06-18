@@ -78,6 +78,13 @@ export default function EventIdLayout() {
               animationDuration: 260,
             }}
           />
+          <Stack.Screen
+            name="album-photo"
+            options={{
+              presentation: 'modal',
+              animation: 'slide_from_bottom',
+            }}
+          />
         </Stack>
       </UserToastOverlay>
     </EventDetailRouteProvider>

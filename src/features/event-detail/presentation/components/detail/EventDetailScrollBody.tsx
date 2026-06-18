@@ -1,21 +1,17 @@
 import { EventDetailTab } from '../../hooks/useEventDetailScreen';
-import { EventDetailAlbumTab } from './EventDetailAlbumTab';
-import { EventDetailChallengesTab } from './EventDetailChallengesTab';
 import { EventDetailHero } from './EventDetailHero';
 import { useEventDetailLiveReactionPress } from './EventDetailLiveReactionContext';
 import { EventDetailOrganizerShareButton } from './EventDetailOrganizerShareButton';
-import { EventDetailOverviewTab } from './EventDetailOverviewTab';
-import { EventDetailRankingTab } from './EventDetailRankingTab';
-import { EventDetailTabs } from './EventDetailTabs';
+import { EventDetailTabsPanel } from './EventDetailTabsPanel';
+import { useEventDetailAlbumScrollLoadMore } from '../../hooks/useEventDetailAlbumScrollLoadMore';
 import { AlbumPhoto } from '@/src/features/event-detail/data/eventAlbum';
 import { EventChallenge } from '@/src/features/event-detail/data/eventChallenges';
 import type { EventGuestListRow } from '@/src/features/event-detail/data/eventDetailDerived';
 import { RankingRow } from '@/src/features/event-detail/data/eventRanking';
-import { useTranslation } from '@/src/i18n';
-import { AppRefreshControl, colors } from '@/src/ui';
+import { AppRefreshControl } from '@/src/ui';
 import { memo, useMemo } from 'react';
 import type { ImageSourcePropType } from 'react-native';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 export type Props = {
   insetsTop: number;
@@ -49,6 +45,8 @@ export type Props = {
   rankingRows: RankingRow[];
   albumPhotos: AlbumPhoto[];
   arePhotosLoaded: boolean;
+  albumHasMore?: boolean;
+  isLoadingMoreAlbum?: boolean;
   /** When set, only these tabs are shown (e.g. Detalle + Álbum for hosted events on a future calendar day). */
   visibleTabs?: readonly EventDetailTab[];
   /** Host names line from API / derived organizer copy. */
@@ -63,6 +61,8 @@ export type Props = {
   refreshing?: boolean;
   onRefresh?: () => void;
   onAlbumPhotoLike?: (photoId: string) => void;
+  onAlbumPhotoPress?: (photoId: string) => void;
+  onAlbumLoadMore?: () => void;
   showChallengesPendingDot?: boolean;
 };
 
@@ -95,6 +95,8 @@ export const EventDetailScrollBody = memo(function EventDetailScrollBody({
   rankingRows,
   albumPhotos,
   arePhotosLoaded,
+  albumHasMore = false,
+  isLoadingMoreAlbum = false,
   visibleTabs,
   hostsLine,
   isOrganizer = false,
@@ -106,10 +108,17 @@ export const EventDetailScrollBody = memo(function EventDetailScrollBody({
   refreshing = false,
   onRefresh,
   onAlbumPhotoLike,
+  onAlbumPhotoPress,
+  onAlbumLoadMore,
   showChallengesPendingDot = false,
 }: Props) {
-  const { t } = useTranslation();
   const onReactionPress = useEventDetailLiveReactionPress();
+  const handleScroll = useEventDetailAlbumScrollLoadMore({
+    activeTab,
+    albumHasMore,
+    isLoadingMoreAlbum,
+    onAlbumLoadMore,
+  });
   const refreshControl = useMemo(
     () =>
       onRefresh ? (
@@ -128,6 +137,8 @@ export const EventDetailScrollBody = memo(function EventDetailScrollBody({
       alwaysBounceVertical
       overScrollMode="always"
       refreshControl={refreshControl}
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
     >
       <EventDetailHero
         insetsTop={insetsTop}
@@ -153,51 +164,32 @@ export const EventDetailScrollBody = memo(function EventDetailScrollBody({
         />
       ) : null}
 
-      <EventDetailTabs
+      <EventDetailTabsPanel
         activeTab={activeTab}
         onTabPress={onTabPress}
         visibleTabs={visibleTabs}
         showChallengesPendingDot={showChallengesPendingDot}
+        countdownEndsAt={countdownEndsAt}
+        eventDateIso={eventDateIso}
+        addressCity={addressCity}
+        addressVenue={addressVenue}
+        mapQuery={mapQuery}
+        hostsLine={hostsLine}
+        guestsAttendingCount={guestsAttendingCount}
+        guestsPendingCount={guestsPendingCount}
+        goingGuests={goingGuests}
+        challenges={challenges}
+        isChallengesLoaded={isChallengesLoaded}
+        onChallengePress={onChallengePress}
+        completedByChallengeId={completedByChallengeId}
+        rankingRows={rankingRows}
+        albumPhotos={albumPhotos}
+        arePhotosLoaded={arePhotosLoaded}
+        isLoadingMoreAlbum={isLoadingMoreAlbum}
+        isOrganizer={isOrganizer}
+        onAlbumPhotoLike={onAlbumPhotoLike}
+        onAlbumPhotoPress={onAlbumPhotoPress}
       />
-
-      {activeTab === EventDetailTab.Overview ? (
-        <EventDetailOverviewTab
-          countdownEndsAt={countdownEndsAt}
-          eventDateIso={eventDateIso}
-          addressCity={addressCity}
-          addressVenue={addressVenue}
-          mapQuery={mapQuery}
-          hostsLine={hostsLine}
-          guestsAttendingCount={guestsAttendingCount}
-          guestsPendingCount={guestsPendingCount}
-          goingGuests={goingGuests}
-        />
-      ) : activeTab === EventDetailTab.Challenges ? (
-        <EventDetailChallengesTab
-          challenges={challenges}
-          isChallengesLoaded={isChallengesLoaded}
-          onChallengePress={onChallengePress}
-          completedByChallengeId={completedByChallengeId}
-          isOrganizer={isOrganizer}
-          eventDateIso={eventDateIso}
-        />
-      ) : activeTab === EventDetailTab.Ranking ? (
-        <EventDetailRankingTab
-          rows={rankingRows}
-          eventDateIso={eventDateIso}
-          isOrganizer={isOrganizer}
-        />
-      ) : activeTab === EventDetailTab.Album ? (
-        <EventDetailAlbumTab
-          photos={albumPhotos}
-          arePhotosLoaded={arePhotosLoaded}
-          onAlbumPhotoLike={onAlbumPhotoLike}
-        />
-      ) : (
-        <View style={styles.tabPlaceholder}>
-          <Text style={styles.tabPlaceholderText}>{t('eventDetail.tabPlaceholder')}</Text>
-        </View>
-      )}
 
       <View style={bottomSpacerStyle} />
     </ScrollView>
@@ -216,14 +208,5 @@ const styles = StyleSheet.create({
   hostActionsWrap: {
     marginTop: -8,
     marginBottom: 18,
-  },
-  tabPlaceholder: {
-    minHeight: 120,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  tabPlaceholderText: {
-    color: colors.neutral.secondary,
-    fontSize: 15,
   },
 });

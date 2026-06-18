@@ -1,9 +1,16 @@
 /** Row from GET /api/events/:id/media. */
+export type EventMediaApiGuest = {
+  id: number;
+  name: string;
+};
+
 export type EventMediaApiItem = {
   id: number;
   type: string;
   path: string;
   event_id: number;
+  guest_id?: number;
+  guest?: EventMediaApiGuest | null;
   event_challenge_answer_photo_id?: number | null;
   /** API may return a number or a numeric string. */
   likes_count?: number | string | null;
@@ -12,8 +19,16 @@ export type EventMediaApiItem = {
   updated_at: string;
 };
 
+export type EventMediaListPayload = {
+  items: EventMediaApiItem[];
+  total: number;
+  per_page: number;
+  current_page: number;
+  has_more: boolean;
+};
+
 export type EventMediaListResponse = {
-  data: EventMediaApiItem[];
+  data: EventMediaListPayload;
   status: boolean;
   errors: unknown;
   error: string | null;

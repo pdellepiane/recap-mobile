@@ -1,6 +1,7 @@
 import type { NotificationItem } from '../../data/notificationItem';
 import { NotificationListItem } from './NotificationListItem';
-import { AppRefreshControl, colors } from '@/src/ui';
+import { AppRefreshControl, colors, Spinner } from '@/src/ui';
+import { useCallback } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 
 type Props = {
@@ -8,9 +9,29 @@ type Props = {
   onItemPress?: (item: NotificationItem) => void;
   refreshing?: boolean;
   onRefresh?: () => void;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
 };
 
-export function NotificationsList({ items, onItemPress, refreshing = false, onRefresh }: Props) {
+export function NotificationsList({
+  items,
+  onItemPress,
+  refreshing = false,
+  onRefresh,
+  isLoadingMore = false,
+  onLoadMore,
+}: Props) {
+  const renderFooter = useCallback(() => {
+    if (!isLoadingMore) {
+      return null;
+    }
+    return (
+      <View style={styles.loadingMore}>
+        <Spinner color={colors.states.active} />
+      </View>
+    );
+  }, [isLoadingMore]);
+
   return (
     <FlatList
       data={items}
@@ -24,6 +45,9 @@ export function NotificationsList({ items, onItemPress, refreshing = false, onRe
           <AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         ) : undefined
       }
+      onEndReached={onLoadMore}
+      onEndReachedThreshold={0.35}
+      ListFooterComponent={renderFooter}
     />
   );
 }
@@ -35,5 +59,9 @@ const styles = StyleSheet.create({
   separator: {
     height: 1,
     backgroundColor: colors.background.tertiary,
+  },
+  loadingMore: {
+    paddingVertical: 20,
+    alignItems: 'center',
   },
 });

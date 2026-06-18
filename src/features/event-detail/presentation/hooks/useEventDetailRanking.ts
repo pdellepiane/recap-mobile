@@ -15,7 +15,7 @@ type Params = {
 };
 
 /**
- * GET /api/events/:id/ranking — solo al entrar en Ranking (anfitrión siempre; invitado: día del evento o después).
+ * Get ranking data when entering the Ranking tab (host always; guest: event day or after).
  */
 export function useEventDetailRanking({
   eventId,
@@ -28,11 +28,16 @@ export function useEventDetailRanking({
   const { beginRequest, endRequest, abortAll } = useAbortController();
   const [rankingRows, setRankingRows] = useState<RankingRow[]>([]);
 
+  /** Get ranking data when entering the Ranking tab. */
   useEffect(() => {
+    /** Only fetch ranking data when the Ranking tab is active and the event ID is valid. */
     if (activeTab !== EventDetailTab.Ranking || !event?.id) {
+      console.log('useEventDetailRanking: activeTab !== EventDetailTab.Ranking || !event?.id');
       return;
     }
+    /** Block guest from seeing ranking before event day. */
     if (guestEventDayOrPastTabBlocked) {
+      console.log('useEventDetailRanking: guestEventDayOrPastTabBlocked');
       setRankingRows([]);
       return;
     }
@@ -40,6 +45,7 @@ export function useEventDetailRanking({
     const controller = beginRequest();
     void (async () => {
       try {
+        console.log('useEventDetailRanking: fetchEventRankingRemote');
         const remote = await eventRepository.fetchEventRankingRemote(id, {
           signal: controller.signal,
         });
@@ -59,10 +65,14 @@ export function useEventDetailRanking({
     };
   }, [abortAll, activeTab, beginRequest, endRequest, event?.id, guestEventDayOrPastTabBlocked]);
 
+  /** Refetch ranking data when user pulls to refresh. */
   const refetchRanking = useCallback(async () => {
     const generation = ++refetchGenerationRef.current;
     const controller = beginRequest();
+
+    /** Block guest from seeing ranking before event day. */
     if (guestEventDayOrPastTabBlocked) {
+      /** Clear ranking rows if the request is aborted. */
       if (mountedRef.current && generation === refetchGenerationRef.current) {
         setRankingRows([]);
       }

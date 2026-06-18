@@ -2,18 +2,14 @@ import { EventDetailCameraFabGate } from '../components/detail/EventDetailCamera
 import { EventDetailLiveReactionProvider } from '../components/detail/EventDetailLiveReactionContext';
 import { EventDetailScreenScrollContent } from '../components/detail/EventDetailScreenScrollContent';
 import { EventDetailTab, useEventDetailScreen } from '../hooks/useEventDetailScreen';
-import { eventRepository } from '@/src/core/di/container';
-import type { EventDetailReactionPressPayload } from '@/src/features/event-detail/data/eventReactions';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import {
   ScreenLoading,
   ScreenNotFoundFallback,
   colors,
-  showShortUserMessage,
-  type SpawnFloatingReaction,
 } from '@/src/ui';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -27,6 +23,8 @@ type EventDetailScreenPageProps = {
   initialTab?: EventDetailTab;
   completedChallengeId?: string;
   completedPoints?: number;
+  openChallengeId?: string;
+  openAlbumPhotoId?: string;
 };
 
 export const EventDetailScreenPage = ({
@@ -34,6 +32,8 @@ export const EventDetailScreenPage = ({
   initialTab,
   completedChallengeId,
   completedPoints,
+  openChallengeId,
+  openAlbumPhotoId,
 }: EventDetailScreenPageProps) => {
   const { t } = useTranslation();
   const { goBackOrHome } = useCoordinator();
@@ -42,6 +42,8 @@ export const EventDetailScreenPage = ({
     initialTab,
     completedChallengeId,
     completedPoints,
+    openChallengeId,
+    openAlbumPhotoId,
   });
 
   const {
@@ -56,6 +58,8 @@ export const EventDetailScreenPage = ({
     rankingRows,
     albumPhotos,
     arePhotosLoaded,
+    albumHasMore,
+    isLoadingMoreAlbum,
     detailVisibleTabs,
     isOrganizer,
     canHostEditChallenges,
@@ -86,25 +90,11 @@ export const EventDetailScreenPage = ({
     onCreateQuizChallengeSelect,
     onCreatePhotoChallengeSelect,
     onAlbumPhotoLike,
+    onAlbumPhotoPress,
+    onAlbumLoadMore,
+    onLiveReaction,
   } = handlers;
 
-  const handleLiveReaction = useCallback(
-    async (
-      spawnAt: SpawnFloatingReaction,
-      { reaction, source, center }: EventDetailReactionPressPayload,
-    ) => {
-      if (!event?.id) {
-        return;
-      }
-      const ok = await eventRepository.postEventReaction(event.id, reaction);
-      if (ok) {
-        spawnAt(source, center.x, center.y);
-        return;
-      }
-      showShortUserMessage(t('eventDetail.reactionError'));
-    },
-    [event?.id, t],
-  );
   const createChallengeLabel = useMemo(() => t('eventDetail.createChallenge'), [t]);
 
   if (isLoading) {
@@ -120,7 +110,7 @@ export const EventDetailScreenPage = ({
       <EventDetailLiveReactionProvider
         event={event}
         isOrganizer={isOrganizer}
-        onLiveReaction={handleLiveReaction}
+        onLiveReaction={onLiveReaction}
       >
         <EventDetailScreenScrollContent
           event={event}
@@ -135,6 +125,8 @@ export const EventDetailScreenPage = ({
           rankingRows={rankingRows}
           albumPhotos={albumPhotos}
           arePhotosLoaded={arePhotosLoaded}
+          albumHasMore={albumHasMore}
+          isLoadingMoreAlbum={isLoadingMoreAlbum}
           detailVisibleTabs={detailVisibleTabs}
           isOrganizer={isOrganizer}
           canHostEditChallenges={canHostEditChallenges}
@@ -161,6 +153,8 @@ export const EventDetailScreenPage = ({
           onCreateQuizChallengeSelect={onCreateQuizChallengeSelect}
           onCreatePhotoChallengeSelect={onCreatePhotoChallengeSelect}
           onAlbumPhotoLike={onAlbumPhotoLike}
+          onAlbumPhotoPress={onAlbumPhotoPress}
+          onAlbumLoadMore={onAlbumLoadMore}
           createChallengeLabel={createChallengeLabel}
         />
         <EventDetailCameraFabGate eventDateIso={event.date} onPress={onFabCameraPress} />

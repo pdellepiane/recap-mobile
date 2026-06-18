@@ -25,6 +25,12 @@ type Params = {
   completedChallengeId?: string;
   completedPoints?: number;
   isOrganizer: boolean;
+  /**
+   * Route intent from notification/deeplink actions like `/events/:eventId/challenges/:challengeId`.
+   * The event detail screen first opens the Challenges tab, then this hook opens the target challenge
+   * once the challenge list is loaded.
+   */
+  openChallengeId?: string;
 };
 
 export function useEventDetailChallenges({
@@ -35,6 +41,7 @@ export function useEventDetailChallenges({
   completedChallengeId,
   completedPoints,
   isOrganizer,
+  openChallengeId,
 }: Params) {
   const {
     goToEventChallengeQuiz,
@@ -44,14 +51,13 @@ export function useEventDetailChallenges({
   } = useCoordinator();
   const mountedRef = useMountedRef();
   const refetchGenerationRef = useRef(0);
+  const openedChallengeIdRef = useRef<string | null>(null);
   const { beginRequest, endRequest, abortAll } = useAbortController();
   const [challenges, setChallenges] = useState<EventChallenge[]>([]);
   const [isChallengesLoaded, setIsChallengesLoaded] = useState(false);
   const [completedByChallengeId, setCompletedByChallengeId] = useState<Record<string, number>>({});
 
-  /**
-   * GET /api/events/:id/challenges — solo al entrar en Retos (anfitrión siempre; invitado: día del evento o después).
-   */
+  /** Load the Challenges tab data lazily when the user (or a push/deeplink) opens the tab. */
   useEffect(() => {
     if (activeTab !== EventDetailTab.Challenges || !event?.id) {
       return;
@@ -96,17 +102,15 @@ export function useEventDetailChallenges({
     guestEventDayOrPastTabBlocked,
   ]);
 
+  /** Refresh locally recorded completions when the event changes or Challenges becomes active. */
   useEffect(() => {
-    setCompletedByChallengeId(getEventChallengesCompletionSnapshot(eventId));
-  }, [eventId]);
-
-  useEffect(() => {
-    if (activeTab !== EventDetailTab.Challenges) {
-      return;
-    }
     setCompletedByChallengeId(getEventChallengesCompletionSnapshot(eventId));
   }, [activeTab, eventId]);
 
+  /**
+   * Challenge completion screens navigate back with `completedChallengeId` and points in the route.
+   * Persist that completion locally so the list immediately shows the completed state.
+   */
   useEffect(() => {
     if (!completedChallengeId) {
       return;
@@ -122,7 +126,7 @@ export function useEventDetailChallenges({
     setCompletedByChallengeId(getEventChallengesCompletionSnapshot(eventId));
   }, [eventId, completedChallengeId, completedPoints, challenges]);
 
-  /** After POST /challenges, repository refetches into cache; sync list without a second GET. */
+  /** Sync the cached challenges list after create/edit flows update it elsewhere. */
   useEffect(() => {
     return subscribeEventChallengesListRefresh(eventId, () => {
       setChallenges(getEventChallenges(eventId));
@@ -130,6 +134,7 @@ export function useEventDetailChallenges({
     });
   }, [eventId]);
 
+  // Refetch challenges when user pulls to refresh.
   const refetchChallenges = useCallback(async () => {
     const generation = ++refetchGenerationRef.current;
     const controller = beginRequest();
@@ -162,32 +167,25 @@ export function useEventDetailChallenges({
     }
   }, [beginRequest, endRequest, eventId, guestEventDayOrPastTabBlocked, mountedRef]);
 
+  // Navigate to challenge when pressing a challenge.
   const onChallengePress = useCallback(
     (challenge: EventChallenge) => {
       if (!event) {
         return;
       }
-      if (!isOrganizer) {
+      if (isOrganizer) {
         if (challenge.kind === EventChallengeKind.Quiz) {
           goToEventChallengeQuizEdit(event.id, challenge.id);
-          return;
+        } else {
+          goToEventChallengePhotoEdit(event.id, challenge.id, challenge.number);
         }
-        goToEventChallengePhotoEdit(event.id, challenge.id, challenge.number);
-        return;
+      } else {
+        if (challenge.kind === EventChallengeKind.Quiz) {
+          goToEventChallengeQuiz(event.id, challenge.id, challenge.number);
+        } else {
+          goToEventChallengePhoto(event.id, challenge.id, challenge.number);
+        }
       }
-      // if (challenge.remoteCompletedPoints !== undefined) {
-      //   return;
-      // }
-      // const trimmed = event.date?.trim() ?? '';
-      // const hasValidDate = trimmed.length > 0 && !Number.isNaN(Date.parse(trimmed));
-      // if (!hasValidDate || isBeforeEventCalendarDay(trimmed)) {
-      //   return;
-      // }
-      if (challenge.kind === EventChallengeKind.Quiz) {
-        goToEventChallengeQuiz(event.id, challenge.id, challenge.number);
-        return;
-      }
-      goToEventChallengePhoto(event.id, challenge.id, challenge.number);
     },
     [
       event,
@@ -199,6 +197,35 @@ export function useEventDetailChallenges({
     ],
   );
 
+  /** Allow a new notification/deeplink intent to open when the event or target challenge changes. */
+  useEffect(() => {
+    openedChallengeIdRef.current = null;
+  }, [eventId, openChallengeId]);
+
+  /**
+   * Auto-open the challenge requested by a notification/deeplink.
+   *
+   * Example:
+   * API action `/events/1/challenges/5`
+   * -> route `/event/1?tab=challenges&openChallengeId=5`
+   * -> this effect waits for challenge rows, finds `5`, then reuses `onChallengePress`.
+   *
+   * `openedChallengeIdRef` prevents reopening the same target on rerenders.
+   */
+  useEffect(() => {
+    const challengeId = openChallengeId?.trim();
+    if (!challengeId || !isChallengesLoaded || openedChallengeIdRef.current === challengeId) {
+      return;
+    }
+    const challenge = challenges.find((row) => row.id === challengeId);
+    if (!challenge) {
+      return;
+    }
+    openedChallengeIdRef.current = challengeId;
+    onChallengePress(challenge);
+  }, [challenges, eventId, isChallengesLoaded, onChallengePress, openChallengeId]);
+
+  /** Completed challenges for UI. */
   const completedByChallengeIdForUi = useMemo(() => {
     const fromApi: Record<string, number> = {};
     for (const c of challenges) {
@@ -209,28 +236,14 @@ export function useEventDetailChallenges({
     return { ...completedByChallengeId, ...fromApi };
   }, [challenges, completedByChallengeId]);
 
-  const hasAnyCompletionForCurrentEvent = useMemo(() => {
-    const fromApi: Record<string, number> = {};
-    for (const c of challenges) {
-      if (c.remoteCompletedPoints !== undefined) {
-        fromApi[c.id] = c.remoteCompletedPoints;
-      }
-    }
-    const merged = {
-      ...getEventChallengesCompletionSnapshot(eventId),
-      ...completedByChallengeId,
-      ...fromApi,
-    };
-    const ids = new Set(challenges.map((r) => r.id));
-    return Object.keys(merged).some((id) => ids.has(id));
-  }, [eventId, challenges, completedByChallengeId]);
-
   return {
     challenges,
     isChallengesLoaded,
     completedByChallengeIdForUi,
     onChallengePress,
     refetchChallenges,
-    hasAnyCompletionForCurrentEvent,
+    handlers: {
+      onChallengePress,
+    },
   };
 }

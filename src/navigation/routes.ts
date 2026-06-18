@@ -12,6 +12,8 @@ export const routePaths = {
   homeWeb: (url: string) => `/in-app-web?url=${encodeURIComponent(url)}`,
   eventDetail: (eventId: string, tab?: EventDetailTab) =>
     tab ? `/event/${eventId}?tab=${encodeURIComponent(tab)}` : `/event/${eventId}`,
+  eventDetailOpenChallenge: (eventId: string, challengeId: string) =>
+    `/event/${eventId}?tab=${encodeURIComponent(EventDetailTab.Challenges)}&openChallengeId=${encodeURIComponent(challengeId)}`,
   eventDetailCamera: (eventId: string, title?: string) =>
     title?.trim()
       ? `/event/${eventId}/camera?title=${encodeURIComponent(title)}`
@@ -28,6 +30,10 @@ export const routePaths = {
   eventMap: (eventId: string) => `/event/${eventId}/map`,
   eventDetailParticipants: (eventId: string) => `/event/${eventId}/participants`,
   eventStories: (eventId: string) => `/event/${eventId}/stories`,
+  eventDetailOpenAlbumPhoto: (eventId: string, mediaId: string) =>
+    `/event/${eventId}?tab=${encodeURIComponent(EventDetailTab.Album)}&openAlbumPhotoId=${encodeURIComponent(mediaId)}`,
+  eventDetailAlbumPhotoModal: (eventId: string, mediaId: string) =>
+    `/event/${eventId}/album-photo?mediaId=${encodeURIComponent(mediaId)}`,
   eventChallengeQuiz: (eventId: string, challengeId: string, challengeNumber: number) =>
     `/event/${eventId}/challenge-quiz?challengeId=${encodeURIComponent(challengeId)}&challengeNumber=${encodeURIComponent(String(challengeNumber))}`,
   eventChallengeQuizCompleted: (

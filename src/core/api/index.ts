@@ -20,6 +20,7 @@ export type {
   EventDetailData,
   EventDetailGuestsPayload,
   EventMediaApiItem,
+  EventMediaApiItem,
   EventMediaLikeData,
   EventMediaLikeResponse,
   EventMediaListResponse,

@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export function NotificationsScreenPage() {
   const { t } = useTranslation();
-  const { items, isLoading, isRefreshing, onNotificationPress, onRefresh } =
+  const { items, isLoading, isRefreshing, isLoadingMore, onNotificationPress, onRefresh, onLoadMore } =
     useNotificationsScreen();
 
   return (
@@ -26,6 +26,8 @@ export function NotificationsScreenPage() {
           onItemPress={onNotificationPress}
           refreshing={isRefreshing}
           onRefresh={onRefresh}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={onLoadMore}
         />
       )}
     </SafeAreaView>

@@ -10,11 +10,14 @@ function firstQuery(v: string | string[] | undefined): string | undefined {
 }
 
 export default function EventDetailRoute() {
-  const { id, tab, completedChallengeId, points } = useLocalSearchParams<{
+  const { id, tab, completedChallengeId, points, openChallengeId, openAlbumPhotoId } =
+    useLocalSearchParams<{
     id: string | string[];
     tab?: string | string[];
     completedChallengeId?: string | string[];
     points?: string | string[];
+    openChallengeId?: string | string[];
+    openAlbumPhotoId?: string | string[];
   }>();
 
   const eventId = firstQuery(id) ?? '';
@@ -22,6 +25,8 @@ export default function EventDetailRoute() {
   const completedId = firstQuery(completedChallengeId);
   const pointsStr = firstQuery(points);
   const pointsNum = pointsStr !== undefined ? Number(pointsStr) : undefined;
+  const challengeId = firstQuery(openChallengeId);
+  const albumPhotoId = firstQuery(openAlbumPhotoId);
 
   const initialTab = parseEventDetailTab(tabParam);
 
@@ -33,6 +38,8 @@ export default function EventDetailRoute() {
       completedPoints={
         typeof pointsNum === 'number' && Number.isFinite(pointsNum) ? pointsNum : undefined
       }
+      openChallengeId={challengeId}
+      openAlbumPhotoId={albumPhotoId}
     />
   );
 }

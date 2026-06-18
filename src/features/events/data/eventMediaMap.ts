@@ -16,6 +16,14 @@ export function normalizeMediaLikesCount(raw: unknown): number {
   return 0;
 }
 
+function mediaAuthorShort(item: EventMediaApiItem): string {
+  const name = item.guest?.name?.trim();
+  if (name) {
+    return name;
+  }
+  return i18n.t('challenges.photoLabel');
+}
+
 function photoMediaItems(items: EventMediaApiItem[]): EventMediaApiItem[] {
   return items
     .filter((r) => (r.type ?? '').trim().toLowerCase() === 'photo')
@@ -59,7 +67,7 @@ export function mapEventMediaApiToAlbumPhotos(items: EventMediaApiItem[]): Album
       id: String(r.id),
       uri: resolveApiAssetUrl(r.path),
       aspectRatio: 1,
-      authorShort: i18n.t('challenges.photoLabel'),
+      authorShort: mediaAuthorShort(r),
       authorAvatarUrl: undefined,
       likes: normalizeMediaLikesCount(r.likes_count),
       ...(r.liked_by_me === true ? { likedByMe: true } : {}),

@@ -1,6 +1,7 @@
 import { getEventChallengeQuiz } from '@/src/features/event-detail/data/eventChallengeQuiz';
 import { EventChallengePostBody } from '@/src/core/api/types';
 import { eventRepository } from '@/src/core/di/container';
+import { useAbortController } from '@/src/core/hooks/useAbortController';
 import { isAbortError } from '@/src/core/http/isAbortError';
 import { quizDraftQuestionFromRemoteChallenge } from '@/src/features/event-detail/data/eventChallengeQuizEdit';
 import {
@@ -209,6 +210,7 @@ export function buildQuizChallengeBody(
 export function useEventChallengeQuizCreateScreen({ eventId, editRemoteChallengeId }: Params) {
   const { t } = useTranslation();
   const { goBack } = useCoordinator();
+  const { beginRequest, endRequest, abortAll } = useAbortController();
   const routeParams = useGlobalSearchParams<{
     challengeId?: string | string[];
     questionId?: string | string[];
@@ -301,7 +303,7 @@ export function useEventChallengeQuizCreateScreen({ eventId, editRemoteChallenge
       if (!eventId || isEditMode) {
         return undefined;
       }
-      const controller = new AbortController();
+      const controller = beginRequest();
       void (async () => {
         try {
           const [remote, existing] = await Promise.all([
@@ -327,12 +329,14 @@ export function useEventChallengeQuizCreateScreen({ eventId, editRemoteChallenge
           if (!isAbortError(e)) {
             setAvailableSuggestions([]);
           }
+        } finally {
+          endRequest(controller);
         }
       })();
       return () => {
-        controller.abort();
+        abortAll();
       };
-    }, [eventId, syncRemoteQuizQuestions]),
+    }, [abortAll, beginRequest, endRequest, eventId, isEditMode, syncRemoteQuizQuestions]),
   );
 
   useEffect(() => {

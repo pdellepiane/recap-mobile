@@ -1,5 +1,6 @@
 import type { EventChallengePostBody } from '@/src/core/api/types';
 import { eventRepository } from '@/src/core/di/container';
+import { useAbortController } from '@/src/core/hooks/useAbortController';
 import { isAbortError } from '@/src/core/http/isAbortError';
 import {
   photoDraftFromRemoteChallenge,
@@ -86,6 +87,7 @@ function buildPhotoChallengeBody(
 export function useEventChallengePhotoCreateScreen({ eventId, editRemoteChallengeId }: Params) {
   const { t } = useTranslation();
   const { goBack } = useCoordinator();
+  const { beginRequest, endRequest, abortAll } = useAbortController();
   const routeParams = useGlobalSearchParams<{
     remoteChallengeId?: string | string[];
     challengeId?: string | string[];
@@ -157,7 +159,7 @@ export function useEventChallengePhotoCreateScreen({ eventId, editRemoteChalleng
       if (!eventId || isEditMode) {
         return undefined;
       }
-      const controller = new AbortController();
+      const controller = beginRequest();
       void (async () => {
         try {
           const [remote, existing] = await Promise.all([
@@ -183,12 +185,14 @@ export function useEventChallengePhotoCreateScreen({ eventId, editRemoteChalleng
           if (!isAbortError(e)) {
             setAvailableSuggestions([]);
           }
+        } finally {
+          endRequest(controller);
         }
       })();
       return () => {
-        controller.abort();
+        abortAll();
       };
-    }, [eventId]),
+    }, [abortAll, beginRequest, endRequest, eventId, isEditMode]),
   );
 
   const openComposer = useCallback(() => {

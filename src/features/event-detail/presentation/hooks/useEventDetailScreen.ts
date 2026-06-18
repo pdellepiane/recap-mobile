@@ -1,8 +1,8 @@
 import {
   countdownEndsAtForEvent,
   eventGuestListGoingRows,
-  eventParticipantNamesLine,
   eventGuestsGoing,
+  eventParticipantNamesLine,
   guestsPendingCountFromEvent,
   hostsLineForDetailView,
   organizerGuestListCounts,
@@ -12,6 +12,7 @@ import { EventDetailTab } from './eventDetailTabs';
 import { useEventDetailAlbum } from './useEventDetailAlbum';
 import { useEventDetailChallenges } from './useEventDetailChallenges';
 import { useEventDetailRanking } from './useEventDetailRanking';
+import { useEventDetailShare } from './useEventDetailShare';
 import { useEventDetailTabsAccess } from './useEventDetailTabsAccess';
 import analytics from '@/src/core/analytics';
 import { eventRepository } from '@/src/core/di/container';
@@ -19,10 +20,15 @@ import { useAbortController } from '@/src/core/hooks/useAbortController';
 import { isAbortError } from '@/src/core/http/isAbortError';
 import type { Event } from '@/src/domain/entities';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
+import type { EventDetailReactionPressPayload } from '@/src/features/event-detail/data/eventReactions';
 import { isDuringEventStartPlus24hWindow } from '@/src/features/home/presentation/components/utils/eventCalendar';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { useInvalidateRemoteImageCache } from '@/src/ui';
+import {
+  showShortUserMessage,
+  useInvalidateRemoteImageCache,
+  type SpawnFloatingReaction,
+} from '@/src/ui';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   useCallback,
@@ -33,7 +39,6 @@ import {
   type Dispatch,
   type SetStateAction,
 } from 'react';
-import { Share } from 'react-native';
 
 export { EventDetailTab } from './eventDetailTabs';
 
@@ -42,6 +47,8 @@ type Params = {
   initialTab?: EventDetailTab;
   completedChallengeId?: string;
   completedPoints?: number;
+  openChallengeId?: string;
+  openAlbumPhotoId?: string;
 };
 
 export type EventDetailScreenData = {
@@ -58,6 +65,8 @@ export type EventDetailScreenData = {
   rankingRows: ReturnType<typeof useEventDetailRanking>['rankingRows'];
   albumPhotos: ReturnType<typeof useEventDetailAlbum>['albumPhotos'];
   arePhotosLoaded: ReturnType<typeof useEventDetailAlbum>['arePhotosLoaded'];
+  albumHasMore: ReturnType<typeof useEventDetailAlbum>['albumHasMore'];
+  isLoadingMoreAlbum: ReturnType<typeof useEventDetailAlbum>['isLoadingMoreAlbum'];
   countdownEndsAt: Date;
   goingGuests: ReturnType<typeof eventGuestListGoingRows>;
   guestsAttendingCount: number;
@@ -94,6 +103,12 @@ export type EventDetailScreenHandlers = {
   onCreateQuizChallengeSelect: () => void;
   onCreatePhotoChallengeSelect: () => void;
   onAlbumPhotoLike: (photoId: string) => void;
+  onAlbumPhotoPress: (photoId: string) => void;
+  onAlbumLoadMore: () => void;
+  onLiveReaction: (
+    spawnAt: SpawnFloatingReaction,
+    payload: EventDetailReactionPressPayload,
+  ) => Promise<void>;
 };
 
 /**
@@ -109,6 +124,8 @@ export function useEventDetailScreen({
   initialTab,
   completedChallengeId,
   completedPoints,
+  openChallengeId,
+  openAlbumPhotoId,
 }: Params): { data: EventDetailScreenData; handlers: EventDetailScreenHandlers } {
   // --- Setup
   const {
@@ -133,14 +150,14 @@ export function useEventDetailScreen({
   // --- Local UI state
   const [isDetailRefreshing, setIsDetailRefreshing] = useState(false);
   const [isCreateChallengeSheetOpen, setIsCreateChallengeSheetOpen] = useState(false);
-  const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
   const [challengesPendingDot, setChallengesPendingDot] = useState(false);
+
+  const { isShareSheetOpen, handlers: shareHandlers } = useEventDetailShare({ eventId, event });
 
   // --- Tabs & per-tab data hooks
   const {
     activeTab,
     setActiveTab,
-    activeTabRef,
     detailVisibleTabs,
     guestEventDayOrPastTabBlocked,
     isOrganizer,
@@ -152,16 +169,22 @@ export function useEventDetailScreen({
     reloadEventDetail,
   });
 
-  const { challenges, isChallengesLoaded, completedByChallengeIdForUi, onChallengePress, refetchChallenges } =
-    useEventDetailChallenges({
-      eventId,
-      event,
-      activeTab,
-      guestEventDayOrPastTabBlocked,
-      completedChallengeId,
-      completedPoints,
-      isOrganizer,
-    });
+  const {
+    challenges,
+    isChallengesLoaded,
+    completedByChallengeIdForUi,
+    refetchChallenges,
+    handlers: challengeHandlers,
+  } = useEventDetailChallenges({
+    eventId,
+    event,
+    activeTab,
+    guestEventDayOrPastTabBlocked,
+    completedChallengeId,
+    completedPoints,
+    isOrganizer,
+    openChallengeId,
+  });
 
   const { rankingRows, refetchRanking } = useEventDetailRanking({
     eventId,
@@ -170,14 +193,21 @@ export function useEventDetailScreen({
     guestEventDayOrPastTabBlocked,
   });
 
-  const { albumPhotos, arePhotosLoaded, refetchAlbum, onAlbumPhotoLike } = useEventDetailAlbum({
+  const {
+    albumPhotos,
+    arePhotosLoaded,
+    albumHasMore,
+    isLoadingMoreAlbum,
+    refetchAlbum,
+    handlers: albumHandlers,
+  } = useEventDetailAlbum({
     eventId,
     event,
     activeTab,
-    activeTabRef,
     authorName: session?.user.name,
     t,
     setActiveTab,
+    openAlbumPhotoId,
   });
 
   const pendingDotGenerationRef = useRef(0);
@@ -277,6 +307,24 @@ export function useEventDetailScreen({
     goBack();
   }, [goBack]);
 
+  const onLiveReaction = useCallback(
+    async (
+      spawnAt: SpawnFloatingReaction,
+      { reaction, source, center }: EventDetailReactionPressPayload,
+    ) => {
+      if (!event?.id) {
+        return;
+      }
+      const ok = await eventRepository.postEventReaction(event.id, reaction);
+      if (ok) {
+        spawnAt(source, center.x, center.y);
+        return;
+      }
+      showShortUserMessage(t('eventDetail.reactionError'));
+    },
+    [event?.id, t],
+  );
+
   const onFabCameraPress = useCallback(() => {
     if (!eventId) {
       return;
@@ -357,49 +405,9 @@ export function useEventDetailScreen({
     goToEventStories(eventId);
   }, [eventId, goToEventStories]);
 
-  const onSharePress = useCallback(() => {
-    void analytics.trackAction('open_share_sheet', {
-      what: 'event_detail_share_sheet',
-      why: 'share_event',
-      eventId,
-    });
-    setIsShareSheetOpen(true);
-  }, [eventId]);
-
-  const onShareSheetClose = useCallback(() => {
-    setIsShareSheetOpen(false);
-  }, []);
-
-  const onShareConfirm = useCallback(async () => {
-    if (!event) {
-      return;
-    }
-    const chunks = [event.title, event.date, event.location, event.shareUrl]
-      .map((v) => v?.trim())
-      .filter(Boolean);
-    const message = chunks.join('\n');
-    if (!message) {
-      return;
-    }
-    try {
-      await Share.share({
-        title: event.title,
-        message,
-      });
-    } catch {
-      // no-op
-    } finally {
-      setIsShareSheetOpen(false);
-    }
-  }, [event]);
-
   const onDetailRefresh = useCallback(() => {
     void onPullRefresh();
   }, [onPullRefresh]);
-
-  const onShareConfirmPress = useCallback(() => {
-    void onShareConfirm();
-  }, [onShareConfirm]);
 
   const onCreateChallengeSheetOpen = useCallback(() => {
     void analytics.trackAction('open_create_challenge_sheet', {
@@ -451,6 +459,8 @@ export function useEventDetailScreen({
     rankingRows,
     albumPhotos,
     arePhotosLoaded,
+    albumHasMore,
+    isLoadingMoreAlbum,
     countdownEndsAt,
     goingGuests,
     guestsAttendingCount,
@@ -471,18 +481,16 @@ export function useEventDetailScreen({
     onPullRefresh,
     onDetailRefresh,
     onFabCameraPress,
-    onChallengePress,
+    ...challengeHandlers,
     onProfileAvatarPress,
     onParticipantsModalOpen,
-    onSharePress,
-    onShareSheetClose,
-    onShareConfirm,
-    onShareConfirmPress,
+    ...shareHandlers,
     onCreateChallengeSheetOpen,
     onCreateChallengeSheetClose,
     onCreateQuizChallengeSelect,
     onCreatePhotoChallengeSelect,
-    onAlbumPhotoLike,
+    ...albumHandlers,
+    onLiveReaction,
   };
 
   return { data, handlers };

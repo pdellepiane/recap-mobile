@@ -1,6 +1,7 @@
 import { EVENT_STORIES_BOTTOM_CHROME_HEIGHT } from '../components/stories/EventStoriesChrome';
 import { buildEventStoriesBundle, type EventStoriesBundle } from '../../data/eventStories';
 import { hostsLineForDetailView } from '../../data/eventDetailDerived';
+import { isEventOrganizerForUser } from '../../data/eventOrganizer';
 import { useEventDetailRoute } from '../context/EventDetailRouteContext';
 import { useEventStoriesViewer } from './useEventStoriesViewer';
 import { useSwipeDownToClose } from './useSwipeDownToClose';
@@ -8,7 +9,6 @@ import { eventRepository } from '@/src/core/di/container';
 import { useAbortController } from '@/src/core/hooks/useAbortController';
 import { isAbortError } from '@/src/core/http/isAbortError';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
-import { isEventHostedFromHomeFeed } from '@/src/features/events/data/homeEventCache';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useCallback, useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -45,7 +45,7 @@ export function useEventStoriesScreen(eventId: string) {
         if (controller.signal.aborted) {
           return;
         }
-        const isOrganizer = Boolean(event && isEventHostedFromHomeFeed(event.id));
+        const isOrganizer = isEventOrganizerForUser(event, session?.user.id);
         const authorName =
           event && session
             ? hostsLineForDetailView(event, {

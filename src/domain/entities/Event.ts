@@ -27,6 +27,8 @@ export type Event = {
   /** API `location` (nombre del lugar / dirección) — overview address card, línea 2. */
   venue?: string;
   coverImageUrl?: string;
+  /** API `user_id` for the event owner/creator; `hosts` remains the organizer membership source. */
+  ownerUserId?: string;
   hosts?: EventHost[];
   guests?: EventGuest[];
   /** From GET /api/events/:id `show_guest_list` when present. */

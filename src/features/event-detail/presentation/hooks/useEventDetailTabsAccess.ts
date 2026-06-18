@@ -1,13 +1,9 @@
 import { subscribeEventDetailTabSwitch } from '../../data/eventDetailTabSwitch';
-import {
-  EventDetailTab,
-  FULL_DETAIL_TABS,
-  GUEST_PRE_EVENT_DAY_TABS,
-  HOST_PRE_EVENT_DAY_TABS,
-} from './eventDetailTabs';
+import { isEventOrganizerForUser } from '../../data/eventOrganizer';
+import { EventDetailTab, FULL_DETAIL_TABS, GUEST_PRE_EVENT_DAY_TABS } from './eventDetailTabs';
 import { useGuestEventDayOrPastTabBlocked } from './useGuestEventDayOrPastTabBlocked';
 import type { Event } from '@/src/domain/entities';
-import { isEventHostedFromHomeFeed } from '@/src/features/events/data/homeEventCache';
+import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import { isBeforeEventCalendarDay } from '@/src/features/home/presentation/components/utils/eventCalendar';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -28,6 +24,7 @@ export function useEventDetailTabsAccess({
   initialTab,
   reloadEventDetail,
 }: Params) {
+  const { session } = useAuth();
   const [activeTab, setActiveTab] = useState<EventDetailTab>(initialTab ?? EventDetailTab.Overview);
   const prevTabRef = useRef<EventDetailTab | null>(null);
   const activeTabRef = useRef<EventDetailTab>(activeTab);
@@ -37,6 +34,7 @@ export function useEventDetailTabsAccess({
   }, [activeTab]);
 
   const guestEventDayOrPastTabBlocked = useGuestEventDayOrPastTabBlocked(event);
+  const isOrganizer = isEventOrganizerForUser(event, session?.user.id);
 
   /**
    * GET /api/events/:id — only when entering Detalle from another tab
@@ -60,30 +58,18 @@ export function useEventDetailTabsAccess({
     setActiveTab(initialTab ?? EventDetailTab.Overview);
   }, [initialTab, eventId]);
 
-  const detailVisibleTabs = useMemo((): readonly EventDetailTab[] => {
-    if (!event) {
-      return FULL_DETAIL_TABS;
-    }
-    const isHost = isEventHostedFromHomeFeed(event.id);
-    const beforeEventCalendarDay = isBeforeEventCalendarDay(event.date);
-    if (!beforeEventCalendarDay) {
-      return FULL_DETAIL_TABS;
-    }
-    return isHost ? HOST_PRE_EVENT_DAY_TABS : GUEST_PRE_EVENT_DAY_TABS;
-  }, [event]);
-
-  const isOrganizer = Boolean(event && isEventHostedFromHomeFeed(event.id));
+  const detailVisibleTabs = isOrganizer ? FULL_DETAIL_TABS : GUEST_PRE_EVENT_DAY_TABS;
 
   /** Organizer: crear/editar retos solo antes del día local del evento. */
   const canHostEditChallenges = useMemo(() => {
     if (!event?.date) {
       return false;
     }
-    if (!isEventHostedFromHomeFeed(event.id)) {
+    if (!isOrganizer) {
       return false;
     }
     return isBeforeEventCalendarDay(event.date);
-  }, [event?.date, event?.id]);
+  }, [event?.date, isOrganizer]);
 
   useEffect(() => {
     if (!detailVisibleTabs.includes(activeTab)) {

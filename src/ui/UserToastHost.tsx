@@ -46,7 +46,7 @@ export function UserToastHost() {
 
   return (
     <View
-      style={[styles.host, { paddingBottom: Math.max(insets.bottom, 16) + 12 }]}
+      style={[styles.host, { paddingTop: Math.max(insets.top, 16) + 8 }]}
       pointerEvents="box-none"
     >
       <View style={[styles.toast, { backgroundColor: palette.surface }]}>
@@ -71,7 +71,7 @@ export function UserToastHost() {
 const styles = StyleSheet.create({
   host: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     zIndex: 9999,
     elevation: 9999,

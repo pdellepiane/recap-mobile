@@ -1,7 +1,7 @@
 import type { AlbumPhoto } from '../../../data/eventAlbum';
 import { EventDetailAlbumTile } from './EventDetailAlbumTile';
 import { useTranslation } from '@/src/i18n';
-import { colors } from '@/src/ui';
+import { colors, Spinner } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { memo, useMemo } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -12,7 +12,9 @@ const COL_GAP = 8;
 type Props = {
   photos: AlbumPhoto[];
   arePhotosLoaded?: boolean;
+  isLoadingMore?: boolean;
   onAlbumPhotoLike?: (photoId: string) => void;
+  onAlbumPhotoPress?: (photoId: string) => void;
 };
 
 /** Splits photos into two columns by approximate height (masonry-style). */
@@ -40,10 +42,10 @@ function splitIntoColumns(items: AlbumPhoto[]): [AlbumPhoto[], AlbumPhoto[]] {
 export const EventDetailAlbumTab = memo(function EventDetailAlbumTab({
   photos,
   arePhotosLoaded = false,
+  isLoadingMore = false,
   onAlbumPhotoLike,
+  onAlbumPhotoPress,
 }: Props) {
-  console.log('photos', photos);
-  console.log('arePhotosLoaded', arePhotosLoaded);
   const { t } = useTranslation();
   const { width: winW } = useWindowDimensions();
   const colW = useMemo(() => {
@@ -65,28 +67,37 @@ export const EventDetailAlbumTab = memo(function EventDetailAlbumTab({
       {showHostEmpty ? (
         <Text style={styles.empty}>{t('eventDetail.albumEmpty')}</Text>
       ) : (
-        <View style={styles.masonryRow}>
-          <View style={leftColStyle}>
-            {left.map((p) => (
-              <EventDetailAlbumTile
-                key={p.id}
-                photo={p}
-                width={colW}
-                onAlbumPhotoLike={onAlbumPhotoLike}
-              />
-            ))}
+        <>
+          <View style={styles.masonryRow}>
+            <View style={leftColStyle}>
+              {left.map((p) => (
+                <EventDetailAlbumTile
+                  key={p.id}
+                  photo={p}
+                  width={colW}
+                  onAlbumPhotoLike={onAlbumPhotoLike}
+                  onAlbumPhotoPress={onAlbumPhotoPress}
+                />
+              ))}
+            </View>
+            <View style={rightColStyle}>
+              {right.map((p) => (
+                <EventDetailAlbumTile
+                  key={p.id}
+                  photo={p}
+                  width={colW}
+                  onAlbumPhotoLike={onAlbumPhotoLike}
+                  onAlbumPhotoPress={onAlbumPhotoPress}
+                />
+              ))}
+            </View>
           </View>
-          <View style={rightColStyle}>
-            {right.map((p) => (
-              <EventDetailAlbumTile
-                key={p.id}
-                photo={p}
-                width={colW}
-                onAlbumPhotoLike={onAlbumPhotoLike}
-              />
-            ))}
-          </View>
-        </View>
+          {isLoadingMore ? (
+            <View style={styles.loadingMore}>
+              <Spinner color={colors.states.active} />
+            </View>
+          ) : null}
+        </>
       )}
     </View>
   );
@@ -108,5 +119,9 @@ const styles = StyleSheet.create({
   masonryRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+  },
+  loadingMore: {
+    paddingVertical: 20,
+    alignItems: 'center',
   },
 });

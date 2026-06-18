@@ -98,9 +98,7 @@ export function useHomeFeed(): HomeFeed & {
   }, [abortAll, load]);
 
   useEffect(() => {
-    seedHomeEventCache([...hostEvents, ...plans], {
-      hostedEventIds: hostEvents.map((e) => e.id),
-    });
+    seedHomeEventCache([...hostEvents, ...plans]);
   }, [hostEvents, plans]);
 
   const feed = useMemo((): HomeFeed => {

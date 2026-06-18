@@ -31,6 +31,7 @@ import type {
   EventChallengesListResponse,
   EventChallengesPendingResponse,
   EventDetailApiResponse,
+  EventMediaApiItem,
   EventMediaLikeResponse,
   EventMediaListResponse,
   EventMediaPostResponse,
@@ -80,6 +81,16 @@ function parseHomeBannersBody(res: HomeBannersListResponse): HomeBannerItem[] {
 function bearer(opts?: FetchOpts): FetchOpts {
   return { auth: 'bearer', ...opts };
 }
+
+export type FetchEventMediaParams = {
+  page?: number;
+};
+
+export type FetchEventMediaResult = {
+  items: AlbumPhoto[];
+  hasMore: boolean;
+  currentPage: number;
+};
 
 export class EventRepository {
   constructor(private readonly api: HttpClient) {}
@@ -166,36 +177,87 @@ export class EventRepository {
     }
   }
 
-  /** GET /api/events/:id/media — album grid. */
-  async fetchEventMedia(eventId: string, opts?: FetchOpts): Promise<AlbumPhoto[]> {
+  /** GET /api/events/:id/media — album grid (paginated). */
+  async fetchEventMedia(
+    eventId: string,
+    params: FetchEventMediaParams = {},
+    opts?: FetchOpts,
+  ): Promise<FetchEventMediaResult> {
     try {
-      const res = await this.api.get<EventMediaListResponse>(
-        eventPaths.media(eventId),
-        bearer(opts),
-      );
-      if (!res.status || !Array.isArray(res.data)) {
-        return [];
+      const search = new URLSearchParams();
+      if (params.page != null && params.page > 0) {
+        search.set('page', String(params.page));
       }
-      return mapEventMediaApiToAlbumPhotos(res.data);
+      const query = search.toString();
+      const path = query ? `${eventPaths.media(eventId)}?${query}` : eventPaths.media(eventId);
+
+      const res = await this.api.get<EventMediaListResponse>(path, bearer(opts));
+      if (!res.status || !res.data || !Array.isArray(res.data.items)) {
+        return { items: [], hasMore: false, currentPage: params.page ?? 1 };
+      }
+
+      return {
+        items: mapEventMediaApiToAlbumPhotos(res.data.items),
+        hasMore: Boolean(res.data.has_more),
+        currentPage: res.data.current_page ?? params.page ?? 1,
+      };
     } catch (e) {
       if (isAbortError(e)) {
         throw e;
       }
-      return [];
+      return { items: [], hasMore: false, currentPage: params.page ?? 1 };
     }
   }
 
-  /** GET /api/events/:id/media — story slides (photos, oldest first). */
+  /** Finds one album photo by media id (paginates until found). */
+  async fetchEventMediaById(
+    eventId: string,
+    mediaId: string,
+    opts?: FetchOpts,
+  ): Promise<AlbumPhoto | null> {
+    try {
+      let page = 1;
+      let hasMore = true;
+
+      while (hasMore) {
+        const result = await this.fetchEventMedia(eventId, { page }, opts);
+        const found = result.items.find((item) => item.id === mediaId);
+        if (found) {
+          return found;
+        }
+        hasMore = result.hasMore;
+        page += 1;
+      }
+
+      return null;
+    } catch (e) {
+      if (isAbortError(e)) {
+        throw e;
+      }
+      return null;
+    }
+  }
+
+  /** GET /api/events/:id/media — story slides (photos, oldest first; fetches all pages). */
   async fetchEventStorySlides(eventId: string, opts?: FetchOpts): Promise<EventStorySlide[]> {
     try {
-      const res = await this.api.get<EventMediaListResponse>(
-        eventPaths.media(eventId),
-        bearer(opts),
-      );
-      if (!res.status || !Array.isArray(res.data)) {
-        return [];
+      const allItems: EventMediaApiItem[] = [];
+      let page = 1;
+      let hasMore = true;
+
+      while (hasMore) {
+        const search = new URLSearchParams({ page: String(page) });
+        const path = `${eventPaths.media(eventId)}?${search.toString()}`;
+        const res = await this.api.get<EventMediaListResponse>(path, bearer(opts));
+        if (!res.status || !res.data || !Array.isArray(res.data.items)) {
+          break;
+        }
+        allItems.push(...res.data.items);
+        hasMore = Boolean(res.data.has_more);
+        page += 1;
       }
-      return mapEventMediaApiToStorySlides(res.data);
+
+      return mapEventMediaApiToStorySlides(allItems);
     } catch (e) {
       if (isAbortError(e)) {
         throw e;
