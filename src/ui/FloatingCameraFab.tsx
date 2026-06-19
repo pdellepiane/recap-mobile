@@ -4,12 +4,13 @@ import { colors } from '@/src/ui/colors';
 import { Image as RNImage, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export type FloatingCameraFabProps = {
+export type Props = {
   onPress: () => void;
   /** Defaults to {@link common.openCamera}. */
   accessibilityLabel?: string;
   /** When false, the parent screen already applied bottom safe area. */
   respectBottomSafeArea?: boolean;
+  bottomOffset?: number;
 };
 
 /**
@@ -20,11 +21,12 @@ export function FloatingCameraFab({
   onPress,
   accessibilityLabel: accessibilityLabelProp,
   respectBottomSafeArea = true,
-}: FloatingCameraFabProps) {
+  bottomOffset = 0,
+}: Props) {
   const { t } = useTranslation();
   const accessibilityLabel = accessibilityLabelProp ?? t('common.openCamera');
   const insets = useSafeAreaInsets();
-  const bottom = respectBottomSafeArea ? Math.max(insets.bottom, 16) + 8 : 24;
+  const bottom = (respectBottomSafeArea ? Math.max(insets.bottom, 16) + 8 : 24) + bottomOffset;
 
   return (
     <View style={styles.overlay} pointerEvents="box-none">

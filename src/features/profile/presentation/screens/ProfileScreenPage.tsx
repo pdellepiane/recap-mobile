@@ -1,17 +1,19 @@
-import { ProfileMenuFooter } from '../components/ProfileMenuFooter';
-import { ProfileMenuHeader } from '../components/ProfileMenuHeader';
+import { ProfileFooter } from '../components/ProfileFooter';
+import { ProfileHeader } from '../components/ProfileHeader';
 import { ProfileMenuRow } from '../components/ProfileMenuRow';
 import { useProfileScreen } from '../hooks/useProfileScreen';
 import { images } from '@/src/assets/images';
 import { useTranslation } from '@/src/i18n';
-import { colors, Form, Spinner } from '@/src/ui';
+import { AppRefreshControl, colors, ScreenLoading } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { ScrollView, StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const ProfileScreenPage = () => {
   const { t } = useTranslation();
   const {
     isLoading,
+    isRefreshing,
     isSigningOut,
     displayName,
     initials,
@@ -23,19 +25,21 @@ export const ProfileScreenPage = () => {
     handleAccountPress,
     handleRate,
     handleLegal,
+    handleRefresh,
   } = useProfileScreen();
 
   if (isLoading) {
-    return <Spinner style={styles.loader} />;
+    return <ScreenLoading />;
   }
 
   return (
-    <Form>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
+        refreshControl={<AppRefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
       >
-        <ProfileMenuHeader
+        <ProfileHeader
           displayName={displayName}
           initials={initials}
           avatarUrl={avatarUrl}
@@ -65,17 +69,17 @@ export const ProfileScreenPage = () => {
           onPress={handleLegal}
         />
 
-        <ProfileMenuFooter version={version} isSigningOut={isSigningOut} onLogout={handleLogout} />
+        <ProfileFooter version={version} isSigningOut={isSigningOut} onLogout={handleLogout} />
       </ScrollView>
-    </Form>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  loader: {
+  safe: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: colors.background.primary,
+    paddingHorizontal: 20,
   },
   sectionTitle: {
     fontFamily: fontFamilies.signikaSemiBold,

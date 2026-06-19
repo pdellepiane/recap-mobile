@@ -1,8 +1,9 @@
 import type { NotificationItem } from '../../data/notificationItem';
 import { NotificationListItem } from './NotificationListItem';
-import { AppRefreshControl, colors, Spinner } from '@/src/ui';
-import { useCallback } from 'react';
+import { NotificationsListFooter } from './NotificationsListFooter';
+import { AppRefreshControl, colors } from '@/src/ui';
 import { FlatList, StyleSheet, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 type Props = {
   items: NotificationItem[];
@@ -21,47 +22,37 @@ export function NotificationsList({
   isLoadingMore = false,
   onLoadMore,
 }: Props) {
-  const renderFooter = useCallback(() => {
-    if (!isLoadingMore) {
-      return null;
-    }
-    return (
-      <View style={styles.loadingMore}>
-        <Spinner color={colors.states.active} />
-      </View>
-    );
-  }, [isLoadingMore]);
-
   return (
-    <FlatList
-      data={items}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <NotificationListItem item={item} onPress={onItemPress} />}
-      ItemSeparatorComponent={() => <View style={styles.separator} />}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        onRefresh ? (
-          <AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        ) : undefined
-      }
-      onEndReached={onLoadMore}
-      onEndReachedThreshold={0.35}
-      ListFooterComponent={renderFooter}
-    />
+    <Animated.View entering={FadeIn.duration(260).delay(80)} style={styles.list}>
+      <FlatList
+        data={items}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <NotificationListItem item={item} onPress={onItemPress} />}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          onRefresh ? (
+            <AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          ) : undefined
+        }
+        onEndReached={onLoadMore}
+        onEndReachedThreshold={0.35}
+        ListFooterComponent={<NotificationsListFooter isLoadingMore={isLoadingMore} />}
+      />
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
+  list: {
+    flex: 1,
+  },
   content: {
     paddingBottom: 24,
   },
   separator: {
     height: 1,
     backgroundColor: colors.background.tertiary,
-  },
-  loadingMore: {
-    paddingVertical: 20,
-    alignItems: 'center',
   },
 });

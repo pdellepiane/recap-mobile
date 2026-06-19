@@ -1,6 +1,7 @@
 import { userPaths } from '@/src/core/api/paths';
 import type {
   DeletePushTokenResponse,
+  NotificationReadResponse,
   NotificationsListResponse,
   RegisterPushTokenResponse,
 } from '@/src/core/api/types/notifications';
@@ -47,6 +48,22 @@ export class NotificationRepository {
     if (!res.status) {
       throw new Error(
         typeof res.error === 'string' && res.error.trim() ? res.error : 'Push token removal failed',
+      );
+    }
+  }
+
+  /** POST /api/user/notifications/:id/read — idempotent mark-as-read. */
+  async markNotificationRead(notificationId: string, opts?: FetchOpts): Promise<void> {
+    const res = await this.http.post<NotificationReadResponse>(
+      userPaths.notificationRead(notificationId),
+      {},
+      { auth: 'bearer', ...opts },
+    );
+    if (!res.status) {
+      throw new Error(
+        typeof res.error === 'string' && res.error.trim()
+          ? res.error
+          : 'Notification read update failed',
       );
     }
   }

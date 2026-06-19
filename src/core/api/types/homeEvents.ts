@@ -18,6 +18,7 @@ export type HomeEventGuestItem = {
 
 export type HomeEventHostItem = {
   id: number;
+  user_id?: number;
   name: string;
   email: string;
   full_phone: string;

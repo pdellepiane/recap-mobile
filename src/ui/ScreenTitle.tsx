@@ -1,6 +1,7 @@
 import { colors } from './colors';
 import { fontFamilies } from './typography';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 type ScreenTitleProps = {
   children: string;
@@ -8,7 +9,11 @@ type ScreenTitleProps = {
 };
 
 export function ScreenTitle({ children, style }: ScreenTitleProps) {
-  return <Text style={[styles.title, style]}>{children}</Text>;
+  return (
+    <Animated.Text entering={FadeIn.duration(260)} style={[styles.title, style]}>
+      {children}
+    </Animated.Text>
+  );
 }
 
 const styles = StyleSheet.create({

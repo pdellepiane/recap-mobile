@@ -20,7 +20,7 @@ type ProfileMenuHeaderProps = {
   onChangeAvatar?: () => void;
 };
 
-export function ProfileMenuHeader({
+export function ProfileHeader({
   displayName,
   initials,
   avatarUrl,
@@ -69,12 +69,14 @@ const AVATAR_SIZE = 72;
 
 const styles = StyleSheet.create({
   root: {
+    flex: 1,
     alignItems: 'center',
     gap: 12,
-    paddingTop: 40,
+    paddingTop: 80,
     paddingBottom: 30,
   },
   avatarWrap: {
+    flex: 1,
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
   },

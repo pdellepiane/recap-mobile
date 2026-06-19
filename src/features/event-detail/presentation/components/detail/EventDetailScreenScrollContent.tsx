@@ -1,7 +1,7 @@
+import { EventDetailTab, useEventDetailScreen } from '../../hooks/useEventDetailScreen';
 import { EventDetailCreateChallengeSheet } from './EventDetailCreateChallengeSheet';
 import { EventDetailScrollBody } from './EventDetailScrollBody';
 import { EventDetailShareSheet } from './EventDetailShareSheet';
-import { EventDetailTab, useEventDetailScreen } from '../../hooks/useEventDetailScreen';
 import { images } from '@/src/assets/images';
 import type { Event } from '@/src/domain/entities';
 import { EVENT_DETAIL_LIVE_REACTION_IMAGES } from '@/src/features/event-detail/data/eventDetailLiveReactions';
@@ -20,13 +20,13 @@ export type EventDetailScreenScrollContentProps = {
   challenges: ReturnType<typeof useEventDetailScreen>['data']['challenges'];
   isChallengesLoaded: boolean;
   rankingRows: ReturnType<typeof useEventDetailScreen>['data']['rankingRows'];
+  isRankingLoaded: boolean;
   albumPhotos: ReturnType<typeof useEventDetailScreen>['data']['albumPhotos'];
   arePhotosLoaded: boolean;
   albumHasMore: boolean;
   isLoadingMoreAlbum: boolean;
   detailVisibleTabs: readonly EventDetailTab[];
   isOrganizer: boolean;
-  canHostEditChallenges: boolean;
   showChallengesPendingDot: boolean;
   hostsLine: string;
   goingGuests: ReturnType<typeof useEventDetailScreen>['data']['goingGuests'];
@@ -66,13 +66,13 @@ export const EventDetailScreenScrollContent = memo(function EventDetailScreenScr
   challenges,
   isChallengesLoaded,
   rankingRows,
+  isRankingLoaded,
   albumPhotos,
   arePhotosLoaded,
   albumHasMore,
   isLoadingMoreAlbum,
   detailVisibleTabs,
   isOrganizer,
-  canHostEditChallenges,
   showChallengesPendingDot,
   hostsLine,
   goingGuests,
@@ -128,6 +128,7 @@ export const EventDetailScreenScrollContent = memo(function EventDetailScreenScr
         onChallengePress={onChallengePress}
         completedByChallengeId={completedByChallengeId}
         rankingRows={rankingRows}
+        isRankingLoaded={isRankingLoaded}
         albumPhotos={albumPhotos}
         arePhotosLoaded={arePhotosLoaded}
         albumHasMore={albumHasMore}
@@ -145,7 +146,7 @@ export const EventDetailScreenScrollContent = memo(function EventDetailScreenScr
         onAlbumLoadMore={onAlbumLoadMore}
         showChallengesPendingDot={showChallengesPendingDot}
       />
-      {canHostEditChallenges ? (
+      {isOrganizer && (
         <Button
           title={createChallengeLabel}
           onPress={onCreateChallengeSheetOpen}
@@ -154,7 +155,7 @@ export const EventDetailScreenScrollContent = memo(function EventDetailScreenScr
           rightIconStyle={styles.createChallengeFabIcon}
           style={styles.createChallengeFab}
         />
-      ) : null}
+      )}
       <EventDetailCreateChallengeSheet
         visible={isCreateChallengeSheetOpen}
         onClose={onCreateChallengeSheetClose}

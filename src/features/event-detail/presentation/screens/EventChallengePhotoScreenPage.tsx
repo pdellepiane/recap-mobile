@@ -11,9 +11,6 @@ type Props = {
   challengeNumber?: number;
 };
 
-/**
- * Photo challenge: card with decorative camera and “Take photo” action.
- */
 export function EventChallengePhotoScreenPage({ eventId, challengeId, challengeNumber }: Props) {
   const { kicker, title, handleOpenCamera } = useEventChallengePhotoScreen({
     eventId,

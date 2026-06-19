@@ -10,7 +10,6 @@ type Props = {
   remoteChallengeId?: string;
 };
 
-/** Configure answer options for one draft quiz question (`challenge-quiz-create/question`). */
 export function EventChallengeQuizCreateQuestionScreenPage({
   eventId: _eventId,
   questionId,

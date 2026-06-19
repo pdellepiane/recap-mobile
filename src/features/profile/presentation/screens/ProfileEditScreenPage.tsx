@@ -1,13 +1,11 @@
 import { useProfileEditScreen } from '../hooks/useProfileEditScreen';
 import { useTranslation } from '@/src/i18n';
-import { BackButton, Button, colors, Form, InputField, Spinner } from '@/src/ui';
+import { BackButton, Button, colors, Form, InputField, ScreenLoading } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
-import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { StyleSheet, Text, View } from 'react-native';
 
 export const ProfileEditScreenPage = () => {
   const { t } = useTranslation();
-  const { goBack } = useCoordinator();
   const {
     isLoading,
     firstName,
@@ -17,16 +15,17 @@ export const ProfileEditScreenPage = () => {
     isSaving,
     canSave,
     handleSave,
+    handleGoBack,
   } = useProfileEditScreen();
 
   if (isLoading) {
-    return <Spinner style={styles.loader} />;
+    return <ScreenLoading />;
   }
 
   return (
     <Form>
       <View style={styles.content}>
-        <BackButton onPress={goBack} style={styles.backButton} />
+        <BackButton onPress={handleGoBack} style={styles.backButton} />
         <Text style={styles.title}>{t('profile.accountTitle')}</Text>
 
         <InputField
@@ -58,11 +57,6 @@ export const ProfileEditScreenPage = () => {
 };
 
 const styles = StyleSheet.create({
-  loader: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   content: {
     flex: 1,
     paddingTop: 10,

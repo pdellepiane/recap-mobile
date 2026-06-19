@@ -17,6 +17,13 @@ export type DeletePushTokenResponse = {
   errors?: unknown;
 };
 
+/** POST /api/user/notifications/:id/read */
+export type NotificationReadResponse = {
+  status: boolean;
+  error?: string | null;
+  errors?: unknown;
+};
+
 /** Guest notifications */
 export type GuestNotificationType =
   | 'media_liked'

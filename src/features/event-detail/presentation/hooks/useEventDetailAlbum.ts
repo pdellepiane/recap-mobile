@@ -3,16 +3,20 @@ import type { AlbumPhoto } from '../../data/eventAlbum';
 import { cacheEventAlbumPhotos, setCachedEventAlbumPhoto } from '../../data/eventAlbumPhotoCache';
 import { takePendingEventAlbumPhoto } from '../../data/pendingEventAlbumPhoto';
 import { eventRepository } from '@/src/core/di/container';
-import { useAbortController } from '@/src/core/hooks/useAbortController';
-import { useMountedRef } from '@/src/core/hooks/useMountedRef';
-import { isAbortError } from '@/src/core/http/isAbortError';
 import type { Event } from '@/src/domain/entities';
+import type { FetchEventMediaResult } from '@/src/features/events/data/repositories/EventRepository';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { showShortUserMessage } from '@/src/ui';
 import { useFocusEffect } from '@react-navigation/native';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  type InfiniteData,
+} from '@tanstack/react-query';
 import type { TFunction } from 'i18next';
 import type { Dispatch, SetStateAction } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type Params = {
   eventId: string;
@@ -39,6 +43,46 @@ function mergeAlbumPhotos(current: AlbumPhoto[], incoming: AlbumPhoto[]): AlbumP
   return next;
 }
 
+function eventAlbumQueryKey(eventId: string) {
+  return ['event', eventId, 'album'] as const;
+}
+
+function flattenAlbumPages(
+  data: InfiniteData<FetchEventMediaResult, unknown> | undefined,
+): AlbumPhoto[] {
+  return (
+    data?.pages.reduce<AlbumPhoto[]>(
+      (current, page) => mergeAlbumPhotos(current, page.items),
+      [],
+    ) ?? []
+  );
+}
+
+function applyAlbumPhotoLike(
+  data: InfiniteData<FetchEventMediaResult, unknown> | undefined,
+  eventId: string,
+  photoId: string,
+  updated: { liked: boolean; likes_count: number },
+): InfiniteData<FetchEventMediaResult, unknown> | undefined {
+  if (!data) {
+    return data;
+  }
+  return {
+    ...data,
+    pages: data.pages.map((page) => ({
+      ...page,
+      items: page.items.map((photo) => {
+        if (photo.id !== photoId) {
+          return photo;
+        }
+        const next = { ...photo, likes: updated.likes_count, likedByMe: updated.liked };
+        setCachedEventAlbumPhoto(eventId, next);
+        return next;
+      }),
+    })),
+  };
+}
+
 /**
  * Album tab: local pending photo injection, paginated fetch, infinite scroll, pull-refresh.
  */
@@ -52,95 +96,72 @@ export function useEventDetailAlbum({
   openAlbumPhotoId,
 }: Params) {
   const { goToEventAlbumPhotoModal } = useCoordinator();
-  const mountedRef = useMountedRef();
-  const refetchGenerationRef = useRef(0);
-  const loadMoreGenerationRef = useRef(0);
-  const likeGenerationRef = useRef(0);
+  const queryClient = useQueryClient();
   const openedAlbumPhotoIdRef = useRef<string | null>(null);
-  const albumPageRef = useRef(1);
-  const albumHasMoreRef = useRef(false);
-  const isLoadingMoreRef = useRef(false);
-  const { beginRequest, endRequest, abortAll } = useAbortController();
-  const [albumPhotos, setAlbumPhotos] = useState<AlbumPhoto[]>([]);
-  const [arePhotosLoaded, setArePhotosLoaded] = useState(false);
-  const [albumHasMore, setAlbumHasMore] = useState(false);
-  const [isLoadingMoreAlbum, setIsLoadingMoreAlbum] = useState(false);
-
-  const applyAlbumResult = useCallback(
-    (items: AlbumPhoto[], hasMore: boolean, currentPage: number, mode: 'replace' | 'append') => {
-      albumPageRef.current = currentPage;
-      albumHasMoreRef.current = hasMore;
-      setAlbumHasMore(hasMore);
-      setAlbumPhotos((current) => (mode === 'replace' ? items : mergeAlbumPhotos(current, items)));
-    },
-    [],
-  );
-
-  const loadAlbumPage = useCallback(
-    async (
-      page: number,
-      mode: 'replace' | 'append',
-      opts?: { signal?: AbortSignal; generation?: number; loadMoreGeneration?: number },
-    ) => {
-      const result = await eventRepository.fetchEventMedia(
-        eventId,
-        { page },
-        {
-          signal: opts?.signal,
-        },
+  const [pendingPhoto, setPendingPhoto] = useState<AlbumPhoto | null>(null);
+  const [pendingPhotoSyncStartedAt, setPendingPhotoSyncStartedAt] = useState(0);
+  const albumQueryKey = useMemo(() => eventAlbumQueryKey(eventId), [eventId]);
+  const albumQuery = useInfiniteQuery({
+    queryKey: albumQueryKey,
+    queryFn: ({ pageParam, signal }) =>
+      eventRepository.fetchEventMedia(eventId, { page: pageParam }, { signal }),
+    initialPageParam: 1,
+    enabled: activeTab === EventDetailTab.Album && Boolean(event?.id),
+    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.currentPage + 1 : undefined),
+  });
+  const {
+    data,
+    dataUpdatedAt,
+    fetchNextPage,
+    hasNextPage,
+    isFetched,
+    isFetching,
+    isFetchingNextPage,
+    isPending,
+    refetch,
+  } = albumQuery;
+  const remoteAlbumPhotos = useMemo(() => flattenAlbumPages(data), [data]);
+  const albumPhotos = useMemo(() => {
+    if (!pendingPhoto) {
+      return remoteAlbumPhotos;
+    }
+    return [pendingPhoto, ...remoteAlbumPhotos.filter((photo) => photo.uri !== pendingPhoto.uri)];
+  }, [pendingPhoto, remoteAlbumPhotos]);
+  const likeMutation = useMutation({
+    mutationFn: (photoId: string) => eventRepository.postEventMediaLike(eventId, photoId),
+    onSuccess: (updated, photoId) => {
+      if (!updated) {
+        showShortUserMessage(t('eventDetail.albumLikeError'));
+        return;
+      }
+      queryClient.setQueryData<InfiniteData<FetchEventMediaResult, unknown>>(
+        albumQueryKey,
+        (data) => applyAlbumPhotoLike(data, eventId, photoId, updated),
       );
-      if (opts?.signal?.aborted) {
-        return;
-      }
-      if (opts?.generation != null && opts.generation !== refetchGenerationRef.current) {
-        return;
-      }
-      if (
-        opts?.loadMoreGeneration != null &&
-        opts.loadMoreGeneration !== loadMoreGenerationRef.current
-      ) {
-        return;
-      }
-      applyAlbumResult(result.items, result.hasMore, result.currentPage, mode);
-      cacheEventAlbumPhotos(eventId, result.items);
     },
-    [applyAlbumResult, eventId],
-  );
-
-  const loadInitialAlbum = useCallback(
-    async (opts?: { signal?: AbortSignal }) => {
-      const generation = ++refetchGenerationRef.current;
-      setArePhotosLoaded(false);
-      try {
-        await loadAlbumPage(1, 'replace', { signal: opts?.signal, generation });
-      } catch (e) {
-        if (
-          !isAbortError(e) &&
-          !opts?.signal?.aborted &&
-          generation === refetchGenerationRef.current
-        ) {
-          setAlbumPhotos([]);
-          albumHasMoreRef.current = false;
-          setAlbumHasMore(false);
-        }
-      } finally {
-        if (!opts?.signal?.aborted && generation === refetchGenerationRef.current) {
-          setArePhotosLoaded(true);
-        }
-      }
-    },
-    [loadAlbumPage],
-  );
+  });
+  const { mutate: likePhoto } = likeMutation;
 
   useEffect(() => {
-    setAlbumPhotos([]);
-    setArePhotosLoaded(false);
-    albumPageRef.current = 1;
-    albumHasMoreRef.current = false;
-    setAlbumHasMore(false);
-    setIsLoadingMoreAlbum(false);
-    isLoadingMoreRef.current = false;
+    setPendingPhoto(null);
+    setPendingPhotoSyncStartedAt(0);
   }, [eventId]);
+
+  useEffect(() => {
+    cacheEventAlbumPhotos(eventId, remoteAlbumPhotos);
+  }, [eventId, remoteAlbumPhotos]);
+
+  useEffect(() => {
+    if (
+      !pendingPhoto ||
+      pendingPhotoSyncStartedAt === 0 ||
+      dataUpdatedAt < pendingPhotoSyncStartedAt
+    ) {
+      return;
+    }
+    setPendingPhoto(null);
+    setPendingPhotoSyncStartedAt(0);
+  }, [dataUpdatedAt, pendingPhoto, pendingPhotoSyncStartedAt]);
 
   useFocusEffect(
     useCallback(() => {
@@ -154,116 +175,39 @@ export function useEventDetailAlbum({
       const width = pending.width && pending.width > 0 ? pending.width : 1;
       const height = pending.height && pending.height > 0 ? pending.height : 1;
       const author = authorName?.trim() || t('eventDetail.cameraAuthorFallback');
-      setAlbumPhotos((current) => [
-        {
-          id: `local-${eventId}-${pending.uri}`,
-          uri: pending.uri,
-          aspectRatio: width / height,
-          authorShort: author,
-          likes: 0,
-        },
-        ...current.filter((photo) => photo.uri !== pending.uri),
-      ]);
-      setActiveTab(EventDetailTab.Album);
-
-      const controller = beginRequest();
-      void loadInitialAlbum({ signal: controller.signal }).finally(() => {
-        endRequest(controller);
+      setPendingPhoto({
+        id: `local-${eventId}-${pending.uri}`,
+        uri: pending.uri,
+        aspectRatio: width / height,
+        authorShort: author,
+        likes: 0,
       });
-      return () => {
-        abortAll();
-      };
-    }, [
-      abortAll,
-      authorName,
-      beginRequest,
-      endRequest,
-      eventId,
-      loadInitialAlbum,
-      setActiveTab,
-      t,
-    ]),
+      setPendingPhotoSyncStartedAt(Date.now());
+      setActiveTab(EventDetailTab.Album);
+      void queryClient.invalidateQueries({ queryKey: albumQueryKey });
+      return undefined;
+    }, [albumQueryKey, authorName, eventId, queryClient, setActiveTab, t]),
   );
 
-  useEffect(() => {
-    if (activeTab !== EventDetailTab.Album || !event?.id) {
-      return;
-    }
-    const controller = beginRequest();
-    void loadInitialAlbum({ signal: controller.signal }).finally(() => {
-      endRequest(controller);
-    });
-    return () => {
-      abortAll();
-    };
-  }, [abortAll, activeTab, beginRequest, endRequest, event?.id, loadInitialAlbum]);
-
   const refetchAlbum = useCallback(async () => {
-    const controller = beginRequest();
-    try {
-      await loadInitialAlbum({ signal: controller.signal });
-    } finally {
-      endRequest(controller);
-    }
-  }, [beginRequest, endRequest, loadInitialAlbum]);
+    await refetch();
+  }, [refetch]);
 
   const loadMoreAlbum = useCallback(() => {
-    if (!eventId || !albumHasMoreRef.current || isLoadingMoreRef.current) {
+    if (!eventId || !hasNextPage || isFetchingNextPage || isFetching) {
       return;
     }
-    const loadMoreGeneration = ++loadMoreGenerationRef.current;
-    isLoadingMoreRef.current = true;
-    setIsLoadingMoreAlbum(true);
-    const controller = beginRequest();
-    const nextPage = albumPageRef.current + 1;
-    void loadAlbumPage(nextPage, 'append', {
-      signal: controller.signal,
-      loadMoreGeneration,
-    })
-      .catch((e) => {
-        if (!isAbortError(e) && loadMoreGeneration === loadMoreGenerationRef.current) {
-          if (__DEV__) {
-            console.error('[useEventDetailAlbum] load more failed', e);
-          }
-        }
-      })
-      .finally(() => {
-        endRequest(controller);
-        if (loadMoreGeneration === loadMoreGenerationRef.current) {
-          isLoadingMoreRef.current = false;
-          setIsLoadingMoreAlbum(false);
-        }
-      });
-  }, [beginRequest, endRequest, eventId, loadAlbumPage]);
+    void fetchNextPage();
+  }, [eventId, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage]);
 
   const onAlbumPhotoLike = useCallback(
     (photoId: string) => {
       if (!eventId || photoId.startsWith('local-')) {
         return;
       }
-      const likeId = ++likeGenerationRef.current;
-      void (async () => {
-        const updated = await eventRepository.postEventMediaLike(eventId, photoId);
-        if (!mountedRef.current || likeId !== likeGenerationRef.current) {
-          return;
-        }
-        if (!updated) {
-          showShortUserMessage(t('eventDetail.albumLikeError'));
-          return;
-        }
-        setAlbumPhotos((photos) =>
-          photos.map((p) => {
-            if (p.id !== photoId) {
-              return p;
-            }
-            const next = { ...p, likes: updated.likes_count, likedByMe: updated.liked };
-            setCachedEventAlbumPhoto(eventId, next);
-            return next;
-          }),
-        );
-      })();
+      likePhoto(photoId);
     },
-    [eventId, mountedRef, t],
+    [eventId, likePhoto],
   );
 
   const onAlbumPhotoPress = useCallback(
@@ -285,20 +229,20 @@ export function useEventDetailAlbum({
     if (
       !mediaId ||
       activeTab !== EventDetailTab.Album ||
-      !arePhotosLoaded ||
+      (!isFetched && isPending) ||
       openedAlbumPhotoIdRef.current === mediaId
     ) {
       return;
     }
     openedAlbumPhotoIdRef.current = mediaId;
     goToEventAlbumPhotoModal(eventId, mediaId);
-  }, [activeTab, arePhotosLoaded, eventId, goToEventAlbumPhotoModal, openAlbumPhotoId]);
+  }, [activeTab, eventId, goToEventAlbumPhotoModal, isFetched, isPending, openAlbumPhotoId]);
 
   return {
     albumPhotos,
-    arePhotosLoaded,
-    albumHasMore,
-    isLoadingMoreAlbum,
+    arePhotosLoaded: isFetched || !isPending,
+    albumHasMore: Boolean(hasNextPage),
+    isLoadingMoreAlbum: isFetchingNextPage,
     refetchAlbum,
     loadMoreAlbum,
     onAlbumPhotoLike,

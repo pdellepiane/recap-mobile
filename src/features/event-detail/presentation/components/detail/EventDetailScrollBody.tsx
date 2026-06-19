@@ -1,9 +1,9 @@
+import { useEventDetailAlbumScrollLoadMore } from '../../hooks/useEventDetailAlbumScrollLoadMore';
 import { EventDetailTab } from '../../hooks/useEventDetailScreen';
 import { EventDetailHero } from './EventDetailHero';
 import { useEventDetailLiveReactionPress } from './EventDetailLiveReactionContext';
 import { EventDetailOrganizerShareButton } from './EventDetailOrganizerShareButton';
 import { EventDetailTabsPanel } from './EventDetailTabsPanel';
-import { useEventDetailAlbumScrollLoadMore } from '../../hooks/useEventDetailAlbumScrollLoadMore';
 import { AlbumPhoto } from '@/src/features/event-detail/data/eventAlbum';
 import { EventChallenge } from '@/src/features/event-detail/data/eventChallenges';
 import type { EventGuestListRow } from '@/src/features/event-detail/data/eventDetailDerived';
@@ -43,6 +43,7 @@ export type Props = {
   onChallengePress: (challenge: EventChallenge) => void | Promise<void>;
   completedByChallengeId: Record<string, number>;
   rankingRows: RankingRow[];
+  isRankingLoaded: boolean;
   albumPhotos: AlbumPhoto[];
   arePhotosLoaded: boolean;
   albumHasMore?: boolean;
@@ -93,6 +94,7 @@ export const EventDetailScrollBody = memo(function EventDetailScrollBody({
   onChallengePress,
   completedByChallengeId,
   rankingRows,
+  isRankingLoaded,
   albumPhotos,
   arePhotosLoaded,
   albumHasMore = false,
@@ -121,9 +123,7 @@ export const EventDetailScrollBody = memo(function EventDetailScrollBody({
   });
   const refreshControl = useMemo(
     () =>
-      onRefresh ? (
-        <AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      ) : undefined,
+      onRefresh ? <AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined,
     [onRefresh, refreshing],
   );
   const bottomSpacerStyle = useMemo(() => ({ height: scrollBottomPadding }), [scrollBottomPadding]);
@@ -183,6 +183,7 @@ export const EventDetailScrollBody = memo(function EventDetailScrollBody({
         onChallengePress={onChallengePress}
         completedByChallengeId={completedByChallengeId}
         rankingRows={rankingRows}
+        isRankingLoaded={isRankingLoaded}
         albumPhotos={albumPhotos}
         arePhotosLoaded={arePhotosLoaded}
         isLoadingMoreAlbum={isLoadingMoreAlbum}

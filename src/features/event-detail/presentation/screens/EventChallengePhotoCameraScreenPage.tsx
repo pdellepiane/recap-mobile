@@ -16,10 +16,6 @@ type Props = {
   challengeNumber?: number;
 };
 
-/**
- * Photo-challenge camera: capture with controls (flash, shutter, selfie, system gallery),
- * then sharp preview with “Add photo” per design, and upload to the event album.
- */
 export function EventChallengePhotoCameraScreenPage({
   eventId,
   challengeId,

@@ -3,18 +3,13 @@ import { colors } from '@/src/ui/colors';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export type ScreenLoadingProps = {
-  /** Spinner tint; defaults to active/brand accent. */
-  color?: string;
-};
-
 /**
  * Full-screen safe-area loading state (centered {@link Spinner}) for any screen.
  */
-export function ScreenLoading({ color = colors.states.active }: ScreenLoadingProps) {
+export function ScreenLoading() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <Spinner color={color} style={styles.spinner} />
+      <Spinner style={styles.spinner} />
     </SafeAreaView>
   );
 }

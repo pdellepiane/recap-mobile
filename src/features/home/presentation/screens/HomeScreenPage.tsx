@@ -1,27 +1,17 @@
 import { HomeBannerCarousel } from '../components/HomeBannerCarousel';
 import { HomeFeedCarouselSections } from '../components/HomeFeedCarouselSections';
+import { HomeHeader } from '../components/HomeHeader';
 import { useHomeScreen } from '../hooks/useHomeScreen';
 import { images } from '@/src/assets/images';
-import {
-  AppRefreshControl,
-  ScreenLoading,
-  ScreenTitle,
-  colors,
-  useInvalidateRemoteImageCache,
-} from '@/src/ui';
-import { fontFamilies } from '@/src/ui/typography';
+import { useTranslation } from '@/src/i18n';
+import { AppRefreshControl, colors, ScreenLoading } from '@/src/ui';
 import { Image } from 'expo-image';
-import { useCallback } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-/**
- * Home tab: greeting, banner carousel, and event carousels (or empty state).
- */
 export function HomeScreenPage() {
-  const invalidateRemoteImageCache = useInvalidateRemoteImageCache();
   const {
-    greeting,
+    displayName,
     banners,
     myEvents,
     plans,
@@ -30,22 +20,18 @@ export function HomeScreenPage() {
     hasEvents,
     isLoading,
     isRefreshing,
-    reload,
-    openEvent,
+    handleRefresh,
+    handleOpenEvent,
     handleSlidePress,
   } = useHomeScreen();
-
-  const handleRefresh = useCallback(async () => {
-    await invalidateRemoteImageCache();
-    await reload();
-  }, [invalidateRemoteImageCache, reload]);
+  const { t } = useTranslation();
 
   if (isLoading) {
     return <ScreenLoading />;
   }
 
   return (
-    <View style={styles.root}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <Image
         source={images.home.background}
         style={styles.backgroundImage}
@@ -54,63 +40,43 @@ export function HomeScreenPage() {
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
       />
-      <SafeAreaView style={styles.safe} edges={['top']}>
-        <ScrollView
-          refreshControl={
-            <AppRefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
-          }
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.header}>
-            <ScreenTitle>{greeting}</ScreenTitle>
-          </View>
-          <HomeBannerCarousel banners={banners} onSlidePress={handleSlidePress} />
-          <HomeFeedCarouselSections
-            hasEvents={hasEvents}
-            myEvents={myEvents}
-            plans={plans}
-            pastEvents={pastEvents}
-            hostedEventIds={hostedEventIds}
-            onOpenEvent={openEvent}
-          />
-        </ScrollView>
-      </SafeAreaView>
-    </View>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={<AppRefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
+      >
+        <HomeHeader greeting={t('home.greeting', { name: displayName })} />
+        <HomeBannerCarousel banners={banners} onSlidePress={handleSlidePress} />
+        <HomeFeedCarouselSections
+          hasEvents={hasEvents}
+          myEvents={myEvents}
+          plans={plans}
+          pastEvents={pastEvents}
+          hostedEventIds={hostedEventIds}
+          onOpenEvent={handleOpenEvent}
+        />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
+  safe: {
     flex: 1,
     backgroundColor: colors.background.primary,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
   },
   /** Decorative asset: anchored top-left (not centered like full-screen ImageBackground + contain). */
   backgroundImage: {
     position: 'absolute',
     top: 0,
     left: 0,
+    right: 0,
+    bottom: 0,
     maxWidth: '100%',
     width: '100%',
     height: 280,
   },
-  safe: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 24,
-  },
-  greeting: {
-    fontSize: 24,
-    lineHeight: 30,
-    fontFamily: fontFamilies.signikaSemiBold,
-    color: colors.neutral.primary,
-    paddingHorizontal: 20,
-    marginBottom: 16,
-    marginTop: 16,
+  contentContainer: {
+    paddingBottom: 30,
   },
 });

@@ -1,14 +1,9 @@
-import { EventDetailCameraFabGate } from '../components/detail/EventDetailCameraFabGate';
 import { EventDetailLiveReactionProvider } from '../components/detail/EventDetailLiveReactionContext';
 import { EventDetailScreenScrollContent } from '../components/detail/EventDetailScreenScrollContent';
 import { EventDetailTab, useEventDetailScreen } from '../hooks/useEventDetailScreen';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import {
-  ScreenLoading,
-  ScreenNotFoundFallback,
-  colors,
-} from '@/src/ui';
+import { FloatingCameraFab, ScreenLoading, ScreenNotFoundFallback, colors } from '@/src/ui';
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -49,6 +44,7 @@ export const EventDetailScreenPage = ({
   const {
     event,
     isLoading,
+    isOrganizerRoleLoading,
     isDetailRefreshing,
     activeTab,
     completedByChallengeId,
@@ -56,15 +52,16 @@ export const EventDetailScreenPage = ({
     challenges,
     isChallengesLoaded,
     rankingRows,
+    isRankingLoaded,
     albumPhotos,
     arePhotosLoaded,
     albumHasMore,
     isLoadingMoreAlbum,
     detailVisibleTabs,
     isOrganizer,
-    canHostEditChallenges,
     isShareSheetOpen,
     isCreateChallengeSheetOpen,
+    isCameraFabVisible,
     showChallengesPendingDot,
     hostsLine,
     organizerGuestList,
@@ -97,7 +94,7 @@ export const EventDetailScreenPage = ({
 
   const createChallengeLabel = useMemo(() => t('eventDetail.createChallenge'), [t]);
 
-  if (isLoading) {
+  if (isLoading || isOrganizerRoleLoading) {
     return <ScreenLoading />;
   }
 
@@ -123,13 +120,13 @@ export const EventDetailScreenPage = ({
           challenges={challenges}
           isChallengesLoaded={isChallengesLoaded}
           rankingRows={rankingRows}
+          isRankingLoaded={isRankingLoaded}
           albumPhotos={albumPhotos}
           arePhotosLoaded={arePhotosLoaded}
           albumHasMore={albumHasMore}
           isLoadingMoreAlbum={isLoadingMoreAlbum}
           detailVisibleTabs={detailVisibleTabs}
           isOrganizer={isOrganizer}
-          canHostEditChallenges={canHostEditChallenges}
           showChallengesPendingDot={showChallengesPendingDot}
           hostsLine={hostsLine}
           goingGuests={goingGuests}
@@ -157,7 +154,13 @@ export const EventDetailScreenPage = ({
           onAlbumLoadMore={onAlbumLoadMore}
           createChallengeLabel={createChallengeLabel}
         />
-        <EventDetailCameraFabGate eventDateIso={event.date} onPress={onFabCameraPress} />
+        {isCameraFabVisible && (
+          <FloatingCameraFab
+            onPress={onFabCameraPress}
+            respectBottomSafeArea={false}
+            bottomOffset={isOrganizer ? SCROLL_BOTTOM_PADDING : 0}
+          />
+        )}
       </EventDetailLiveReactionProvider>
     </SafeAreaView>
   );

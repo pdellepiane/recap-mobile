@@ -2,6 +2,7 @@ import type { EventDetailGuestsPayload } from './eventGuestsPayload';
 
 export type EventDetailHostItem = {
   id?: number;
+  user_id?: number;
   name?: string;
   email?: string;
 };

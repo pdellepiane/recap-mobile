@@ -27,6 +27,7 @@ export function useEventDetailRanking({
   const refetchGenerationRef = useRef(0);
   const { beginRequest, endRequest, abortAll } = useAbortController();
   const [rankingRows, setRankingRows] = useState<RankingRow[]>([]);
+  const [isRankingLoaded, setIsRankingLoaded] = useState(false);
 
   /** Get ranking data when entering the Ranking tab. */
   useEffect(() => {
@@ -37,10 +38,12 @@ export function useEventDetailRanking({
     /** Block guest from seeing ranking before event day. */
     if (guestEventDayOrPastTabBlocked) {
       setRankingRows([]);
+      setIsRankingLoaded(true);
       return;
     }
     const id = event.id;
     const controller = beginRequest();
+    setIsRankingLoaded(false);
     void (async () => {
       try {
         const remote = await eventRepository.fetchEventRankingRemote(id, {
@@ -48,10 +51,12 @@ export function useEventDetailRanking({
         });
         if (!controller.signal.aborted) {
           setRankingRows(remote ?? []);
+          setIsRankingLoaded(true);
         }
       } catch (e) {
         if (!isAbortError(e) && !controller.signal.aborted) {
           setRankingRows([]);
+          setIsRankingLoaded(true);
         }
       } finally {
         endRequest(controller);
@@ -72,10 +77,12 @@ export function useEventDetailRanking({
       /** Clear ranking rows if the request is aborted. */
       if (mountedRef.current && generation === refetchGenerationRef.current) {
         setRankingRows([]);
+        setIsRankingLoaded(true);
       }
       endRequest(controller);
       return;
     }
+    setIsRankingLoaded(false);
     try {
       const remote = await eventRepository.fetchEventRankingRemote(eventId, {
         signal: controller.signal,
@@ -84,14 +91,16 @@ export function useEventDetailRanking({
         return;
       }
       setRankingRows(remote ?? []);
+      setIsRankingLoaded(true);
     } catch (e) {
       if (!isAbortError(e) && mountedRef.current && generation === refetchGenerationRef.current) {
         setRankingRows([]);
+        setIsRankingLoaded(true);
       }
     } finally {
       endRequest(controller);
     }
   }, [beginRequest, endRequest, eventId, guestEventDayOrPastTabBlocked, mountedRef]);
 
-  return { rankingRows, refetchRanking };
+  return { rankingRows, isRankingLoaded, refetchRanking };
 }

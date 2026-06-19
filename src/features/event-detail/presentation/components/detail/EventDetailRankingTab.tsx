@@ -4,13 +4,14 @@ import { EventDetailRankingListRow } from './EventDetailRankingListRow';
 import { EventType } from '@/src/core/api';
 import { getEventType } from '@/src/features/home/presentation/utils/eventDisplay';
 import { useTranslation } from '@/src/i18n';
-import { colors } from '@/src/ui';
+import { colors, Spinner } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { memo, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   rows: RankingRow[];
+  isRankingLoaded?: boolean;
   eventDateIso?: string;
   isOrganizer?: boolean;
 };
@@ -20,6 +21,7 @@ type Props = {
  */
 export const EventDetailRankingTab = memo(function EventDetailRankingTab({
   rows,
+  isRankingLoaded = false,
   eventDateIso,
   isOrganizer = false,
 }: Props) {
@@ -39,13 +41,21 @@ export const EventDetailRankingTab = memo(function EventDetailRankingTab({
     () => (isOrganizer ? t('eventDetail.rankingIntroHost') : t('eventDetail.rankingIntroGuest')),
     [isOrganizer, t],
   );
+  const showInitialLoading =
+    !isEventWithoutDateOrBeforeStart && !isRankingLoaded && rows.length === 0;
 
   return (
     <View>
       {sectionTitleKey && <Text style={styles.sectionTitle}>{t(sectionTitleKey)}</Text>}
       {!isEventWithoutDateOrBeforeStart && <Text style={styles.intro}>{introText}</Text>}
+      {showInitialLoading && (
+        <View style={styles.loadingInitial}>
+          <Spinner />
+        </View>
+      )}
       {isEventWithoutDateOrBeforeStart && <EventDetailRankingHostEmpty />}
-      {!isEventWithoutDateOrBeforeStart &&
+      {!showInitialLoading &&
+        !isEventWithoutDateOrBeforeStart &&
         rows.map((row) => <EventDetailRankingListRow key={row.id} row={row} />)}
     </View>
   );
@@ -68,5 +78,9 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     opacity: 0.88,
     marginBottom: 20,
+  },
+  loadingInitial: {
+    paddingVertical: 32,
+    alignItems: 'center',
   },
 });

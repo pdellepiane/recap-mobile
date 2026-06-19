@@ -1,9 +1,11 @@
 import { AnalyticsRouteObserver } from '@/src/core/analytics/AnalyticsRouteObserver';
+import { queryClient } from '@/src/core/query/queryClient';
 import { AuthSync } from '@/src/features/auth/presentation/AuthSync';
 import { AuthProvider } from '@/src/features/auth/presentation/context/AuthContext';
 import { PushNotificationSync } from '@/src/features/notifications/presentation/PushNotificationSync';
 import '@/src/i18n';
 import { RemoteImageCacheProvider } from '@/src/ui';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -66,29 +68,31 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <RemoteImageCacheProvider>
-          <AuthProvider>
-            <AuthSync />
-            <PushNotificationSync />
-            <AnalyticsRouteObserver />
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="index" />
-              <Stack.Screen name="onboarding" />
-              <Stack.Screen name="login" />
-              <Stack.Screen name="verify-code" />
-              <Stack.Screen name="profile" />
-              <Stack.Screen name="profile/edit" />
-              <Stack.Screen name="notification" options={{ headerShown: false }} />
-              <Stack.Screen name="home" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="in-app-web"
-                options={{ headerShown: false, presentation: 'modal' }}
-              />
-              <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
-              <Stack.Screen name="not-found" options={{ headerShown: false }} />
-            </Stack>
-          </AuthProvider>
-        </RemoteImageCacheProvider>
+        <QueryClientProvider client={queryClient}>
+          <RemoteImageCacheProvider>
+            <AuthProvider>
+              <AuthSync />
+              <PushNotificationSync />
+              <AnalyticsRouteObserver />
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="index" />
+                <Stack.Screen name="onboarding" />
+                <Stack.Screen name="login" />
+                <Stack.Screen name="verify-code" />
+                <Stack.Screen name="profile" />
+                <Stack.Screen name="profile/edit" />
+                <Stack.Screen name="notification" options={{ headerShown: false }} />
+                <Stack.Screen name="home" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="in-app-web"
+                  options={{ headerShown: false, presentation: 'modal' }}
+                />
+                <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="not-found" options={{ headerShown: false }} />
+              </Stack>
+            </AuthProvider>
+          </RemoteImageCacheProvider>
+        </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

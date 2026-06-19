@@ -1,10 +1,16 @@
 import type { NotificationItem } from '../../data/notificationItem';
+import type { FetchNotificationsResult } from '../../data/repositories/NotificationRepository';
 import { notificationRepository } from '@/src/core/di/container';
-import { useAbortController } from '@/src/core/hooks/useAbortController';
-import { isAbortError } from '@/src/core/http/isAbortError';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useRef, useState } from 'react';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  type InfiniteData,
+} from '@tanstack/react-query';
+import { useCallback, useMemo, useRef } from 'react';
+
+const notificationsQueryKey = ['notifications'] as const;
 
 function mergeNotifications(
   current: NotificationItem[],
@@ -24,6 +30,35 @@ function mergeNotifications(
   return next;
 }
 
+function flattenNotificationPages(
+  data: InfiniteData<FetchNotificationsResult, unknown> | undefined,
+): NotificationItem[] {
+  return (
+    data?.pages.reduce<NotificationItem[]>(
+      (current, page) => mergeNotifications(current, page.items),
+      [],
+    ) ?? []
+  );
+}
+
+function markNotificationAsSeen(
+  data: InfiniteData<FetchNotificationsResult, unknown> | undefined,
+  notificationId: string,
+): InfiniteData<FetchNotificationsResult, unknown> | undefined {
+  if (!data) {
+    return data;
+  }
+  return {
+    ...data,
+    pages: data.pages.map((page) => ({
+      ...page,
+      items: page.items.map((item) =>
+        item.id === notificationId ? { ...item, isSeen: true } : item,
+      ),
+    })),
+  };
+}
+
 /**
  * Notifications tab: paginated notifications and navigation on tap.
  */
@@ -37,148 +72,77 @@ export function useNotificationsScreen(): {
   onLoadMore: () => void;
 } {
   const { goToPushRedirect } = useCoordinator();
-  const { beginRequest, endRequest } = useAbortController();
-  const [items, setItems] = useState<NotificationItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const loadGenerationRef = useRef(0);
-  const loadMoreGenerationRef = useRef(0);
-  const pageRef = useRef(1);
-  const hasMoreRef = useRef(false);
-  const isLoadingMoreRef = useRef(false);
-
-  const applyPageResult = useCallback(
-    (
-      incoming: NotificationItem[],
-      hasMore: boolean,
-      currentPage: number,
-      mode: 'replace' | 'append',
-    ) => {
-      pageRef.current = currentPage;
-      hasMoreRef.current = hasMore;
-      setItems((current) =>
-        mode === 'replace' ? incoming : mergeNotifications(current, incoming),
+  const queryClient = useQueryClient();
+  const hasFocusedOnceRef = useRef(false);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    isPending,
+    isRefetching,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: notificationsQueryKey,
+    queryFn: ({ pageParam, signal }) =>
+      notificationRepository.fetchNotifications({ page: pageParam }, { signal }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.currentPage + 1 : undefined),
+  });
+  const items = useMemo(() => flattenNotificationPages(data), [data]);
+  const { mutate: markRead } = useMutation({
+    mutationFn: (notificationId: string) =>
+      notificationRepository.markNotificationRead(notificationId),
+    onMutate: async (notificationId) => {
+      await queryClient.cancelQueries({ queryKey: notificationsQueryKey });
+      const previous =
+        queryClient.getQueryData<InfiniteData<FetchNotificationsResult, unknown>>(
+          notificationsQueryKey,
+        );
+      queryClient.setQueryData<InfiniteData<FetchNotificationsResult, unknown>>(
+        notificationsQueryKey,
+        (data) => markNotificationAsSeen(data, notificationId),
       );
+      return { previous };
     },
-    [],
-  );
-
-  const loadPage = useCallback(
-    async (
-      page: number,
-      mode: 'replace' | 'append',
-      opts?: { signal?: AbortSignal; generation?: number; loadMoreGeneration?: number },
-    ) => {
-      const result = await notificationRepository.fetchNotifications(
-        { page },
-        { signal: opts?.signal },
-      );
-      if (opts?.signal?.aborted) {
-        return;
+    onError: (e, _notificationId, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(notificationsQueryKey, context.previous);
       }
-      if (opts?.generation != null && opts.generation !== loadGenerationRef.current) {
-        return;
-      }
-      if (
-        opts?.loadMoreGeneration != null &&
-        opts.loadMoreGeneration !== loadMoreGenerationRef.current
-      ) {
-        return;
-      }
-      applyPageResult(result.items, result.hasMore, result.currentPage, mode);
-    },
-    [applyPageResult],
-  );
-
-  const loadNotifications = useCallback(
-    async (mode: 'initial' | 'refresh' | 'append') => {
-      const controller = beginRequest();
-      const generation =
-        mode === 'append' ? loadGenerationRef.current : ++loadGenerationRef.current;
-      const loadMoreGeneration =
-        mode === 'append' ? ++loadMoreGenerationRef.current : loadMoreGenerationRef.current;
-
-      if (mode !== 'append') {
-        loadMoreGenerationRef.current += 1;
-        isLoadingMoreRef.current = false;
-        setIsLoadingMore(false);
-      }
-
-      if (mode === 'initial') {
-        setIsLoading(true);
-      } else if (mode === 'refresh') {
-        setIsRefreshing(true);
-      } else {
-        isLoadingMoreRef.current = true;
-        setIsLoadingMore(true);
-      }
-
-      try {
-        const page = mode === 'append' ? pageRef.current + 1 : 1;
-        const listMode = mode === 'append' ? 'append' : 'replace';
-        await loadPage(page, listMode, {
-          signal: controller.signal,
-          generation: mode === 'append' ? undefined : generation,
-          loadMoreGeneration: mode === 'append' ? loadMoreGeneration : undefined,
-        });
-      } catch (e) {
-        if (isAbortError(e) || generation !== loadGenerationRef.current) {
-          return;
-        }
-        if (__DEV__) {
-          console.error('[useNotificationsScreen] load failed', e);
-        }
-      } finally {
-        endRequest(controller);
-        if (generation === loadGenerationRef.current) {
-          setIsLoading(false);
-          setIsRefreshing(false);
-        }
-        if (mode === 'append' && loadMoreGeneration === loadMoreGenerationRef.current) {
-          isLoadingMoreRef.current = false;
-          setIsLoadingMore(false);
-        }
+      if (__DEV__) {
+        console.error('[useNotificationsScreen] mark read failed', e);
       }
     },
-    [beginRequest, endRequest, loadPage],
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      loadNotifications('initial');
-    }, [loadNotifications]),
-  );
+  });
 
   const onRefresh = useCallback(() => {
-    loadNotifications('refresh');
-  }, [loadNotifications]);
+    refetch();
+  }, [refetch]);
 
   const onLoadMore = useCallback(() => {
-    if (!hasMoreRef.current || isLoadingMoreRef.current || isLoading || isRefreshing) {
+    if (!hasNextPage || isFetchingNextPage || isFetching) {
       return;
     }
-    loadNotifications('append');
-  }, [isLoading, isRefreshing, loadNotifications]);
+    fetchNextPage();
+  }, [fetchNextPage, hasNextPage, isFetching, isFetchingNextPage]);
 
   const onNotificationPress = useCallback(
     (item: NotificationItem) => {
-      setItems((current) =>
-        current.map((row) => (row.id === item.id ? { ...row, isSeen: true } : row)),
-      );
+      markRead(item.id);
       if (item.action) {
         goToPushRedirect(item.action);
         return;
       }
     },
-    [goToPushRedirect],
+    [goToPushRedirect, markRead],
   );
 
   return {
     items,
-    isLoading,
-    isRefreshing,
-    isLoadingMore,
+    isLoading: isPending && items.length === 0,
+    isRefreshing: isRefetching && !isFetchingNextPage,
+    isLoadingMore: isFetchingNextPage,
     onNotificationPress,
     onRefresh,
     onLoadMore,

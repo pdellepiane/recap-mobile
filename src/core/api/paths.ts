@@ -11,6 +11,8 @@ export const userPaths = {
   avatar: 'api/user/avatar',
   pushToken: 'api/user/push-token',
   notifications: 'api/user/notifications',
+  notificationRead: (id: string | number) =>
+    `api/user/notifications/${encodeURIComponent(String(id))}/read`,
 } as const;
 
 export const homePaths = {

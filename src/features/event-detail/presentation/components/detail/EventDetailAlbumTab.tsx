@@ -53,6 +53,7 @@ export const EventDetailAlbumTab = memo(function EventDetailAlbumTab({
     return (contentW - COL_GAP) / 2;
   }, [winW]);
   const [left, right] = useMemo(() => splitIntoColumns(photos), [photos]);
+  const showInitialLoading = !arePhotosLoaded && photos.length === 0;
   const showHostEmpty = useMemo(
     () => arePhotosLoaded && photos.length === 0,
     [arePhotosLoaded, photos.length],
@@ -64,7 +65,11 @@ export const EventDetailAlbumTab = memo(function EventDetailAlbumTab({
     <View>
       <Text style={styles.sectionTitle}>{t('eventDetail.albumTitle')}</Text>
 
-      {showHostEmpty ? (
+      {showInitialLoading ? (
+        <View style={styles.loadingInitial}>
+          <Spinner />
+        </View>
+      ) : showHostEmpty ? (
         <Text style={styles.empty}>{t('eventDetail.albumEmpty')}</Text>
       ) : (
         <>
@@ -94,7 +99,7 @@ export const EventDetailAlbumTab = memo(function EventDetailAlbumTab({
           </View>
           {isLoadingMore ? (
             <View style={styles.loadingMore}>
-              <Spinner color={colors.states.active} />
+              <Spinner />
             </View>
           ) : null}
         </>
@@ -115,6 +120,10 @@ const styles = StyleSheet.create({
   empty: {
     color: colors.neutral.secondary,
     fontSize: 15,
+  },
+  loadingInitial: {
+    paddingVertical: 32,
+    alignItems: 'center',
   },
   masonryRow: {
     flexDirection: 'row',

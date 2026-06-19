@@ -173,19 +173,24 @@ export function useEventDetailChallenges({
       if (!event) {
         return;
       }
-      if (isOrganizer) {
-        if (challenge.kind === EventChallengeKind.Quiz) {
-          goToEventChallengeQuizEdit(event.id, challenge.id);
-        } else {
-          goToEventChallengePhotoEdit(event.id, challenge.id, challenge.number);
-        }
+      if (challenge.kind === EventChallengeKind.Quiz) {
+        goToEventChallengeQuiz(event.id, challenge.id, challenge.number);
       } else {
-        if (challenge.kind === EventChallengeKind.Quiz) {
-          goToEventChallengeQuiz(event.id, challenge.id, challenge.number);
-        } else {
-          goToEventChallengePhoto(event.id, challenge.id, challenge.number);
-        }
+        goToEventChallengePhoto(event.id, challenge.id, challenge.number);
       }
+      // if (isOrganizer) {
+      //   if (challenge.kind === EventChallengeKind.Quiz) {
+      //     goToEventChallengeQuizEdit(event.id, challenge.id);
+      //   } else {
+      //     goToEventChallengePhotoEdit(event.id, challenge.id, challenge.number);
+      //   }
+      // } else {
+      //   if (challenge.kind === EventChallengeKind.Quiz) {
+      //     goToEventChallengeQuiz(event.id, challenge.id, challenge.number);
+      //   } else {
+      //     goToEventChallengePhoto(event.id, challenge.id, challenge.number);
+      //   }
+      // }
     },
     [
       event,

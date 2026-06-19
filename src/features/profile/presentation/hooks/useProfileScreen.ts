@@ -1,10 +1,9 @@
 import { useProfile } from './useProfile';
 import { useProfileAvatarUpload } from './useProfileAvatarUpload';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
-import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { useTranslation } from '@/src/i18n';
+import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { initialsFromFullName } from '@/src/ui/HostInitialsAvatar';
-import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import * as Linking from 'expo-linking';
 import * as StoreReview from 'expo-store-review';
@@ -21,6 +20,7 @@ export function useProfileScreen() {
   const { goToProfileEdit } = useCoordinator();
   const { isUploadingAvatar, handleChangeAvatar } = useProfileAvatarUpload();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const displayName = profile?.name ?? '-';
   const avatarUrl = profile?.avatarUrl;
@@ -31,12 +31,6 @@ export function useProfileScreen() {
     if (!v) return 'unknown';
     return String(v);
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      void refreshUser();
-    }, [refreshUser]),
-  );
 
   const performLogout = useCallback(async () => {
     setIsSigningOut(true);
@@ -80,8 +74,18 @@ export function useProfileScreen() {
     await Linking.openURL('https://sinenvolturas.com/legal/terms-and-conditions');
   }, []);
 
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshUser();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refreshUser]);
+
   return {
     isLoading,
+    isRefreshing,
     isSigningOut,
     displayName,
     initials,
@@ -93,5 +97,6 @@ export function useProfileScreen() {
     handleAccountPress,
     handleRate,
     handleLegal,
+    handleRefresh,
   };
 }

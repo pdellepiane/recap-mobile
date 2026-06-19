@@ -1,11 +1,10 @@
 import { useProfile } from './useProfile';
 import { authRepository } from '@/src/core/di/container';
 import { getAuthAccessToken } from '@/src/core/http/authSession';
-import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import { persistSessionSnapshot } from '@/src/features/auth/data/sessionStorage';
+import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
-import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 
@@ -18,19 +17,13 @@ export function useProfileEditScreen() {
   const [lastName, setLastName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  useFocusEffect(
-    useCallback(() => {
-      void refreshUser();
-    }, [refreshUser]),
-  );
-
   useEffect(() => {
     if (!profile) {
       return;
     }
     setFirstName(profile.firstName ?? '');
     setLastName(profile.lastName ?? '');
-  }, [profile?.firstName, profile?.lastName, profile?.id]);
+  }, [profile]);
 
   const trimmedFirst = firstName.trim();
   const trimmedLast = lastName.trim();
@@ -69,7 +62,8 @@ export function useProfileEditScreen() {
       isSaving,
       canSave,
       handleSave,
+      handleGoBack: goBack,
     }),
-    [canSave, firstName, handleSave, isLoading, isSaving, lastName],
+    [canSave, firstName, handleSave, isLoading, isSaving, lastName, goBack],
   );
 }

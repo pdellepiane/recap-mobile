@@ -2,20 +2,20 @@ import { firstNameFromDisplayName } from '../utils/eventDisplay';
 import { useHomeFeed } from './useHomeFeed';
 import { EventType } from '@/src/core/api/types';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
-import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
+import { useInvalidateRemoteImageCache } from '@/src/ui';
 import * as Linking from 'expo-linking';
 import { useCallback } from 'react';
 
 const SIN_ENVOLTURAS_MARKETING_URL = 'https://sinenvolturas.com/evento/crear/tipo';
 
 /**
- * Home screen orchestration: greeting + feed data + event navigation handlers.
+ * Home screen orchestration: feed data + event navigation handlers.
  */
 export function useHomeScreen() {
-  const { t } = useTranslation();
   const { session, refreshUser } = useAuth();
   const { goToEventDetail } = useCoordinator();
+  const invalidateRemoteImageCache = useInvalidateRemoteImageCache();
   const {
     banners,
     myEvents,
@@ -28,14 +28,17 @@ export function useHomeScreen() {
     reload: reloadFeed,
   } = useHomeFeed();
 
-  const reload = useCallback(async () => {
-    await Promise.all([reloadFeed(), refreshUser()]);
-  }, [reloadFeed, refreshUser]);
+  const handleRefresh = useCallback(async () => {
+    try {
+      await Promise.all([invalidateRemoteImageCache(), reloadFeed(), refreshUser()]);
+    } catch (error) {
+      console.error('Error refreshing home screen:', error);
+    }
+  }, [invalidateRemoteImageCache, reloadFeed, refreshUser]);
 
-  const displayName = session ? firstNameFromDisplayName(session.user.name) : t('home.guest');
-  const greeting = t('home.greeting', { name: displayName });
+  const displayName = session ? firstNameFromDisplayName(session.user.name) : '';
 
-  const openEvent = useCallback(
+  const handleOpenEvent = useCallback(
     (id: string) => {
       goToEventDetail(id);
     },
@@ -52,13 +55,13 @@ export function useHomeScreen() {
         void Linking.openURL(SIN_ENVOLTURAS_MARKETING_URL);
         return;
       }
-      openEvent(String(item.id));
+      handleOpenEvent(String(item.id));
     },
-    [banners, openEvent],
+    [banners, handleOpenEvent],
   );
 
   return {
-    greeting,
+    displayName,
     banners,
     myEvents,
     plans,
@@ -67,8 +70,8 @@ export function useHomeScreen() {
     hasEvents,
     isLoading,
     isRefreshing,
-    reload,
-    openEvent,
+    handleRefresh,
+    handleOpenEvent,
     handleSlidePress,
   };
 }

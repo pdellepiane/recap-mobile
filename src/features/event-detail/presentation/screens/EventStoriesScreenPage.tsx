@@ -12,9 +12,6 @@ type Props = {
   eventId: string;
 };
 
-/**
- * Full-screen WhatsApp-style stories: photos, segmented progress, like / dislike.
- */
 export function EventStoriesScreenPage({ eventId }: Props) {
   const { t } = useTranslation();
   const { width: screenW, height: screenH } = useWindowDimensions();

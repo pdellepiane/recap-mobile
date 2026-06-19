@@ -209,7 +209,7 @@ export class EventRepository {
     }
   }
 
-  /** Finds one album photo by media id (paginates until found). */
+  /** GET /api/events/:id/media/:mediaId — Finds one album photo by media id (paginates until found). */
   async fetchEventMediaById(
     eventId: string,
     mediaId: string,

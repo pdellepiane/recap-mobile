@@ -29,6 +29,8 @@ export type Event = {
   coverImageUrl?: string;
   /** API `user_id` for the event owner/creator; `hosts` remains the organizer membership source. */
   ownerUserId?: string;
+  /** True when organizer membership was resolved from detail API user ids. */
+  organizerUserIdsResolved?: boolean;
   hosts?: EventHost[];
   guests?: EventGuest[];
   /** From GET /api/events/:id `show_guest_list` when present. */

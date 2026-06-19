@@ -4,95 +4,103 @@ import {
   setCachedEventAlbumPhoto,
 } from '../../data/eventAlbumPhotoCache';
 import { eventRepository } from '@/src/core/di/container';
-import { useAbortController } from '@/src/core/hooks/useAbortController';
-import { isAbortError } from '@/src/core/http/isAbortError';
+import type { FetchEventMediaResult } from '@/src/features/events/data/repositories/EventRepository';
 import { useTranslation } from '@/src/i18n';
 import { useCoordinator } from '@/src/navigation/useCoordinator';
 import { showShortUserMessage } from '@/src/ui';
-import { useCallback, useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 type Params = {
   eventId: string;
   mediaId: string;
 };
 
+function albumPhotoQueryKey(eventId: string, mediaId: string) {
+  return ['event', eventId, 'albumPhoto', mediaId] as const;
+}
+
+function eventAlbumQueryKey(eventId: string) {
+  return ['event', eventId, 'album'] as const;
+}
+
+function applyAlbumPhotoLike(
+  photo: AlbumPhoto | null | undefined,
+  eventId: string,
+  updated: { liked: boolean; likes_count: number },
+): AlbumPhoto | null | undefined {
+  if (!photo) {
+    return photo;
+  }
+  const next = { ...photo, likes: updated.likes_count, likedByMe: updated.liked };
+  setCachedEventAlbumPhoto(eventId, next);
+  return next;
+}
+
 export function useEventAlbumPhotoScreen({ eventId, mediaId }: Params) {
   const { t } = useTranslation();
   const { goBack } = useCoordinator();
-  const { beginRequest, endRequest, abortAll } = useAbortController();
-  const [photo, setPhoto] = useState<AlbumPhoto | null>(() =>
-    getCachedEventAlbumPhoto(eventId, mediaId),
-  );
-  const [isLoading, setIsLoading] = useState(() => photo == null);
-
-  useEffect(() => {
-    const cached = getCachedEventAlbumPhoto(eventId, mediaId);
-
-    if (cached) {
-      setPhoto(cached);
-      setIsLoading(false);
-      return undefined;
-    }
-
-    const controller = beginRequest();
-    setIsLoading(true);
-    void (async () => {
-      try {
-        const loaded = await eventRepository.fetchEventMediaById(eventId, mediaId, {
-          signal: controller.signal,
-        });
-        if (controller.signal.aborted) {
-          return;
-        }
-        if (loaded) {
-          setCachedEventAlbumPhoto(eventId, loaded);
-        }
-        setPhoto(loaded);
-      } catch (e) {
-        if (!isAbortError(e) && !controller.signal.aborted) {
-          setPhoto(null);
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsLoading(false);
-        }
-        endRequest(controller);
+  const queryClient = useQueryClient();
+  const photoQueryKey = albumPhotoQueryKey(eventId, mediaId);
+  const photoQuery = useQuery({
+    queryKey: photoQueryKey,
+    queryFn: async ({ signal }) => {
+      const loaded = await eventRepository.fetchEventMediaById(eventId, mediaId, { signal });
+      if (loaded) {
+        setCachedEventAlbumPhoto(eventId, loaded);
       }
-    })();
-
-    return () => {
-      abortAll();
-    };
-  }, [abortAll, beginRequest, endRequest, eventId, mediaId]);
+      return loaded;
+    },
+    initialData: () => getCachedEventAlbumPhoto(eventId, mediaId),
+  });
+  const photo = photoQuery.data ?? null;
+  const likeMutation = useMutation({
+    mutationFn: (photoId: string) => eventRepository.postEventMediaLike(eventId, photoId),
+    onSuccess: (updated, photoId) => {
+      if (!updated) {
+        showShortUserMessage(t('eventDetail.albumLikeError'));
+        return;
+      }
+      queryClient.setQueryData<AlbumPhoto | null | undefined>(photoQueryKey, (current) =>
+        applyAlbumPhotoLike(current, eventId, updated),
+      );
+      queryClient.setQueryData<InfiniteData<FetchEventMediaResult, number>>(
+        eventAlbumQueryKey(eventId),
+        (data) => {
+          if (!data) {
+            return data;
+          }
+          return {
+            ...data,
+            pages: data.pages.map((page) => ({
+              ...page,
+              items: page.items.map((item) =>
+                item.id === photoId
+                  ? {
+                      ...item,
+                      likes: updated.likes_count,
+                      likedByMe: updated.liked,
+                    }
+                  : item,
+              ),
+            })),
+          };
+        },
+      );
+    },
+  });
+  const { mutate: likePhoto } = likeMutation;
 
   const onLikePress = useCallback(() => {
     if (!photo || photo.id.startsWith('local-')) {
       return;
     }
-    void (async () => {
-      const updated = await eventRepository.postEventMediaLike(eventId, photo.id);
-      if (!updated) {
-        showShortUserMessage(t('eventDetail.albumLikeError'));
-        return;
-      }
-      setPhoto((current) => {
-        if (!current) {
-          return current;
-        }
-        const next = {
-          ...current,
-          likes: updated.likes_count,
-          likedByMe: updated.liked,
-        };
-        setCachedEventAlbumPhoto(eventId, next);
-        return next;
-      });
-    })();
-  }, [eventId, photo, t]);
+    likePhoto(photo.id);
+  }, [likePhoto, photo]);
 
   return {
     photo,
-    isLoading,
+    isLoading: photoQuery.isPending && !photo,
     goBack,
     onLikePress,
   };

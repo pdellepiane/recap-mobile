@@ -145,29 +145,11 @@ export function eventParticipantNamesLine(event: Event | null): string {
  * Hosts line for overview + facepile: organizer uses session name when hosting from feed;
  * otherwise joins `event.hosts` names; finally a translated fallback.
  */
-export function hostsLineForDetailView(
-  event: Event | null,
-  opts: {
-    isOrganizer: boolean;
-    sessionUserName: string;
-    /** When not organizer and API omits host names. */
-    translatedFallback?: string;
-  },
-): string {
-  if (event && opts.isOrganizer) {
-    const me = opts.sessionUserName.trim();
-    if (me) {
-      return me;
-    }
-  }
-  const fromHosts = (event?.hosts ?? [])
+export function hostsLineForDetailView(event: Event | null): string {
+  return (event?.hosts ?? [])
     .map((host) => host.name?.trim() ?? '')
     .filter((name) => name.length > 0)
     .join(', ');
-  if (fromHosts) {
-    return fromHosts;
-  }
-  return opts.translatedFallback ?? '';
 }
 
 export function organizerParticipantRows(event: Event | null): EventDetailParticipantRow[] {

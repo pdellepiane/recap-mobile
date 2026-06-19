@@ -9,7 +9,7 @@ type ProfileMenuFooterProps = {
   onLogout: () => void;
 };
 
-export function ProfileMenuFooter({ version, isSigningOut, onLogout }: ProfileMenuFooterProps) {
+export function ProfileFooter({ version, isSigningOut, onLogout }: ProfileMenuFooterProps) {
   const { t } = useTranslation();
 
   return (

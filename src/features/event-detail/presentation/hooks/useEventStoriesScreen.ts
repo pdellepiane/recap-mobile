@@ -1,7 +1,6 @@
-import { EVENT_STORIES_BOTTOM_CHROME_HEIGHT } from '../components/stories/EventStoriesChrome';
-import { buildEventStoriesBundle, type EventStoriesBundle } from '../../data/eventStories';
 import { hostsLineForDetailView } from '../../data/eventDetailDerived';
-import { isEventOrganizerForUser } from '../../data/eventOrganizer';
+import { buildEventStoriesBundle, type EventStoriesBundle } from '../../data/eventStories';
+import { EVENT_STORIES_BOTTOM_CHROME_HEIGHT } from '../components/stories/EventStoriesChrome';
 import { useEventDetailRoute } from '../context/EventDetailRouteContext';
 import { useEventStoriesViewer } from './useEventStoriesViewer';
 import { useSwipeDownToClose } from './useSwipeDownToClose';
@@ -45,14 +44,7 @@ export function useEventStoriesScreen(eventId: string) {
         if (controller.signal.aborted) {
           return;
         }
-        const isOrganizer = isEventOrganizerForUser(event, session?.user.id);
-        const authorName =
-          event && session
-            ? hostsLineForDetailView(event, {
-                isOrganizer,
-                sessionUserName: session.user.name,
-              })
-            : '';
+        const authorName = hostsLineForDetailView(event);
         setBundle(
           buildEventStoriesBundle(slides, {
             name: authorName,

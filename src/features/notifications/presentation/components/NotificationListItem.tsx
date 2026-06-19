@@ -44,14 +44,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingHorizontal: 20,
     height: 100,
+    paddingHorizontal: 20,
   },
   rowSeen: {
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
   },
   rowUnread: {
-    backgroundColor: colors.background.primary,
+    backgroundColor: colors.background.elevated,
   },
   rowPressed: {
     opacity: 0.88,

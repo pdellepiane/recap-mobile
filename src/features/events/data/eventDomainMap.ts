@@ -54,11 +54,13 @@ export function mapHomeEventApiItemToDomain(remote: HomeEventItem): Event {
   const cover = typeof remote.cover === 'string' ? remote.cover.trim() : '';
   const hosts = (Array.isArray(remote.hosts) ? remote.hosts : [])
     .map((host) => ({
-      id: String(host.id),
+      id: String(host.user_id ?? host.id),
       name: host.name?.trim() ?? '',
       ...(host.email?.trim() ? { email: host.email.trim() } : {}),
     }))
     .filter((host) => host.name.length > 0);
+  const hasHostUserIds =
+    Array.isArray(remote.hosts) && remote.hosts.some((host) => host.user_id != null);
 
   const eventGuests = guests
     .map((g) => ({
@@ -79,6 +81,7 @@ export function mapHomeEventApiItemToDomain(remote: HomeEventItem): Event {
     description: descriptionParts.join(' · '),
     shareUrl: shareUrlFromIdentity(id, remote.slug),
     ...(cover.length > 0 ? { coverImageUrl: cover } : {}),
+    ...(hasHostUserIds ? { organizerUserIdsResolved: true } : {}),
     ...(hosts.length > 0 ? { hosts } : {}),
     ...(eventGuests.length > 0 ? { guests: eventGuests } : {}),
   };
@@ -112,12 +115,14 @@ export function mapEventDetailDataToDomain(data: EventDetailData): Event {
     Array.isArray(data.hosts) && data.hosts.length > 0
       ? data.hosts
           .map((host) => ({
-            id: String(host?.id ?? ''),
+            id: String(host?.user_id ?? host?.id ?? ''),
             name: host?.name?.trim() ?? '',
             ...(host?.email?.trim() ? { email: host.email.trim() } : {}),
           }))
           .filter((host) => host.id.length > 0 && host.name.length > 0)
       : [];
+  const hasHostUserIds =
+    Array.isArray(data.hosts) && data.hosts.some((host) => host?.user_id != null);
 
   const id = String(data.id);
   const showGuestList =
@@ -132,6 +137,7 @@ export function mapEventDetailDataToDomain(data: EventDetailData): Event {
     description: descriptionParts.join(' · '),
     shareUrl: shareUrlFromIdentity(id, data.slug),
     ...(data.user_id != null ? { ownerUserId: String(data.user_id) } : {}),
+    organizerUserIdsResolved: hasHostUserIds || data.user_id != null,
     ...(cover ? { coverImageUrl: cover } : {}),
     ...(hosts.length > 0 ? { hosts } : {}),
     ...(eventGuests.length > 0 ? { guests: eventGuests } : {}),

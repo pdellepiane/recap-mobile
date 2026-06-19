@@ -4,10 +4,10 @@ import { EventDetailChallengesHostEmpty } from './EventDetailChallengesHostEmpty
 import { EventType } from '@/src/core/api';
 import { getEventType } from '@/src/features/home/presentation/utils/eventDisplay';
 import { useTranslation } from '@/src/i18n';
-import { colors } from '@/src/ui';
+import { colors, Spinner } from '@/src/ui';
 import { fontFamilies } from '@/src/ui/typography';
 import { memo, useMemo } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   challenges: EventChallenge[];
@@ -47,24 +47,29 @@ export const EventDetailChallengesTab = memo(function EventDetailChallengesTab({
     () => isOrganizer && isChallengesLoaded && challenges.length === 0,
     [challenges.length, isChallengesLoaded, isOrganizer],
   );
-  const introText = useMemo(
-    () =>
-      isOrganizer ? t('eventDetail.challengesHostIntro') : t('eventDetail.challengesGuestIntro'),
-    [isOrganizer, t],
-  );
+  const showInitialLoading = !isChallengesLoaded && challenges.length === 0;
+
   return (
     <>
       <Text style={styles.sectionTitle}>{sectionTitle}</Text>
-      {!isEventWithoutDateOrBeforeStart && <Text style={styles.intro}>{introText}</Text>}
+      {!isEventWithoutDateOrBeforeStart && !isOrganizer && (
+        <Text style={styles.intro}>{t('eventDetail.challengesGuestIntro')}</Text>
+      )}
+      {showInitialLoading && (
+        <View style={styles.loadingInitial}>
+          <Spinner />
+        </View>
+      )}
       {isEventWithoutDateOrBeforeStart && showHostEmpty && <EventDetailChallengesHostEmpty />}
-      {challenges.map((challenge) => (
-        <EventChallengeListCard
-          key={challenge.id}
-          challenge={challenge}
-          completedByChallengeId={completedByChallengeId}
-          onChallengePress={onChallengePress}
-        />
-      ))}
+      {!showInitialLoading &&
+        challenges.map((challenge) => (
+          <EventChallengeListCard
+            key={challenge.id}
+            challenge={challenge}
+            completedByChallengeId={completedByChallengeId}
+            onChallengePress={onChallengePress}
+          />
+        ))}
     </>
   );
 });
@@ -90,5 +95,9 @@ const styles = StyleSheet.create({
     color: colors.neutral.secondary,
     fontSize: 15,
     marginBottom: 12,
+  },
+  loadingInitial: {
+    paddingVertical: 32,
+    alignItems: 'center',
   },
 });

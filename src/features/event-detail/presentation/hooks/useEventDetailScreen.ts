@@ -6,6 +6,7 @@ import {
   eventParticipantNamesLine,
   guestsPendingCountFromEvent,
   hostsLineForDetailView,
+  isEventDetailCameraFabVisible,
   organizerGuestListCounts,
 } from '../../data/eventDetailDerived';
 import { useEventDetailRoute } from '../context/EventDetailRouteContext';
@@ -54,15 +55,17 @@ type Params = {
 export type EventDetailScreenData = {
   event: Event | null;
   isLoading: boolean;
+  isOrganizerRoleLoading: boolean;
   isDetailRefreshing: boolean;
   isOrganizer: boolean;
-  canHostEditChallenges: boolean;
   activeTab: EventDetailTab;
   detailVisibleTabs: readonly EventDetailTab[];
   completedByChallengeId: Record<string, number>;
   challenges: ReturnType<typeof useEventDetailChallenges>['challenges'];
   isChallengesLoaded: ReturnType<typeof useEventDetailChallenges>['isChallengesLoaded'];
+  isCameraFabVisible: boolean;
   rankingRows: ReturnType<typeof useEventDetailRanking>['rankingRows'];
+  isRankingLoaded: ReturnType<typeof useEventDetailRanking>['isRankingLoaded'];
   albumPhotos: ReturnType<typeof useEventDetailAlbum>['albumPhotos'];
   arePhotosLoaded: ReturnType<typeof useEventDetailAlbum>['arePhotosLoaded'];
   albumHasMore: ReturnType<typeof useEventDetailAlbum>['albumHasMore'];
@@ -161,7 +164,7 @@ export function useEventDetailScreen({
     detailVisibleTabs,
     guestEventDayOrPastTabBlocked,
     isOrganizer,
-    canHostEditChallenges,
+    isOrganizerRoleLoading,
   } = useEventDetailTabsAccess({
     eventId,
     event,
@@ -186,7 +189,7 @@ export function useEventDetailScreen({
     openChallengeId,
   });
 
-  const { rankingRows, refetchRanking } = useEventDetailRanking({
+  const { rankingRows, isRankingLoaded, refetchRanking } = useEventDetailRanking({
     eventId,
     event,
     activeTab,
@@ -281,25 +284,15 @@ export function useEventDetailScreen({
 
   // --- Derived data
   const countdownEndsAt = useMemo(() => countdownEndsAtForEvent(event), [event]);
-
   const goingGuests = useMemo(() => eventGuestListGoingRows(event), [event]);
   const guestsAttendingCount = useMemo(() => eventGuestsGoing(event).length, [event]);
   const guestsPendingCount = useMemo(() => guestsPendingCountFromEvent(event), [event]);
   const participantNamesLine = useMemo(() => eventParticipantNamesLine(event), [event]);
-
-  const hostsLine = useMemo(() => {
-    if (!event || !session) {
-      return '';
-    }
-    return hostsLineForDetailView(event, {
-      isOrganizer,
-      sessionUserName: session.user.name,
-    });
-  }, [event, isOrganizer, session]);
-
-  const organizerGuestList = useMemo(
-    () => (event ? organizerGuestListCounts(event) : { listConfirmed: 0, listTotalInvited: 0 }),
-    [event],
+  const hostsLine = useMemo(() => hostsLineForDetailView(event), [event]);
+  const organizerGuestList = useMemo(() => organizerGuestListCounts(event), [event]);
+  const isCameraFabVisible = useMemo(
+    () => isEventDetailCameraFabVisible(event?.date, new Date()),
+    [event?.date],
   );
 
   // --- Handlers
@@ -448,15 +441,17 @@ export function useEventDetailScreen({
   const data: EventDetailScreenData = {
     event,
     isLoading,
+    isOrganizerRoleLoading,
     isDetailRefreshing,
     isOrganizer,
-    canHostEditChallenges,
     activeTab,
     detailVisibleTabs,
     completedByChallengeId: completedByChallengeIdForUi,
     challenges,
     isChallengesLoaded,
+    isCameraFabVisible,
     rankingRows,
+    isRankingLoaded,
     albumPhotos,
     arePhotosLoaded,
     albumHasMore,

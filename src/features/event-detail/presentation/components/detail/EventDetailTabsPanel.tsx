@@ -1,9 +1,9 @@
+import { EventDetailTab } from '../../hooks/useEventDetailScreen';
 import { EventDetailAlbumTab } from './EventDetailAlbumTab';
 import { EventDetailChallengesTab } from './EventDetailChallengesTab';
 import { EventDetailOverviewTab } from './EventDetailOverviewTab';
 import { EventDetailRankingTab } from './EventDetailRankingTab';
 import { EventDetailTabs } from './EventDetailTabs';
-import { EventDetailTab } from '../../hooks/useEventDetailScreen';
 import type { AlbumPhoto } from '@/src/features/event-detail/data/eventAlbum';
 import type { EventChallenge } from '@/src/features/event-detail/data/eventChallenges';
 import type { EventGuestListRow } from '@/src/features/event-detail/data/eventDetailDerived';
@@ -32,6 +32,7 @@ type Props = {
   onChallengePress: (challenge: EventChallenge) => void | Promise<void>;
   completedByChallengeId: Record<string, number>;
   rankingRows: RankingRow[];
+  isRankingLoaded: boolean;
   albumPhotos: AlbumPhoto[];
   arePhotosLoaded: boolean;
   isLoadingMoreAlbum: boolean;
@@ -59,6 +60,7 @@ export const EventDetailTabsPanel = memo(function EventDetailTabsPanel({
   onChallengePress,
   completedByChallengeId,
   rankingRows,
+  isRankingLoaded,
   albumPhotos,
   arePhotosLoaded,
   isLoadingMoreAlbum,
@@ -101,6 +103,7 @@ export const EventDetailTabsPanel = memo(function EventDetailTabsPanel({
       ) : activeTab === EventDetailTab.Ranking ? (
         <EventDetailRankingTab
           rows={rankingRows}
+          isRankingLoaded={isRankingLoaded}
           eventDateIso={eventDateIso}
           isOrganizer={isOrganizer}
         />

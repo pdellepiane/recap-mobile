@@ -34,7 +34,6 @@ export default function EventIdLayout() {
               animation: 'slide_from_bottom',
             }}
           />
-          <Stack.Screen name="map" />
           <Stack.Screen name="challenge-quiz" />
           <Stack.Screen
             name="challenge-quiz-create"

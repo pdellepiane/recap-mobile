@@ -1,5 +1,5 @@
 import type { Event } from '@/src/domain/entities';
-import { isEventOrganizerForUser } from '../../data/eventOrganizer';
+import { getEventOrganizerStatus } from '../../data/eventOrganizer';
 import { useAuth } from '@/src/features/auth/presentation/context/AuthContext';
 import { isBeforeEventCalendarDay } from '@/src/features/home/presentation/components/utils/eventCalendar';
 import { useMemo } from 'react';
@@ -15,7 +15,8 @@ export function useGuestEventDayOrPastTabBlocked(event: Event | null | undefined
     if (!event?.id) {
       return false;
     }
-    if (isEventOrganizerForUser(event, session?.user.id)) {
+    const organizerStatus = getEventOrganizerStatus(event, session?.user.id);
+    if (organizerStatus !== 'guest') {
       return false;
     }
     const trimmed = event.date?.trim() ?? '';
