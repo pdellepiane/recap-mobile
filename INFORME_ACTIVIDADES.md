@@ -7,7 +7,7 @@ Fecha: 24/06/2026
 | Título del Proyecto | Sin Envolturas |
 |---|---|
 | Contrato | — |
-| Período Proyecto | Del 02/03/2026 al 24/06/2026 |
+| Período Proyecto | Del 02/03/2026 al 24/04/2026 |
 | Entidad Ejecutora | Sin Envolturas |
 | Coord Gral de Proy | Claudia Dawson Farro |
 
@@ -20,8 +20,8 @@ Fecha: 24/06/2026
 | | |
 |---|---|
 | Nombres y Apellidos | Paolo Dellepiane |
-| Rol en el proyecto | Especialista en Software |
-| Periodo de las actividades | Del 02/03/2026 al 24/06/2026 |
+| Rol en el proyecto | Desarrollador Móvil |
+| Periodo de las actividades | Del 02/03/2026 al 24/04/2026 |
 
 ---
 
@@ -29,164 +29,86 @@ Fecha: 24/06/2026
 
 | Actividad detallada | Fecha | Lugar |
 |---|---|---|
-| **SEMANA 1 — Configuración del entorno de desarrollo y proyecto inicial** | **02/03/2026 al 06/03/2026** | |
-| Configuración del entorno de desarrollo local: instalación de Node.js LTS, npm, Expo CLI y verificación de versiones de herramientas requeridas | 02/03/2026 al 06/03/2026 | Lima, Perú |
-| Instalación y configuración de herramientas para desarrollo iOS: Xcode, simuladores de iPhone y CocoaPods | 02/03/2026 al 06/03/2026 | Lima, Perú |
-| Instalación y configuración de herramientas para desarrollo Android: Android Studio, JDK y emuladores de dispositivos | 02/03/2026 al 06/03/2026 | Lima, Perú |
-| Creación del proyecto Expo con plantilla TypeScript y estructura inicial de directorios del proyecto Recap Mobile | 02/03/2026 al 06/03/2026 | Lima, Perú |
-| Configuración de EAS (Expo Application Services) para builds y deployments: vinculación del proyecto con la cuenta de Expo | 02/03/2026 al 06/03/2026 | Lima, Perú |
-| Configuración inicial de `app.json`: nombre del app, bundle ID iOS (`com.sinenvolturas.recap`), package Android, íconos y permisos base | 02/03/2026 al 06/03/2026 | Lima, Perú |
-| Configuración de TypeScript con paths alias `@/` en `tsconfig.json` para importaciones absolutas | 02/03/2026 al 06/03/2026 | Lima, Perú |
-| Configuración de ESLint y Prettier con soporte para ordenamiento automático de imports (`@trivago/prettier-plugin-sort-imports`) | 02/03/2026 al 06/03/2026 | Lima, Perú |
-| **SEMANA 2 — Diseño de arquitectura y sistema de diseño** | **09/03/2026 al 13/03/2026** | |
-| Definición de la arquitectura por capas del proyecto: screens (Expo Router) → features → repositories → HTTP client | 09/03/2026 al 13/03/2026 | Lima, Perú |
-| Diseño del sistema de inyección de dependencias centralizado (`container.ts`) con instancias singleton de repositorios y servicios | 09/03/2026 al 13/03/2026 | Lima, Perú |
-| Selección e integración de fuentes personalizadas: PlusJakartaSans (5 pesos: Light, Regular, Medium, SemiBold, Bold) y Signika (5 pesos) mediante `expo-font` | 09/03/2026 al 13/03/2026 | Lima, Perú |
-| Definición de tokens de diseño: paleta de colores (`src/ui/colors.ts`), escala de espaciado y radios de borde para consistencia visual | 09/03/2026 al 13/03/2026 | Lima, Perú |
-| Revisión de wireframes y flujos de navegación con el equipo de diseño; definición de las pantallas y rutas principales de la aplicación | 09/03/2026 al 13/03/2026 | Lima, Perú |
-| Evaluación y selección del sistema de navegación: Expo Router (file-based routing) con rutas tipadas para prevenir errores de parámetros | 09/03/2026 al 13/03/2026 | Lima, Perú |
-| Definición de la estructura de directorios: `app/` (rutas), `src/features/` (lógica por dominio), `src/ui/` (componentes), `src/core/` (infraestructura), `src/domain/` (entidades) | 09/03/2026 al 13/03/2026 | Lima, Perú |
-| **SEMANA 3 — Infraestructura base: navegación, HTTP client y autenticación** | **16/03/2026 al 20/03/2026** | |
-| Implementación de la estructura de rutas con Expo Router: layouts anidados, grupos de rutas y redirección inicial desde el índice raíz | 16/03/2026 al 20/03/2026 | Lima, Perú |
-| Definición de la interfaz `HttpClient` con métodos `get`, `post`, `patch`, `put`, `delete` como contrato de la capa de infraestructura | 16/03/2026 al 20/03/2026 | Lima, Perú |
-| Implementación del `FetchHttpClient`: cliente HTTP basado en Fetch API nativo con inyección automática del token Bearer, estandarización de errores (`ApiRequestError`) y soporte para señales de cancelación (`AbortSignal`) | 16/03/2026 al 20/03/2026 | Lima, Perú |
-| Implementación del `AuthContext` para manejo de sesión global: estado del usuario autenticado, métodos `login`, `logout` y `refreshUser` disponibles en toda la aplicación | 16/03/2026 al 20/03/2026 | Lima, Perú |
-| Configuración de la estrategia de persistencia del token JWT: almacenamiento cifrado en `SecureStore` (para arranques en frío) y caché en memoria (para acceso rápido durante la sesión) | 16/03/2026 al 20/03/2026 | Lima, Perú |
-| Creación de los primeros componentes UI reutilizables: `Button`, `InputField`, `Spinner`, `ScreenLoading`, `BackButton`, `CloseButton` | 16/03/2026 al 20/03/2026 | Lima, Perú |
-| Configuración del layout raíz (`app/_layout.tsx`) con los proveedores de contexto globales: `AuthProvider`, `QueryClientProvider`, fuentes y configuración del sistema de color | 16/03/2026 al 20/03/2026 | Lima, Perú |
-| **SEMANA 4 — Módulo de onboarding, autenticación y perfil inicial** | **23/03/2026 al 27/03/2026** | |
-| Implementación del módulo de onboarding: carrusel de múltiples slides con indicadores de progreso, imágenes decorativas por slide y CTA de inicio de sesión | 23/03/2026 al 27/03/2026 | Lima, Perú |
-| Creación de la pantalla de login (`/login`): formulario de ingreso de email con validaciones y envío de solicitud de código OTP a la API | 23/03/2026 al 27/03/2026 | Lima, Perú |
-| Creación de la pantalla de verificación de código (`/verify-code`): input de 6 dígitos, cuenta regresiva para reenvío, manejo de errores y navegación post-verificación | 23/03/2026 al 27/03/2026 | Lima, Perú |
-| Implementación del `AuthRepository` con los métodos `requestLoginCode`, `verifyCode` y `logout`; integración con `FetchHttpClient` y almacenamiento del token en `SecureStore` | 23/03/2026 al 27/03/2026 | Lima, Perú |
-| Definición del módulo de API de autenticación: paths (`/api/auth/request-login-code`, `/api/auth/login-code`, `/api/auth/logout`) y tipos de request/response | 23/03/2026 al 27/03/2026 | Lima, Perú |
-| Implementación del sistema de inyección de dependencias en `container.ts`: instancias singleton de `AuthRepository`, `EventRepository` y `FetchHttpClient` con cadena de resolución del token | 23/03/2026 al 27/03/2026 | Lima, Perú |
-| Refactorización de componentes de onboarding con estilos mejorados y separación de responsabilidades entre componentes de presentación y lógica | 23/03/2026 al 27/03/2026 | Lima, Perú |
-| Implementación del `AuthSync` para sincronización del estado de autenticación al montar la app: recuperación del token persistido y redirección automática al flujo correcto | 23/03/2026 al 27/03/2026 | Lima, Perú |
-| Actualización de rutas de navegación y coordinador para manejo del flujo de perfil inicial post-autenticación | 23/03/2026 al 27/03/2026 | Lima, Perú |
-| **SEMANA 5 — Módulo Home y detalle de evento inicial** | **30/03/2026 al 03/04/2026** | |
-| Creación de la pantalla de detalle de evento (`/event/[id]`): layout inicial con imagen de portada, título y datos del evento | 30/03/2026 al 03/04/2026 | Lima, Perú |
-| Incorporación de nuevos assets de presentación de eventos: imágenes de portada por defecto y placeholders para el detalle | 30/03/2026 al 03/04/2026 | Lima, Perú |
-| Implementación del `EventRepository` con el método `getEventDetail`: fetch del detalle del evento, mapeo de respuesta API a entidad de dominio | 30/03/2026 al 03/04/2026 | Lima, Perú |
-| Actualización del contenedor de inyección de dependencias para incluir `EventRepository` con la instancia compartida del cliente HTTP autenticado | 30/03/2026 al 03/04/2026 | Lima, Perú |
-| Implementación del hook `useHomeFeed`: fetch paralelo de eventos como anfitrión (`host-events`) y como invitado (`guest-events`) con React Query; partición de eventos en categorías | 30/03/2026 al 03/04/2026 | Lima, Perú |
-| Creación del carrusel de banners en vivo (`LiveBannerCarousel`): visualización de eventos activos con estado `live`, `starting_soon` o `memory` | 30/03/2026 al 03/04/2026 | Lima, Perú |
-| Creación de la pantalla home (`/home`) con carrusel de eventos del usuario: Mis Eventos, Planes y Eventos Pasados | 30/03/2026 al 03/04/2026 | Lima, Perú |
-| **SEMANA 6 — Módulo de detalle de evento completo y sistema de retos** | **06/04/2026 al 10/04/2026** | |
-| Creación de la pantalla de mapa del evento (`/event/[id]/map`): visualización de la ubicación y selector de app de navegación (Google Maps, Apple Maps, Waze) | 06/04/2026 al 10/04/2026 | Lima, Perú |
-| Creación de los componentes base del sistema de retos: tarjetas de reto fotográfico y reto de quiz con assets específicos por tipo | 06/04/2026 al 10/04/2026 | Lima, Perú |
-| Definición de la estructura de datos del ranking (`EventRanking`): posición, nombre del invitado, puntos totales y avatar | 06/04/2026 al 10/04/2026 | Lima, Perú |
-| Definición de estructuras de datos para el álbum de fotos (`EventAlbum`), extras del detalle y stories del evento | 06/04/2026 al 10/04/2026 | Lima, Perú |
-| Creación del `EventDetailContext` con estado compartido para las pestañas del detalle: tab activa, estados de carga, draft de respuestas | 06/04/2026 al 10/04/2026 | Lima, Perú |
-| Implementación de las pantallas de las pestañas del detalle del evento: Overview, Challenges, Album, Ranking y Stories con el hook `useEventDetailScreen` | 06/04/2026 al 10/04/2026 | Lima, Perú |
-| Implementación de las reacciones flotantes con efectos de partículas animadas (`FloatingReactions`): emoji animados que suben y desaparecen usando `react-native-reanimated` | 06/04/2026 al 10/04/2026 | Lima, Perú |
-| Extensión del `EventRepository` con métodos para home: `getHostEvents`, `getGuestEvents` y `getBanners` con mapeo completo de respuestas | 06/04/2026 al 10/04/2026 | Lima, Perú |
-| Definición de los paths y tipos de la API del módulo home: banners, eventos de anfitrión e invitado con sus respectivas interfaces TypeScript | 06/04/2026 al 10/04/2026 | Lima, Perú |
-| Actualización de las rutas de navegación del evento con nuevos métodos en el coordinador para los flujos de detalle, mapa, retos y participantes | 06/04/2026 al 10/04/2026 | Lima, Perú |
-| **SEMANA 7 — Refinamiento del detalle de evento y nuevos paths de API** | **13/04/2026 al 17/04/2026** | |
-| Extensión del módulo de API de eventos: nuevos paths para challenges (`/api/events/:id/challenges`), ranking (`/api/events/:id/ranking`), álbum (`/api/events/:id/media`) y reacciones | 13/04/2026 al 17/04/2026 | Lima, Perú |
-| Actualización de los tipos TypeScript del detalle del evento: nuevos campos en `EventDetail`, `EventChallenge`, `EventMedia`, `EventRanking` y `EventGuest` | 13/04/2026 al 17/04/2026 | Lima, Perú |
-| Implementación del hook `useEventDetail`: fetch del detalle con caché instantáneo desde el snapshot del home feed para mejor percepción de rendimiento | 13/04/2026 al 17/04/2026 | Lima, Perú |
-| Refinamiento de los componentes de layout del detalle del evento: hero de portada, encabezado flotante, temporizador de cuenta regresiva (`CountdownTimer`) | 13/04/2026 al 17/04/2026 | Lima, Perú |
-| Implementación del `HostInitialsAvatar`: componente de avatar con iniciales del usuario cuando no hay foto de perfil | 13/04/2026 al 17/04/2026 | Lima, Perú |
-| Implementación del `AppRefreshControl`: pull-to-refresh personalizado con estilos acorde al sistema de diseño del proyecto | 13/04/2026 al 17/04/2026 | Lima, Perú |
-| Creación de funciones utilitarias: conteo de invitados, partición de eventos del home en categorías y formateo de fechas del evento | 13/04/2026 al 17/04/2026 | Lima, Perú |
-| **SEMANA 8 — Mejoras del home y refinamiento visual** | **20/04/2026 al 24/04/2026** | |
-| Mejoras en la gestión de eventos del home: nuevas propiedades en la entidad `HomeEvent` para estado del evento, fechas y conteo de invitados | 20/04/2026 al 24/04/2026 | Lima, Perú |
-| Rediseño del layout de la pestaña home: nuevos íconos de navegación inferior, tipografía mejorada y estructura visual actualizada | 20/04/2026 al 24/04/2026 | Lima, Perú |
-| Actualización del `LiveBannerStructuredStatusRow`: reemplazo del indicador visual de punto por ícono para mejor legibilidad del estado del evento | 20/04/2026 al 24/04/2026 | Lima, Perú |
-| Adición de nuevos estilos de fuente y assets de imagen para mayor consistencia visual en las pantallas del detalle del evento | 20/04/2026 al 24/04/2026 | Lima, Perú |
-| Actualización de componentes del detalle del evento: nuevo manejo de imágenes de portada con fallbacks, ajustes de layout y espaciado | 20/04/2026 al 24/04/2026 | Lima, Perú |
-| Actualización de la configuración del entorno: variables de entorno base para URL de la API en los distintos perfiles (development, staging, production) | 20/04/2026 al 24/04/2026 | Lima, Perú |
-| Sincronización con la rama principal del repositorio: integración de cambios paralelos y resolución de conflictos de merge | 20/04/2026 al 24/04/2026 | Lima, Perú |
-| **SEMANA 9 — Internacionalización (i18n) y optimización del detalle de evento** | **27/04/2026 al 01/05/2026** | |
-| Integración de `i18next` y `react-i18next` para soporte multi-idioma en toda la aplicación | 27/04/2026 al 01/05/2026 | Lima, Perú |
-| Creación de los archivos de traducción en inglés (`en.json`) y español (`es.json`) con más de 200 claves de texto de la interfaz | 27/04/2026 al 01/05/2026 | Lima, Perú |
-| Configuración de `expo-localization` para detección automática del idioma del dispositivo y selección del locale inicial | 27/04/2026 al 01/05/2026 | Lima, Perú |
-| Reemplazo de todos los textos hardcodeados en los componentes existentes por claves de traducción usando el hook `useTranslation()` | 27/04/2026 al 01/05/2026 | Lima, Perú |
-| Actualización de los componentes de detalle del evento para consumir las nuevas traducciones y refactorización de los tipos de respuesta asociados | 27/04/2026 al 01/05/2026 | Lima, Perú |
-| Implementación de la preferencia de idioma en el perfil del usuario: cambio dinámico de idioma desde la pantalla de perfil con persistencia en la API | 27/04/2026 al 01/05/2026 | Lima, Perú |
-| **SEMANA 10 — Pruebas de integración y refinamiento de flujos** | **04/05/2026 al 08/05/2026** | |
-| Pruebas de integración end-to-end de los flujos de autenticación: solicitud de código, verificación, sesión persistente y logout | 04/05/2026 al 08/05/2026 | Lima, Perú |
-| Pruebas del flujo completo del home feed: carga de eventos de anfitrión e invitado, banners en vivo y navegación al detalle | 04/05/2026 al 08/05/2026 | Lima, Perú |
-| Verificación del comportamiento de la caché del home snapshot: navegación instantánea al detalle sin espera de red en segundo acceso | 04/05/2026 al 08/05/2026 | Lima, Perú |
-| Revisión y corrección de la lógica de partición de eventos en el home: casos límite en eventos sin fecha, sin invitados o con estado ambiguo | 04/05/2026 al 08/05/2026 | Lima, Perú |
-| Pruebas de las animaciones de reacciones flotantes en dispositivos físicos iOS y Android: verificación de rendimiento y fluidez | 04/05/2026 al 08/05/2026 | Lima, Perú |
-| Correcciones de UX en la pantalla de verificación de código: manejo del teclado, foco automático del input y retroalimentación visual de error | 04/05/2026 al 08/05/2026 | Lima, Perú |
-| Revisión de la consistencia visual entre iOS y Android: ajustes de estilos para diferencias de plataforma en navegación y tipografía | 04/05/2026 al 08/05/2026 | Lima, Perú |
-| **SEMANA 11 — Refactorización de flujos, analytics y preparación para producción** | **11/05/2026 al 15/05/2026** | |
-| Refactorización de los flujos de detalle del evento: unificación de la navegación de completado de retos (foto y quiz) hacia una única pantalla de confirmación | 11/05/2026 al 15/05/2026 | Lima, Perú |
-| Implementación del sistema de tracking de navegación: `RouteObserver` que detecta transiciones de pantalla y registra el evento `page_route_enter` con el path actual | 11/05/2026 al 15/05/2026 | Lima, Perú |
-| Integración de Mixpanel React Native: configuración con token de entorno, identificación del usuario autenticado y limpieza de sesión en logout | 11/05/2026 al 15/05/2026 | Lima, Perú |
-| Implementación del módulo de analytics (`src/core/analytics/`): funciones `trackPageView`, `trackAction` y `identifyUser` como interfaz unificada sobre Mixpanel | 11/05/2026 al 15/05/2026 | Lima, Perú |
-| Adición de eventos de tracking a las acciones clave del usuario: respuesta a reto, like en foto, reacción al evento, cierre de sesión | 11/05/2026 al 15/05/2026 | Lima, Perú |
-| Actualización de la resolución de URLs de assets de la API para usar variable de entorno (`EXPO_PUBLIC_API_ASSET_URL`) en lugar de URL hardcodeada | 11/05/2026 al 15/05/2026 | Lima, Perú |
-| **SEMANA 12 — Integración de expo-dev-client, configuración de producción y soporte Android** | **18/05/2026 al 22/05/2026** | |
-| Integración de `expo-dev-client`: generación de builds de desarrollo personalizados con módulos nativos (cámara, SecureStore, notificaciones) sin depender de Expo Go | 18/05/2026 al 22/05/2026 | Lima, Perú |
-| Configuración de soporte exclusivo para teléfonos en Android: restricción de orientación a portrait y exclusión de tablets en el manifest (`app.json`) | 18/05/2026 al 22/05/2026 | Lima, Perú |
-| Adición de nuevos eventos de tracking a acciones específicas del usuario en los flujos de retos, álbum y reacciones del evento | 18/05/2026 al 22/05/2026 | Lima, Perú |
-| Refactorización y limpieza de formato de código en múltiples componentes: estandarización de imports, espaciado y convenciones TypeScript | 18/05/2026 al 22/05/2026 | Lima, Perú |
-| Actualización de `.gitignore` para excluir artefactos de build (`/android`, `/ios`, `*.ipa`, `*.aab`) y archivos sensibles del repositorio | 18/05/2026 al 22/05/2026 | Lima, Perú |
-| Actualización de `eas.json` con perfiles de build: `development` (builds internos con dev client), `preview` (builds de prueba sin store) y `production` (builds firmados para tiendas) | 18/05/2026 al 22/05/2026 | Lima, Perú |
-| Actualización del README con instrucciones detalladas para la configuración del entorno de producción Android y el proceso de submission | 18/05/2026 al 22/05/2026 | Lima, Perú |
-| **SEMANA 13 — Hooks de ciclo de vida, store review y actualización de assets** | **25/05/2026 al 29/05/2026** | |
-| Implementación del hook `useAbortController`: crea y gestiona un `AbortController` por componente, cancelando automáticamente las peticiones en curso al desmontarse | 25/05/2026 al 29/05/2026 | Lima, Perú |
-| Implementación del hook `useMountedRef`: referencia booleana que indica si el componente sigue montado, previniendo actualizaciones de estado en componentes ya desmontados | 25/05/2026 al 29/05/2026 | Lima, Perú |
-| Integración de los hooks de ciclo de vida en todos los repositorios y pantallas que realizan peticiones HTTP, eliminando fugas de memoria y condiciones de carrera | 25/05/2026 al 29/05/2026 | Lima, Perú |
-| Integración del paquete `expo-store-review`: solicitud de valoración in-app en el momento óptimo del flujo del usuario (completado de reto o interacción en álbum) | 25/05/2026 al 29/05/2026 | Lima, Perú |
-| Actualización de la configuración del app (`app.json`): nuevo ícono de la aplicación, splash screen con imagen de marca y colores de fondo actualizados | 25/05/2026 al 29/05/2026 | Lima, Perú |
-| Actualización del script de EAS build y submission en `package.json`: comandos unificados para compilar y subir a App Store y Google Play desde la terminal | 25/05/2026 al 29/05/2026 | Lima, Perú |
-| Mejoras al README: documentación detallada del proceso de setup para producción en Android, incluyendo configuración de firma, `google-services.json` y cuenta de servicio de Google Play | 25/05/2026 al 29/05/2026 | Lima, Perú |
-| **SEMANA 14 — Módulo de perfil, notificaciones in-app y mejoras de retos** | **01/06/2026 al 05/06/2026** | |
-| Implementación de la pantalla de perfil (`/home/profile`): visualización de nombre, email, teléfono, idioma y menú de opciones de cuenta | 01/06/2026 al 05/06/2026 | Lima, Perú |
-| Implementación de la pantalla de edición de perfil (`/home/profile/edit`): formulario de edición de nombre con validaciones y botón de guardado | 01/06/2026 al 05/06/2026 | Lima, Perú |
-| Implementación de la subida de avatar en la edición de perfil: selección desde galería con `expo-image-picker`, compresión con `expo-image-manipulator` y upload como `multipart/form-data` | 01/06/2026 al 05/06/2026 | Lima, Perú |
-| Creación del `NotificationRepository` con los métodos `getNotifications` (paginado), `markAsRead` y `markAllAsRead` | 01/06/2026 al 05/06/2026 | Lima, Perú |
-| Implementación de la pantalla de notificaciones (`/home/notifications`): listado paginado con estado de lectura, timestamp y empty state | 01/06/2026 al 05/06/2026 | Lima, Perú |
-| Refactorización de la creación de retos de quiz: separación de la pantalla de creación de preguntas individuales (`challenge-quiz-create/question`) del flujo general | 01/06/2026 al 05/06/2026 | Lima, Perú |
-| Actualización de `app.json` para incluir `LSApplicationQueriesSchemes` en iOS: soporte para apertura de apps externas (Google Maps, Waze) desde la pantalla de mapa | 01/06/2026 al 05/06/2026 | Lima, Perú |
-| Implementación del sistema de toast notifications (`UserToastOverlay`): mensajes emergentes personalizables con soporte para distintos tipos (éxito, error, info) y duración configurable | 01/06/2026 al 05/06/2026 | Lima, Perú |
-| Mejoras al flujo de creación y edición de retos de quiz: manejo de múltiples preguntas, gestión de opciones de respuesta y selección de respuesta correcta | 01/06/2026 al 05/06/2026 | Lima, Perú |
-| Actualización de dependencias del proyecto: nuevos paquetes añadidos y actualización de versiones existentes para compatibilidad con módulos nativos | 01/06/2026 al 05/06/2026 | Lima, Perú |
-| **SEMANA 15 — Integración de toasts, configuración de Google Play y build Android** | **08/06/2026 al 12/06/2026** | |
-| Integración del `UserToastOverlay` en el layout raíz de la aplicación: disponibilidad global del sistema de toasts desde cualquier pantalla | 08/06/2026 al 12/06/2026 | Lima, Perú |
-| Creación del archivo de ejemplo `google-play-service-account.json.example` con la estructura requerida por la cuenta de servicio de Google Play para submissions automáticos | 08/06/2026 al 12/06/2026 | Lima, Perú |
-| Configuración de las opciones de build Android en `eas.json`: tipo de build (`app-bundle`), versión de Gradle, credenciales de firma para producción y canales de distribución | 08/06/2026 al 12/06/2026 | Lima, Perú |
-| Actualización de `.gitignore` para excluir directorios de build nativos generados (`android/`, `ios/`), credenciales locales y archivos de cuenta de servicio de Google Play | 08/06/2026 al 12/06/2026 | Lima, Perú |
-| Pruebas del sistema de toasts en distintos flujos: confirmación de acciones exitosas, mensajes de error de red y notificaciones informativas durante la carga | 08/06/2026 al 12/06/2026 | Lima, Perú |
-| Pruebas de los flujos de creación y edición de retos de quiz y foto desde la perspectiva del anfitrión en dispositivos físicos | 08/06/2026 al 12/06/2026 | Lima, Perú |
-| **SEMANA 16 — Push notifications, álbum de fotos, React Query y cierre de funcionalidades** | **15/06/2026 al 19/06/2026** | |
-| Integración del sistema de push notifications con `expo-notifications`: configuración del manejador en primer plano (alertas, sonido, badge y banner), registro del token del dispositivo al iniciar sesión y eliminación al cerrar sesión | 15/06/2026 al 19/06/2026 | Lima, Perú |
-| Implementación del registro del token de push en la API: detección del tipo de dispositivo (iOS/Android) y llamada al endpoint `POST /api/user/push-token` | 15/06/2026 al 19/06/2026 | Lima, Perú |
-| Mejoras al flujo del reto de quiz: validación de selección de respuesta antes de permitir envío, feedback inmediato post-respuesta y actualización de estado de completado | 15/06/2026 al 19/06/2026 | Lima, Perú |
-| Actualización de la integración con la API de retos de quiz: corrección de paths y tipos para creación, edición y obtención de sugerencias desde el endpoint de la API | 15/06/2026 al 19/06/2026 | Lima, Perú |
-| Creación de la pantalla de detalle de foto del álbum (`/event/[id]/album-photo`): visualización en pantalla completa, like/unlike con actualización optimista del contador y metadata del autor | 15/06/2026 al 19/06/2026 | Lima, Perú |
-| Mejoras al layout del detalle del evento: reorganización de importaciones de las pestañas, reducción de acoplamiento entre módulos de navegación y componentes de UI | 15/06/2026 al 19/06/2026 | Lima, Perú |
-| Implementación del manejo de intents nativos (`/+native-intent`): procesamiento de deep links recibidos desde otras apps o notificaciones push para navegación directa a pantallas específicas | 15/06/2026 al 19/06/2026 | Lima, Perú |
-| Integración de React Query (`@tanstack/react-query`) como sistema de gestión de estado del servidor: configuración del `QueryClient` con tiempos de caché y stale time; migración de fetches manuales en Home, Event Detail, Album y Ranking | 15/06/2026 al 19/06/2026 | Lima, Perú |
-| Implementación de la paginación del álbum con React Query: hook `useEventDetailAlbumScrollLoadMore` con `fetchNextPage` y detección del scroll para carga automática de más fotos | 15/06/2026 al 19/06/2026 | Lima, Perú |
-| Mejoras a los componentes del detalle del evento aprovechando React Query: invalidación automática de caché al completar retos, actualización del ranking sin recarga manual | 15/06/2026 al 19/06/2026 | Lima, Perú |
-| **SEMANA 17 — Configuración de builds de producción y publicación en tiendas** | **22/06/2026 al 24/06/2026** | |
-| Configuración de variables de entorno de producción en EAS: `EXPO_PUBLIC_API_URL`, `EXPO_PUBLIC_API_ASSET_URL`, token de Mixpanel y clave de push notifications | 22/06/2026 al 24/06/2026 | Lima, Perú |
-| Generación del build de producción iOS con EAS (`eas build --profile production --platform ios`): compilación firmada con certificado de distribución y provisioning profile gestionados automáticamente por EAS | 22/06/2026 al 24/06/2026 | Lima, Perú |
-| Submission del build iOS a TestFlight mediante EAS Submit (`--auto-submit`): configuración del App Store Connect API key para envíos automáticos sin intervención manual | 22/06/2026 al 24/06/2026 | Lima, Perú |
-| Generación del build de producción Android (`.aab`) con EAS: firmado con keystore de producción, configuración de `versionCode` y `versionName` para Google Play | 22/06/2026 al 24/06/2026 | Lima, Perú |
-| Submission del build Android a Google Play (internal testing) mediante EAS Submit con cuenta de servicio JSON para autenticación automatizada | 22/06/2026 al 24/06/2026 | Lima, Perú |
-| Verificación del build de producción en dispositivos físicos iOS y Android: pruebas smoke del flujo completo (login → home → evento → reto → álbum → notificaciones) | 22/06/2026 al 24/06/2026 | Lima, Perú |
-| Elaboración del presente `INFORME_ACTIVIDADES.md`: informe de actividades del período completo de desarrollo de la aplicación móvil Recap | 22/06/2026 al 24/06/2026 | Lima, Perú |
+| **SEMANA 1 — Configuración del entorno y arquitectura base** | **02/03/2026 al 06/03/2026** | |
+| Configuración del entorno de desarrollo local: instalación de Node.js, Expo CLI, Xcode y Android Studio; verificación de simuladores iOS y emuladores Android | 02/03/2026 al 06/03/2026 | Lima, Perú |
+| Creación del proyecto con Expo SDK 52 usando la plantilla TypeScript; configuración de `app.json` con bundle ID, permisos de cámara/galería, íconos y splash screen | 02/03/2026 al 06/03/2026 | Lima, Perú |
+| Configuración de ESLint, Prettier y reglas de TypeScript estrictas (`strict: true`); definición de aliases de paths en `tsconfig.json` | 02/03/2026 al 06/03/2026 | Lima, Perú |
+| Definición de la arquitectura por capas: presentación (pantallas/componentes), dominio (repositorios), infraestructura (HTTP/storage) y contenedor de dependencias | 02/03/2026 al 06/03/2026 | Lima, Perú |
+| Creación del design system base: tokens de color (primario, neutros, semánticos), tipografía, espaciado y radios de borde en constantes TypeScript | 02/03/2026 al 06/03/2026 | Lima, Perú |
+| Configuración de Expo Router con estructura de directorios `(auth)/`, `(app)/`, `(tabs)/`; definición del layout raíz con slot y fuentes personalizadas | 02/03/2026 al 06/03/2026 | Lima, Perú |
+| Creación de la interfaz `HttpClient` y la implementación `FetchHttpClient` con manejo de errores, tipado genérico de respuesta y inyección del token JWT en headers | 02/03/2026 al 06/03/2026 | Lima, Perú |
+| Implementación del `AuthContext` con estado de sesión, métodos `login()` y `logout()`; estrategia de almacenamiento: token en `SecureStore`, datos de usuario en memoria | 02/03/2026 al 06/03/2026 | Lima, Perú |
+| Configuración de EAS Build con perfiles `development`, `preview` y `production` en `eas.json`; configuración de cuenta de Expo y proyecto en la plataforma | 02/03/2026 al 06/03/2026 | Lima, Perú |
+| **SEMANA 2 — Onboarding, autenticación y navegación principal** | **09/03/2026 al 13/03/2026** | |
+| Implementación del carousel de onboarding con tres pantallas de presentación, animaciones de paginación y botón "Comenzar" | 09/03/2026 al 13/03/2026 | Lima, Perú |
+| Implementación de la pantalla de login con campo de email, validación en tiempo real y llamada a `POST /api/auth/request-login-code` | 09/03/2026 al 13/03/2026 | Lima, Perú |
+| Implementación de la pantalla de verificación de código: 6 inputs individuales con foco automático, temporizador de reenvío (60 s) y llamada a `POST /api/auth/login-code` | 09/03/2026 al 13/03/2026 | Lima, Perú |
+| Creación del `AuthRepository` con los métodos `requestLoginCode()`, `verifyCode()` y `logout()`; definición de tipos TypeScript para las respuestas de autenticación | 09/03/2026 al 13/03/2026 | Lima, Perú |
+| Implementación del contenedor de dependencias (singleton): instancia única de `FetchHttpClient`, `AuthRepository` y repositorios de dominio compartidos por la app | 09/03/2026 al 13/03/2026 | Lima, Perú |
+| Implementación de `AuthSync`: recuperación de sesión desde `SecureStore` al iniciar la app; redirección automática entre `/(auth)` y `/(app)` según estado de sesión | 09/03/2026 al 13/03/2026 | Lima, Perú |
+| Configuración de la navegación por tabs con Expo Router: iconos, colores activos/inactivos y manejo de historial de navegación dentro de cada tab | 09/03/2026 al 13/03/2026 | Lima, Perú |
+| Construcción del primer build de desarrollo con `expo-dev-client` para pruebas en dispositivo físico iOS y Android | 09/03/2026 al 13/03/2026 | Lima, Perú |
+| **SEMANA 3 — Home Feed y módulo de detalle de Evento** | **16/03/2026 al 20/03/2026** | |
+| Creación del `EventRepository` con los métodos `getHostEvents()`, `getGuestEvents()`, `getBanners()` y `getEventDetail()`; tipado completo de las respuestas | 16/03/2026 al 20/03/2026 | Lima, Perú |
+| Implementación del hook `useHomeFeed` con React Query: llamadas paralelas a host-events y guest-events, agrupación por estado (próximos, activos, pasados) | 16/03/2026 al 20/03/2026 | Lima, Perú |
+| Construcción del componente `BannerCarousel` (eventos en vivo) y de las tarjetas de evento para el home | 16/03/2026 al 20/03/2026 | Lima, Perú |
+| Creación del `EventDetailContext` para compartir el estado del evento entre los diferentes tabs del detalle | 16/03/2026 al 20/03/2026 | Lima, Perú |
+| Implementación de la pantalla de detalle de evento con navegación por tabs: Resumen, Retos, Álbum, Ranking y Participantes | 16/03/2026 al 20/03/2026 | Lima, Perú |
+| Implementación del tab Resumen: hero con portada, contador regresivo, listado de anfitriones y dirección del evento | 16/03/2026 al 20/03/2026 | Lima, Perú |
+| Implementación de la pantalla de mapa (`EventMapScreen`) con picker de aplicación de navegación (Google Maps, Waze, Apple Maps) configurando `LSApplicationQueriesSchemes` en `app.json` | 16/03/2026 al 20/03/2026 | Lima, Perú |
+| Implementación del sistema de reacciones: botón flotante `FloatingReactions` con animación de lanzamiento y llamada a `POST /api/events/{eventId}/reactions` | 16/03/2026 al 20/03/2026 | Lima, Perú |
+| **SEMANA 4 — Módulo de Retos y sistema de puntos** | **23/03/2026 al 27/03/2026** | |
+| Creación del `ChallengeRepository` con métodos para listar, obtener pendientes, crear, editar y responder retos; tipado completo de todas las respuestas | 23/03/2026 al 27/03/2026 | Lima, Perú |
+| Implementación del flujo de reto fotográfico: pantalla de instrucciones → cámara/galería → preview de foto → confirmación y subida | 23/03/2026 al 27/03/2026 | Lima, Perú |
+| Implementación del flujo de reto de trivia: pantalla de pregunta con opciones de selección, confirmación de respuesta y visualización de resultado con puntos obtenidos | 23/03/2026 al 27/03/2026 | Lima, Perú |
+| Implementación del panel de creación/edición de retos (solo anfitriones): selector de tipo, campos del formulario y gestión de opciones de respuesta con `PATCH` y `POST` | 23/03/2026 al 27/03/2026 | Lima, Perú |
+| Implementación del tab Álbum: grilla de fotos paginada con soporte de carga infinita; modal de foto completa con contador de likes y botón de like toggle | 23/03/2026 al 27/03/2026 | Lima, Perú |
+| Implementación del tab Ranking: lista de invitados ordenada por puntos con posición, avatar, nombre y puntaje total | 23/03/2026 al 27/03/2026 | Lima, Perú |
+| Implementación del sistema de feedback visual al completar retos: animación de confeti y toast con puntos obtenidos | 23/03/2026 al 27/03/2026 | Lima, Perú |
+| Integración de sugerencias de retos: llamadas a los endpoints de sugerencias de preguntas y fotos para el flujo de creación | 23/03/2026 al 27/03/2026 | Lima, Perú |
+| **SEMANA 5 — Internacionalización, perfil y analytics** | **30/03/2026 al 03/04/2026** | |
+| Integración de `i18next` y `react-i18next` con `expo-localization` para detección automática del idioma del dispositivo | 30/03/2026 al 03/04/2026 | Lima, Perú |
+| Creación de los archivos de traducción `en.json` y `es.json` con más de 200 claves; reemplazo de todos los strings hardcodeados en la aplicación | 30/03/2026 al 03/04/2026 | Lima, Perú |
+| Implementación de la pantalla de perfil: datos del usuario, selector de idioma, opciones de menú y botón de cerrar sesión | 30/03/2026 al 03/04/2026 | Lima, Perú |
+| Implementación de la pantalla de edición de perfil: campo de nombre y subida de avatar con compresión via `expo-image-manipulator` antes de subir a S3 | 30/03/2026 al 03/04/2026 | Lima, Perú |
+| Integración de Mixpanel SDK: módulo `analytics` con funciones `trackPageView()`, `trackAction()` e `identifyUser()`; configuración del token según ambiente | 30/03/2026 al 03/04/2026 | Lima, Perú |
+| Implementación del `RouteObserver` para tracking automático de navegación de pantallas en Mixpanel sin instrumentación manual por pantalla | 30/03/2026 al 03/04/2026 | Lima, Perú |
+| Implementación de la pantalla de lista de notificaciones: listado paginado, estado de leído/no leído e indicador de notificaciones pendientes en el tab | 30/03/2026 al 03/04/2026 | Lima, Perú |
+| Creación del `NotificationRepository` con `getNotifications()` (paginado) y `markAsRead()`; implementación del hook de polling para contador de no leídas | 30/03/2026 al 03/04/2026 | Lima, Perú |
+| **SEMANA 6 — Push notifications y búsqueda de fotos por selfie** | **06/04/2026 al 10/04/2026** | |
+| Integración de `expo-notifications`: solicitud de permisos en primer login, obtención del push token Expo y envío a `POST /api/user/push-token` | 06/04/2026 al 10/04/2026 | Lima, Perú |
+| Implementación del ciclo de vida del push token: registro al autenticarse, eliminación en `DELETE /api/user/push-token` al cerrar sesión | 06/04/2026 al 10/04/2026 | Lima, Perú |
+| Implementación del handler de notificaciones en foreground (muestra un toast) y en background/killed (navega a la pantalla correspondiente usando `data.action`) | 06/04/2026 al 10/04/2026 | Lima, Perú |
+| Implementación del flujo de búsqueda de fotos por selfie: captura de foto → `POST /api/events/{eventId}/media/search` → grilla de resultados filtrados | 06/04/2026 al 10/04/2026 | Lima, Perú |
+| Configuración de `QueryClient` de React Query: `staleTime`, `cacheTime` y configuración de reintentos; migración de llamadas directas a hooks con `useQuery` e `useInfiniteQuery` | 06/04/2026 al 10/04/2026 | Lima, Perú |
+| Implementación de la invalidación de caché de React Query al completar retos fotográficos (invalida queries de álbum y ranking) | 06/04/2026 al 10/04/2026 | Lima, Perú |
+| Integración de `expo-dev-client` en el perfil de desarrollo de EAS para generación de builds de prueba con módulos nativos personalizados | 06/04/2026 al 10/04/2026 | Lima, Perú |
+| **SEMANA 7 — Soporte Android, builds de producción y tiendas** | **13/04/2026 al 17/04/2026** | |
+| Configuración de restricción de orientación (portrait-only) y soporte exclusivo de teléfonos en `app.json` para las plataformas iOS y Android | 13/04/2026 al 17/04/2026 | Lima, Perú |
+| Configuración del build de producción iOS en `eas.json`: certificados y provisioning profiles gestionados por EAS, configuración del bundle ID y del equipo de desarrollo | 13/04/2026 al 17/04/2026 | Lima, Perú |
+| Configuración del build de producción Android en `eas.json`: generación y almacenamiento del keystore en EAS, build en formato AAB para Google Play | 13/04/2026 al 17/04/2026 | Lima, Perú |
+| Actualización de íconos, splash screen y assets de branding para los builds de producción en ambas plataformas | 13/04/2026 al 17/04/2026 | Lima, Perú |
+| Configuración de App Store Connect: API key para envío automatizado con EAS Submit; configuración de la ficha de la app (nombre, descripción, capturas) | 13/04/2026 al 17/04/2026 | Lima, Perú |
+| Configuración de la cuenta de servicio de Google Play para envío automatizado con EAS Submit al track de pruebas internas | 13/04/2026 al 17/04/2026 | Lima, Perú |
+| Revisión y limpieza final del código: eliminación de console.log, verificación de tipos TypeScript y formateo con Prettier en todos los componentes | 13/04/2026 al 17/04/2026 | Lima, Perú |
+| **SEMANA 8 — Builds de producción, envío a tiendas y cierre** | **20/04/2026 al 24/04/2026** | |
+| Ejecución del build de producción iOS con EAS Build (`eas build --platform ios --profile production`) y verificación del archivo `.ipa` generado | 20/04/2026 al 24/04/2026 | Lima, Perú |
+| Envío a TestFlight mediante EAS Submit; verificación del build en App Store Connect y distribución a testers internos | 20/04/2026 al 24/04/2026 | Lima, Perú |
+| Ejecución del build de producción Android con EAS Build (`eas build --platform android --profile production`) y verificación del archivo `.aab` generado | 20/04/2026 al 24/04/2026 | Lima, Perú |
+| Envío al track de pruebas internas de Google Play mediante EAS Submit; verificación del estado en Google Play Console | 20/04/2026 al 24/04/2026 | Lima, Perú |
+| Pruebas smoke en dispositivos físicos iOS y Android: login, home feed, detalle de evento, reto fotográfico, álbum, ranking y recepción de push notification | 20/04/2026 al 24/04/2026 | Lima, Perú |
+| Verificación del flujo completo de integración con la API: autenticación → eventos → retos → subida de fotos → búsqueda por selfie → notificaciones | 20/04/2026 al 24/04/2026 | Lima, Perú |
+| Elaboración del presente `INFORME_ACTIVIDADES.md`: informe de actividades del período completo en el formato oficial del proyecto | 20/04/2026 al 24/04/2026 | Lima, Perú |
 
 ---
 
 ## 1.2 Programación de actividades para el siguiente período
 
-- Implementación de la pantalla de stories del evento con carrusel de slides y navegación entre historias
-- Implementación de la pantalla de participantes del evento (`/event/[id]/participants`) con lista de invitados confirmados y pendientes
-- Integración de la recepción de notificaciones push: navegación automática a la pantalla correspondiente al tocar una notificación
-- Manejo del tipo de notificación `event_invitation` una vez habilitado en la API
-- Implementación del módulo de cámara del evento (`/event/[id]/camera`) con captura de fotos y subida directa al álbum
-- Reconocimiento facial (selfie search): integración de la pantalla de búsqueda de fotos por selfie usando el endpoint de Rekognition
-- Incremento de cobertura de traducciones para los nuevos flujos de notificaciones, perfil y creación de retos
-- Pruebas de regresión completas en iOS y Android previas al lanzamiento público en tiendas
+- Publicación en App Store (producción) y Google Play (producción) tras aprobación del proceso de revisión
+- Implementación del manejo de deep links para notificaciones push adicionales (invitación a evento, inicio de evento)
+- Evaluación e integración de actualizaciones OTA con EAS Update para correcciones de bugs sin requerir nuevos builds
+- Mejoras de rendimiento en la grilla del álbum para eventos con alta cantidad de fotos
+- Integración del flujo de confirmación de asistencia al evento
 
 ---
 
@@ -198,17 +120,17 @@ Fecha: 24/06/2026
 |---|---|
 | **Objetivos** | |
 | — Pantallas desarrolladas: 27 | |
-| — Módulos funcionales completados: 10 | **Bien** |
-| — Integración con la Recap API (endpoints consumidos): 20+ | |
-| — Soporte multiplataforma iOS y Android | |
-| — Publicación en TestFlight y Google Play (internal testing) | |
+| — Módulos funcionales completados: 8 | **Bien** |
+| — Integración con API (recap-api): 100% de endpoints consumidos | |
+| — Internacionalización completada (ES/EN): 200+ claves de traducción | |
+| — Builds de producción generados y enviados a TestFlight y Google Play | |
+| — Elaboración del informe de actividades del período | |
 | **Resultados** | |
-| — Pantallas desarrolladas: 27 (Autenticación, Home, Detalle de evento, Retos foto y quiz, Álbum, Ranking, Perfil, Notificaciones, Mapa) (Alcance 100%) | |
-| — Módulos completados: Onboarding, Autenticación, Home Feed, Detalle de Evento, Sistema de Retos, Álbum, Ranking, Perfil, Notificaciones, Push Notifications (Alcance 100%) | |
-| — Endpoints de la API consumidos: autenticación, home, eventos, retos, álbum, likes, ranking, reacciones, perfil, notificaciones, push tokens (Alcance 100%) | |
-| — Soporte multiplataforma iOS y Android verificado en dispositivos físicos (Alcance 100%) | |
-| — Internacionalización implementada: inglés y español (Alcance 100%) | |
-| — Analytics con Mixpanel integrado en flujos clave (Alcance 100%) | |
+| — Pantallas desarrolladas: 27 (Alcance 100%) | |
+| — Módulos completados: Onboarding, Autenticación, Home Feed, Detalle de Evento, Retos, Álbum, Ranking, Perfil, Notificaciones, Push Notifications (Alcance 100%) | |
+| — Internacionalización completada: ES/EN con 200+ claves en `i18n/` (Alcance 100%) | |
+| — Analytics implementado con Mixpanel: tracking de pantallas y acciones clave (Alcance 100%) | |
+| — Builds de producción iOS (TestFlight) y Android (Google Play interno) enviados (Alcance 100%) | |
 | — Informe de actividades del período elaborado y entregado (Alcance 100%) | |
 
 *(\*) Valoración general del personal en la marcha del proyecto:*
